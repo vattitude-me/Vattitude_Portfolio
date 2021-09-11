@@ -98,7 +98,7 @@
 
 
     /**
-     * Mobile nav toggle
+     * Audio Stop
      */
     on('click', '.audio-stop', function(e) {
         document.getElementById("sound-player").remove();
