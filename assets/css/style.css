@@ -1260,7 +1260,8 @@ section {
 
 .audio-stop {
     position: fixed;
-    opacity: 1;
+    visibility: hidden;
+    opacity: 0;
     right: 15px;
     top: 50px;
     z-index: 996;
@@ -1283,6 +1284,36 @@ section {
 }
 
 .audio-stop.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.audio-start {
+    position: fixed;
+    visibility: hidden;
+    opacity: 0;
+    right: 15px;
+    top: 50px;
+    z-index: 996;
+    background: #0563bb;
+    width: 30px;
+    height: 30px;
+    border-radius: 50px;
+    transition: all 0.4s;
+}
+
+.audio-start i {
+    font-size: 17px;
+    color: #fff;
+    line-height: 0;
+}
+
+.audio-start:hover {
+    background: #0678e3;
+    color: #fff;
+}
+
+.audio-start.active {
     visibility: visible;
     opacity: 1;
 }

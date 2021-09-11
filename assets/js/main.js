@@ -97,18 +97,28 @@
     })
 
 
-    window.addEventListener("DOMContentLoaded", event => {
+    on('click', '.audio-start', function(e) {
         const audio = document.querySelector("audio");
         audio.volume = 0.8;
         audio.play();
+        let audiostrt = select('.audio-start')
+        audiostrt.classList.toggle('active')
+
+        let audiostop = select('.audio-stop')
+        audiostop.classList.toggle('active')
     });
 
     /**
      * Audio Stop
      */
     on('click', '.audio-stop', function(e) {
-        document.getElementById("sound-player").remove();
-        document.getElementById("audio-stop").remove();
+        const audio = document.querySelector("audio");
+        audio.pause();
+        let audiostrt = select('.audio-start')
+        audiostrt.classList.toggle('active')
+
+        let audiostop = select('.audio-stop')
+        audiostop.classList.toggle('active')
     })
 
     /**
