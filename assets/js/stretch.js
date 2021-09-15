@@ -14,7 +14,7 @@ var defaulNotif = "Stand-up & Stretch A Bit";
 var nIntervId;
 var nCountInterv;
 var temptimer = defaultimer;
-var StretchLink = "https://stretch.vattitude.me/assets/img/Vattitude_Stretches.jpg"
+//var StretchLink = "https://stretch.vattitude.me/assets/img/Vattitude_Stretches.jpg"
 
 $(document).ready(function() {
 
@@ -53,6 +53,7 @@ $(document).ready(function() {
         localStorage.setItem('loclText', defaulNotif);
         notifyMe();
         $("#savetextNotif").show().delay(3000).fadeOut();
+
     });
 
     //Start the main notification
@@ -141,8 +142,7 @@ function notifyMe() {
             notification.close()
         }, 8000);
         notification.onclick = function(event) {
-            event.preventDefault(); // prevent the browser from focusing the Notification's tab
-            window.open(StretchLink, '_blank');
+            $("stretchimg").trigger('click');
         }
     } else {
         $("#myToast").toast({ delay: 7000 });
