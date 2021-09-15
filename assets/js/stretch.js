@@ -77,8 +77,6 @@ $(document).ready(function() {
         }
 
     });
-
-
 });
 
 //Main notification
@@ -142,7 +140,7 @@ function notifyMe() {
             notification.close()
         }, 8000);
         notification.onclick = function(event) {
-            $("stretchimg").trigger('click');
+            $("#stretchimg").trigger('click');
         }
     } else {
         $("#myToast").toast({ delay: 7000 });
