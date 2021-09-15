@@ -435,6 +435,7 @@ h6 {
     margin: 10px 0 0 0;
     color: #fff;
     background: #47b2e4;
+    cursor: pointer;
 }
 
 #hero .btn-get-started:hover {
@@ -449,6 +450,7 @@ h6 {
     margin: 10px 0 0 25px;
     color: #fff;
     line-height: 1;
+    cursor: pointer;
 }
 
 #hero .btn-watch-video i {

@@ -18,6 +18,24 @@ var StretchLink = "https://stretch.vattitude.me/assets/img/Vattitude_Stretches.j
 
 $(document).ready(function() {
 
+    //Extract the local storage timer
+    const loclTimer = localStorage.getItem('loclTimer');
+    console.log("Current locl time saved is - " + loclTimer);
+    if (loclTimer) {
+        defaultimer = loclTimer
+    } else {
+        localStorage.setItem('loclTimer', defaultimer);
+    }
+
+    //Extract the local storage notif-text
+    const loclText = localStorage.getItem('loclText');
+    console.log("Current locl text saved is - " + loclText);
+    if (loclText) {
+        defaulNotif = loclText
+    } else {
+        localStorage.setItem('loclText', defaulNotif);
+    }
+
     //Start the clock and keep incrementing
     clockUpdate();
     setInterval(clockUpdate, 999);
@@ -32,6 +50,7 @@ $(document).ready(function() {
     //Test Notification
     $('#testNotif').click(function() {
         defaulNotif = $('#Notiftext').val();
+        localStorage.setItem('loclText', defaulNotif);
         notifyMe();
         $("#savetextNotif").show().delay(3000).fadeOut();
     });
@@ -42,6 +61,7 @@ $(document).ready(function() {
     //Update the Feq 
     $('#savefreq').click(function() {
         defaultimer = $('#timerupdate').val();
+        localStorage.setItem('loclTimer', defaultimer);
         $("#savefreqNotif").show().delay(3000).fadeOut();
         $("#nextrem").text(defaultimer);
         startNotif();
