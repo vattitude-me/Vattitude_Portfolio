@@ -181,7 +181,8 @@ h6 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 20px font-size: 15px;
+    padding: 8px 20px;
+    font-size: 15px;
     font-weight: 500;
     color: #fff;
     white-space: nowrap;
@@ -1885,7 +1886,8 @@ section {
 .formText {
     padding: 6px;
     position: relative;
-    right: 10px;
+    right: 13px;
+    top: 1px;
 }
 
 .btnSettings {

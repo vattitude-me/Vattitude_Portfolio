@@ -14,6 +14,8 @@ var defaulNotif = "Stand-up & Stretch A Bit";
 var nIntervId;
 var nCountInterv;
 var temptimer = defaultimer;
+var glblstrtTime = 08;
+var glblendTime = 18;
 //var StretchLink = "https://stretch.vattitude.me/assets/img/Vattitude_Stretches.jpg"
 
 $(document).ready(function() {
@@ -58,6 +60,32 @@ $(document).ready(function() {
 
     //Start the main notification
     startNotif()
+
+    //Start the countdown for next start and stop
+    const strtTime = localStorage.getItem('strtTime');
+    if (strtTime) {
+        glblstrtTime = strtTime;
+    }
+    $("#strtTime").val(glblstrtTime);
+    triggerStartTime();
+
+    const endTime = localStorage.getItem('endTime');
+    if (endTime) {
+        glblendTime = endTime;
+    }
+    $("#endTime").val(glblendTime);
+    triggerStopTime();
+
+    //Update Time Range Click
+    $('#btnTimeRange').click(function() {
+        glblstrtTime = $('#strtTime').val();
+        localStorage.setItem('strtTime', glblstrtTime);
+        glblendTime = $('#endTime').val();
+        localStorage.setItem('endTime', glblendTime);
+        triggerStartTime();
+        triggerStopTime();
+        $("#saveSchedNotif").show().delay(3000).fadeOut();
+    });
 
     //Update the Feq 
     $('#savefreq').click(function() {
@@ -152,8 +180,45 @@ function notifyMe() {
 }
 
 
-function checkNotify() {
+function triggerStartTime() {
+    var strtVTime = glblstrtTime;
+    if (!strtVTime) {
+        strtVTime = 09;
+    }
+    const startTime = new Date();
+    startTime.setHours(strtVTime, 00);
+    const now = new Date();
 
+    if (startTime.getTime() < now.getTime()) {
+        startTime.setHours(startTime.getHours() + 24);
+    }
+    console.log("Start time is " + startTime.getHours());
+
+    var cntdwntimerInt = startTime.getTime() - now.getTime();
+    console.log("First start is " + cntdwntimerInt);
+    setInterval(startNotif, cntdwntimerInt);
+}
+
+function triggerStopTime() {
+    var endVTime = glblendTime
+    if (!endVTime) {
+        endVTime = 17;
+    }
+    const endTime = new Date();
+    endTime.setHours(endVTime, 00);
+    const now = new Date();
+
+    if (endTime.getTime() < now.getTime()) {
+        endTime.setHours(endTime.getHours() + 24);
+    }
+    console.log("End time is " + endTime.getHours());
+
+    var cntdwntimerInt = endTime.getTime() - now.getTime();
+    console.log("Last end is " + cntdwntimerInt);
+    setInterval(stopNotif, cntdwntimerInt);
+}
+
+function checkNotify() {
 
     // Let's check if the browser supports notifications
     if (!("Notification" in window)) {
