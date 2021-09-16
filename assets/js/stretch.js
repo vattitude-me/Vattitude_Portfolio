@@ -192,7 +192,7 @@ function checkNotify() {
             }
         });
     } else {
-        alert(`Permission to notify is ${Notification.permission}`);
+        console.log(`Permission to notify is ${Notification.permission}`);
     }
 
 }
