@@ -1913,7 +1913,8 @@ section {
 }
 
 @media (hover:none),
-(hover:on-demand) {
+(hover:on-demand),
+(max-width: 900px) {
     .hidemobile {
         display: none;
     }

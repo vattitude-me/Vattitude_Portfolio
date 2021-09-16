@@ -140,7 +140,7 @@ function notifyMe() {
             notification.close()
         }, 8000);
         notification.onclick = function(event) {
-            $("#stretchimg").trigger('click');
+            window.open("https://www.youtube.com/watch?v=tAUf7aajBWE&ab_channel=YogaWithAdriene", "", "width=640,height=400");
         }
     } else {
         $("#myToast").toast({ delay: 7000 });
