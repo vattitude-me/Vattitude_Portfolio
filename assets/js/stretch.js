@@ -138,7 +138,7 @@ function notifyMe() {
         $.playSound('../assets/audio/positive-1.wav');
         setTimeout(function() {
             notification.close()
-        }, 8000);
+        }, 7000);
         notification.onclick = function(event) {
             window.open("https://www.youtube.com/watch?v=tAUf7aajBWE&ab_channel=YogaWithAdriene", "", "width=640,height=400");
         }
