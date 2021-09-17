@@ -437,32 +437,33 @@ h6 {
     color: #fff;
     background: #47b2e4;
     cursor: pointer;
+    text-align: center;
 }
 
 #hero .btn-get-started:hover {
     background: #209dd8;
 }
 
-#hero .btn-watch-video {
+.btn-watch-video {
     font-size: 16px;
     display: flex;
     align-items: center;
     transition: 0.5s;
-    margin: 10px 0 0 25px;
-    color: #fff;
+    margin: 5px 0 0 5px;
+    color: #6ab4d6;
     line-height: 1;
     cursor: pointer;
 }
 
-#hero .btn-watch-video i {
+.btn-watch-video i {
     line-height: 0;
-    color: #fff;
+    color: #6ab4d6;
     font-size: 32px;
     transition: 0.3s;
     margin-right: 8px;
 }
 
-#hero .btn-watch-video:hover i {
+.btn-watch-video:hover i {
     color: #47b2e4;
 }
 
@@ -1884,9 +1885,9 @@ section {
 }
 
 .formText {
-    padding: 6px;
+    padding: 6px 0px;
     position: relative;
-    right: 13px;
+    right: 7px;
     top: 1px;
 }
 
@@ -1916,11 +1917,21 @@ section {
 
 @media (hover:none),
 (hover:on-demand),
-(max-width: 900px) {
+(max-width: 1200px) {
     .hidemobile {
         display: none;
     }
     .mobileOnly {
         display: block;
     }
+}
+
+.numWdth {
+    max-width: 75px !important;
+}
+
+.center {
+    margin: auto;
+    border: 3px;
+    padding: 2px;
 }

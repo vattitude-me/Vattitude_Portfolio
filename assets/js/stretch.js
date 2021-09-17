@@ -78,22 +78,37 @@ $(document).ready(function() {
 
     //Update Time Range Click
     $('#btnTimeRange').click(function() {
-        glblstrtTime = $('#strtTime').val();
-        localStorage.setItem('strtTime', glblstrtTime);
-        glblendTime = $('#endTime').val();
-        localStorage.setItem('endTime', glblendTime);
-        triggerStartTime();
-        triggerStopTime();
-        $("#saveSchedNotif").show().delay(3000).fadeOut();
+        var strtTemp = $('#strtTime').val();
+        var endTemp = $('#endTime').val();
+
+        if (isNaN(strtTemp) || isNaN(endTemp) || strtTemp < 1 || strtTemp >= endTemp ||
+            strtTemp > 23 || endTemp > 23 || endTemp < 1) {
+            $('#strtTime').val(glblstrtTime);
+            $('#endTime').val(glblendTime)
+        } else {
+            glblstrtTime = Math.floor(Number($('#strtTime').val()));
+            localStorage.setItem('strtTime', glblstrtTime);
+            glblendTime = Math.floor(Number($('#endTime').val()));
+            localStorage.setItem('endTime', glblendTime);
+            triggerStartTime();
+            triggerStopTime();
+            $("#saveSchedNotif").show().delay(3000).fadeOut();
+        }
     });
 
     //Update the Feq 
     $('#savefreq').click(function() {
-        defaultimer = $('#timerupdate').val();
-        localStorage.setItem('loclTimer', defaultimer);
-        $("#savefreqNotif").show().delay(3000).fadeOut();
-        $("#nextrem").text(defaultimer);
-        startNotif();
+        const newTimer = $('#timerupdate').val();
+        if (!isNaN(newTimer)) {
+            defaultimer = Math.floor(Number($('#timerupdate').val()));
+            localStorage.setItem('loclTimer', defaultimer);
+            $("#savefreqNotif").show().delay(3000).fadeOut();
+            $("#nextrem").text(defaultimer);
+            startNotif();
+        } else {
+            $('#timerupdate').val(defaultimer);
+        }
+
     });
 
     $('#togglereminder').click(function() {
@@ -180,8 +195,9 @@ function notifyMe() {
 }
 
 
+var strtVTime = glblstrtTime;
+
 function triggerStartTime() {
-    var strtVTime = glblstrtTime;
     if (!strtVTime) {
         strtVTime = 09;
     }

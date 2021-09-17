@@ -7,7 +7,7 @@
 
     <title>Stretch Reminder | Get Active </title>
     <meta name="keywords" content="Stretch Reminder, Stretch, Reminder, Active Clock, Vattitude, Ontario, Stretch Reminder Canada">
-    <meta name="description" content="App to remind you to stretch & keep active while working from home or long hours">
+    <meta name="description" content="App to remind you to stretch & keep active while working from office, home or long hours">
     <link rel="canonical" href="https://stretch.vattitude.me/">
     <meta property="og:site_name" content="Stretch Reminder | Get Active">
     <meta property="og:url" content="https://stretch.vattitude.me/">
@@ -45,7 +45,7 @@
     <header id="header" class="fixed-top ">
         <div class="container d-flex align-items-center">
 
-            <h1 class="logo me-auto"><a href="index.html">STRETCH REMINDER</a></h1>
+            <h1 class="logo me-auto"><a href="#">STRETCH REMINDER</a></h1>
             <!-- Uncomment below if you prefer to use an image logo -->
             <!-- <a href="index.html" class="logo me-auto"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
 
@@ -119,11 +119,12 @@
                                         <i class="bx bx-chevron-up icon-close"></i></a>
                                     <div id="accordion-list-1" class="collapse row" data-bs-parent=".accordion-list">
                                         <div class="form-group col-md-6">
-                                            <div class="row setsrow">
-                                                <div class="col-md-3">
+                                            <div class="row ">
+                                                <div class="col-md-8 numWdth">
                                                     <input type="text" name="name" class="form-control" id="timerupdate" required=""></div>
-                                                <div class="col-md-9 formText">
-                                                    <label for="name">Minutes</label>
+                                                <div class="col-md-4">
+                                                    <label for="name" style="padding: 8px 0px;">
+                                                        Minutes</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -138,29 +139,29 @@
                                     <a data-bs-toggle="collapse" data-bs-target="#accordion-list-2" class="collapsed"><span>- </span> Time of the day
                                          <i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
                                     <div id="accordion-list-2" class="collapse row" data-bs-parent=".accordion-list">
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-8">
                                             <div class="row">
-                                                <div class="col-md-5 setsrow">
+                                                <div class="col-md-6 ">
                                                     <div class="row">
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-8 numWdth">
                                                             <input type="text" name="name" class="form-control" id="strtTime" required=""></div>
-                                                        <div class="col-md-6 formText">
+                                                        <div class="col-md-4 formText">
                                                             <label for="name">:00</label>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-5 setsrow">
+                                                <div class="col-md-6 ">
                                                     <div class="row">
-                                                        <div class="col-md-6">
+                                                        <div class="col-md-8 numWdth">
                                                             <input type="text" name="name" class="form-control" id="endTime" required=""></div>
-                                                        <div class="col-md-6 formText">
+                                                        <div class="col-md-4 formText">
                                                             <label for="name">:00</label>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="text-center col-md-6">
+                                        <div class="text-center col-md-4">
                                             <button type="submit" class="btnSettings" id="btnTimeRange">Update</button>
                                             <p id="saveSchedNotif" class="subtextSettings" style="display: none;"> Saved Successfully</p>
                                         </div>
@@ -208,8 +209,9 @@
             </div>
             <div class="toast-body">
                 <div>Get Up and Stretch Now!
-                    <a href="assets/img/stretch/Stretch-Your-Way.jpg" data-gallery="portfolioGallery" class="portfolio-lightbox preview-link">
-                    Click here!</a></div>
+                    <a href="https://www.youtube.com/watch?v=tAUf7aajBWE&ab_channel=YogaWithAdriene" class="glightbox btn-watch-video">
+                        <i class="bi bi-play-circle"></i><span>Click to Stretch</span></a>
+                </div>
             </div>
         </div>
         <!-- End of Local Notification -->
