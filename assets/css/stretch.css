@@ -1938,8 +1938,22 @@ section {
 
 .txtRunning {
     color: #bff7ea !important;
+    margin: 15px 0px;
+    width: 70%;
 }
 
 .txtPaused {
     color: #bff7ea !important;
+    margin: 15px 0px;
+    width: 70%;
+}
+
+.reminderProgress {
+    height: 25px;
+    font-size: 1rem;
+    background-color: #070351
+}
+
+.txtCenter {
+    text-align: center;
 }
