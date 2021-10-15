@@ -1968,6 +1968,7 @@ section {
 
 .btn-close-pos {
     font-size: 0.7rem;
+    margin: -10px;
 }
 
 #notifEnable {
