@@ -49,10 +49,6 @@
      //Check notification feature
      checkNotify();
 
-     $('#notifEnable').click(function() {
-         checkNotify();
-     });
-
      //Test Notification
      $('#testNotif').click(function() {
          defaulNotif = $('#Notiftext').val();
