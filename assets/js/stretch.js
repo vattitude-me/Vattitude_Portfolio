@@ -49,6 +49,10 @@
      //Check notification feature
      checkNotify();
 
+     $('#notifEnable').click(function() {
+         checkNotify();
+     });
+
      //Test Notification
      $('#testNotif').click(function() {
          defaulNotif = $('#Notiftext').val();
@@ -164,17 +168,17 @@
      if (percTimer < 16) {
          percTimer = 16;
      }
-     console.log("Interval Perctimer - " + percTimer);
+     //console.log("Interval Perctimer - " + percTimer);
      $('#succProgress').css('width', percTimer + '%').attr('aria-valuenow', percTimer);
  }
 
  function startcountdown() {
      //Start the countdown timer
      temptimer = defaultimer;
-     console.log(defaultimer + " startcountdown - " + temptimer);
+     //console.log(defaultimer + " startcountdown - " + temptimer);
      $("#succProgress").text(temptimer + " mins");
      percTimer = calculatePerc(temptimer, defaultimer);
-     console.log("Start Perctimer - " + percTimer);
+     //console.log("Start Perctimer - " + percTimer);
      $('#succProgress').css('width', percTimer + '%').attr('aria-valuenow', percTimer);
 
      clearInterval(nCountInterv);
@@ -205,7 +209,6 @@
          alert(defaulNotif);
      }
      startcountdown();
-
  }
 
 
@@ -241,15 +244,15 @@
      if (endTime.getTime() < now.getTime()) {
          endTime.setHours(endTime.getHours() + 24);
      }
-     console.log("End time is " + endTime.getHours());
+     //console.log("End time is " + endTime.getHours());
 
      var cntdwntimerInt = endTime.getTime() - now.getTime();
-     console.log("Last end is " + cntdwntimerInt);
+     //console.log("Last end is " + cntdwntimerInt);
      setInterval(stopNotif, cntdwntimerInt);
  }
 
  function checkNotify() {
-
+     console.log(`checkNotify - Permission to notify is ${Notification.permission}`);
      // Let's check if the browser supports notifications
      if (!("Notification" in window)) {
          alert("This browser does not support desktop notification");
@@ -257,6 +260,7 @@
 
      // Let's check if the user is okay to get some notification
      else if (Notification.permission === "granted") {
+         $(".notifbanner").hide();
          // If it's okay let's create a notification
          var notification = new Notification("Welcome to Stretch Reminder", {
              icon: 'https://www.vattitude.me/assets/img/Logo.png',

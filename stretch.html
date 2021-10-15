@@ -61,6 +61,8 @@
             <!-- .navbar -->
 
         </div>
+
+
     </header>
     <!-- End Header -->
 
@@ -69,19 +71,12 @@
 
         <div class="container">
             <div class="row">
+
                 <div class="col-lg-6 d-flex flex-column justify-content-center pt-4 pt-lg-0 order-2 order-lg-1" data-aos="zoom-in" data-aos-delay="300">
                     <div class="hidemobile txtCenter">
                         <h1>Keep the page open to remind you to stretch</h1>
                         <h2>Current Time - <span class="digital-clock"></span></h2>
-                        <div class="d-flex justify-content-center ">
-                            <a id="togglereminder" class="btn-get-started ">Stop Reminder</a>
-                            <div class="btn-watch-video">
-                                <i class="bi bi-alarm animated"></i></div>
-                            <!-- <div class="btn-watch-video txtRunning ">
-                                <i class="bi bi-alarm animated"></i> Next stretch reminder in&nbsp;<span id="nextrem"></span>&nbsp;mins</div>
-                            <div class="btn-watch-video txtPaused ">
-                                <i class="bi bi-alarm-fill"></i>Stretch reminder is paused</div> -->
-                        </div>
+
 
                         <div class="d-flex justify-content-center ">
                             <div class="txtRunning ">
@@ -103,6 +98,11 @@
                             </div>
                         </div>
 
+                        <div class="d-flex justify-content-center ">
+                            <a id="togglereminder" class="btn-get-started ">Stop Reminder</a>
+
+                        </div>
+
                     </div>
                     <div class="mobileOnly">
                         <h1>This feature is only Desktop/Laptop compatible</h1>
@@ -116,6 +116,16 @@
 
     </section>
     <!-- End Hero -->
+
+    <div class="notifbanner">
+
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-1"></i> Enable Notification for better experience!
+            <button type="button" id="notifEnable" class="btn btn-warning">Enable</button>
+            <button type="button" class="btn-close btn-close-pos" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    </div>
 
     <main id="main">
 

@@ -1957,3 +1957,20 @@ section {
 .txtCenter {
     text-align: center;
 }
+
+.notifbanner {
+    position: fixed;
+    bottom: -26px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    opacity: 75%;
+}
+
+.btn-close-pos {
+    font-size: 0.7rem;
+}
+
+#notifEnable {
+    margin: -5px;
+    margin-left: 5px;
+}
