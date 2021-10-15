@@ -1971,6 +1971,10 @@ section {
     margin: -10px;
 }
 
+.btn-close-pos:focus {
+    box-shadow: 0 0 0 0 !important;
+}
+
 #notifEnable {
     margin: -5px;
     margin-left: 5px;
