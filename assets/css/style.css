@@ -853,30 +853,13 @@ section {
 # Services
 --------------------------------------------------------------*/
 
-.services {
-    width: 100%;
-    height: auto;
-    background: url("../img/hero-bg.jpg") top right no-repeat;
-    background-size: cover;
-    position: relative;
-}
-
-.services:before {
-    content: "";
-    background: rgba(255, 255, 255, 0.8);
-    position: absolute;
-    bottom: 0;
-    top: 0;
-    left: 0;
-    right: 0;
-}
-
 .services .icon-box {
     text-align: center;
     padding: 70px 20px 80px 20px;
     transition: all ease-in-out 0.3s;
-    background: #fff;
-    box-shadow: 0px 5px 90px 0px rgba(110, 123, 131, 0.05);
+    background: #e6e6e6;
+    box-shadow: 3px 5px 10px 5px rgb(131 142 149 / 35%);
+    color: #0563bb;
 }
 
 .services .icon-box .icon {
