@@ -156,7 +156,7 @@ h6 {
 
 @media (min-width: 992px) {
     #main {
-        margin-left: 100px;
+        margin-left: 0px;
     }
 }
 
@@ -608,6 +608,24 @@ section {
 # Portfolio
 --------------------------------------------------------------*/
 
+.portfolio-bg {
+    width: 99%;
+    height: auto;
+    background: url("../img/project-bg.jpg") top right no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+.portfolio-bg:before {
+    content: "";
+    background: rgba(255, 255, 255, 0.7);
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
 .portfolio .portfolio-item {
     margin-bottom: 30px;
 }
@@ -730,8 +748,9 @@ section {
 
 .portfolio .portfolio-wrap .portfolio-links a {
     color: #45505b;
-    margin: 0 2px;
-    font-size: 28px;
+    margin: 0px 10px;
+    margin-top: 25px;
+    font-size: 19px;
     display: inline-block;
     transition: 0.3s;
 }
@@ -833,6 +852,24 @@ section {
 /*--------------------------------------------------------------
 # Services
 --------------------------------------------------------------*/
+
+.services {
+    width: 100%;
+    height: auto;
+    background: url("../img/features-bg.jpg") top right no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+.services:before {
+    content: "";
+    background: rgba(255, 255, 255, 0.7);
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+}
 
 .services .icon-box {
     text-align: center;
