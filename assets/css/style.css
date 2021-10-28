@@ -297,7 +297,7 @@ h6 {
 --------------------------------------------------------------*/
 
 #hero {
-    background-image: url("../img/feature-bg1.jpg");
+    background-image: url("../img/hero-bg.jpg");
     /* Set a specific height */
     min-height: 100vh;
     /* Create the parallax scrolling effect */
@@ -632,7 +632,7 @@ section {
 
 .portfolio-bg:before {
     content: "";
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.9);
     position: absolute;
     bottom: 0;
     top: 0;
@@ -870,9 +870,8 @@ section {
 .services-bg {
     width: 99%;
     height: auto;
-    background-image: url("../img/features-bg.jpg");
-    /* Set a specific height */
-    min-height: 100vh;
+    background-image: url("../img/feature-bg.jpg");
+    /* min-height: 100vh; */
     /* Create the parallax scrolling effect */
     background-attachment: fixed;
     background-position: center;
@@ -883,7 +882,7 @@ section {
 
 .services-bg:before {
     content: "";
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.8);
     position: absolute;
     bottom: 0;
     top: 0;
