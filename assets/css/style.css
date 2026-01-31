@@ -498,22 +498,35 @@ section {
 }
 
 .contact .info .social-links {
-  padding-left: 60px;
+  padding-left: 0;
+  margin-bottom: 10px;
+}
+
+.contact .info .social-links h4 {
+  padding-left: 0;
+  margin-bottom: 10px;
+}
+
+.contact .info .social-links > div {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .contact .info .social-links a {
-  font-size: 18px;
-  display: inline-block;
-  background: #333;
-  color: #fff;
+  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 157, 221, 0.2);
+  color: #149ddd;
   line-height: 1;
-  padding: 8px 0;
+  padding: 0;
   border-radius: 50%;
   text-align: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   transition: 0.3s;
-  margin-right: 10px;
 }
 
 .contact .info .social-links a:hover {
