@@ -68,6 +68,7 @@ p, span, li, a {
   backdrop-filter: blur(10px);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   overflow-y: auto;
+  overflow: hidden;
 }
 
 #header .profile img {
@@ -848,15 +849,28 @@ section {
   100% { transform: translate(100%, 100%) rotate(45deg); }
 }
 
-/* Hero Blobs */
-.hero-blobs {
+/* Header Blobs */
+.header-blobs {
   position: absolute;
   width: 100%;
   height: 100%;
   top: 0;
   left: 0;
   overflow: hidden;
-  z-index: 1;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Hero Blobs */
+.hero-blobs {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .blob {
