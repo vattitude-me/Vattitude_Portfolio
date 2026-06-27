@@ -9,6 +9,12 @@ html {
   scroll-behavior: smooth;
 }
 
+@media (min-width: 2560px) {
+  html {
+    font-size: 175%;
+  }
+}
+
 body {
   background-color: #050810;
   color: #e2e8f0;

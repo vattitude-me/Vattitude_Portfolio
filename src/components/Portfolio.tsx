@@ -5,243 +5,205 @@ const projects = [
   {
     id: 1,
     title: 'UseReno Inc.',
-    category: 'web',
-    description: 'Full-service home renovation company website featuring a 4-step process walkthrough, client testimonials, portfolio gallery, and integrated booking. 200+ projects showcased with transparent pricing for the GTA market.',
+    category: 'websites',
+    categoryLabel: 'Corporate Website',
+    description: 'Full-service home renovation company website featuring a 4-step process walkthrough, client testimonials, portfolio gallery, and integrated booking.',
     gradient: 'from-amber-600 to-orange-500',
     url: 'https://usereno.ca',
-    tech: ['WordPress', 'Custom Theme', 'SEO', 'WhatsApp Integration'],
+    tech: ['WordPress', 'Custom Theme', 'SEO'],
+    metric: '160%',
+    metricLabel: 'Leads Generated',
   },
   {
     id: 2,
     title: 'Ace Barber Shop',
-    category: 'web',
-    description: 'Premium barbershop website with online booking via Setmore, service pricing for men/women/kids, staff profiles, and a retro-meets-modern design aesthetic. Walk-in friendly with real-time availability.',
+    category: 'websites',
+    categoryLabel: 'Branding & Website',
+    description: 'Premium barbershop website with online booking via Setmore, service pricing for men/women/kids, staff profiles, and a retro-meets-modern design aesthetic.',
     gradient: 'from-slate-700 to-zinc-900',
     url: 'https://acebarber.ca',
-    tech: ['Custom Build', 'Setmore Booking', 'Instagram Feed', 'Responsive'],
+    tech: ['Custom Build', 'Setmore', 'Responsive'],
+    metric: '120%',
+    metricLabel: 'Brand Visibility',
   },
   {
     id: 3,
-    title: 'All Junk & Demo Solutions',
-    category: 'web',
-    description: 'Junk removal & demolition service site with same-day scheduling, lowest price guarantee messaging, multiple contact methods, and service area targeting across the GTA.',
+    title: 'All Junk & Demo',
+    category: 'websites',
+    categoryLabel: 'Lead Gen Website',
+    description: 'Junk removal & demolition service site with same-day scheduling, lowest price guarantee messaging, and service area targeting across the GTA.',
     gradient: 'from-green-600 to-emerald-500',
     url: 'https://alljunkdemo.ca',
-    tech: ['Static Site', 'Google Maps', 'WhatsApp', 'Lead Gen'],
+    tech: ['Static Site', 'Google Maps', 'Lead Gen'],
+    metric: '230%',
+    metricLabel: 'Sales Increase',
   },
   {
     id: 4,
     title: 'LPP Flooring Ltd.',
-    category: 'web',
-    description: 'Professional flooring company site showcasing 30+ years of combined experience. Features service cards for hardwood, laminate, vinyl, stair runners, and carpet installation with on-site quote booking.',
+    category: 'websites',
+    categoryLabel: 'Corporate Website',
+    description: 'Professional flooring company site showcasing 30+ years of combined experience with service cards and on-site quote booking.',
     gradient: 'from-yellow-700 to-amber-600',
     url: 'https://lppflooring.netlify.app',
-    tech: ['Netlify', 'Modern CSS', 'Responsive', 'Contact Forms'],
+    tech: ['Netlify', 'Modern CSS', 'Contact Forms'],
+    metric: '85%',
+    metricLabel: 'More Inquiries',
   },
   {
     id: 5,
     title: 'Chess for Kids',
-    category: 'app',
-    description: 'Educational chess platform for children with gamified learning — 12 structured lessons, 50+ puzzles, AI opponents, and an achievement/badge system. Fantasy-themed UI with dragons and castles to captivate young learners.',
+    category: 'apps',
+    categoryLabel: 'Education App',
+    description: 'Educational chess platform for children with gamified learning — 12 structured lessons, 50+ puzzles, AI opponents, and an achievement system.',
     gradient: 'from-purple-600 to-indigo-600',
     url: 'https://chess4kids.vattitude.ca',
-    tech: ['Next.js', 'React', 'AI Engine', 'Gamification'],
+    tech: ['Next.js', 'React', 'AI Engine'],
+    metric: '95%',
+    metricLabel: 'User Engagement',
   },
   {
     id: 6,
-    title: 'Breather',
-    category: 'app',
-    description: 'Wellness micro-app helping users take better, healthier breaks throughout their workday. Minimal, calming interface designed for quick mindful pauses.',
-    gradient: 'from-cyan-500 to-teal-500',
-    url: 'https://breather.vattitude.ca',
-    tech: ['React', 'Animations', 'PWA', 'Minimalist UI'],
-  },
-  {
-    id: 7,
     title: 'PebbleSum',
-    category: 'app',
-    description: 'Interactive math education platform with the tagline "Learn Math the Fun Way!" — gamified arithmetic exercises designed to make learning engaging for kids.',
+    category: 'apps',
+    categoryLabel: 'Education App',
+    description: 'Interactive math education platform — gamified arithmetic exercises designed to make learning engaging for kids.',
     gradient: 'from-rose-500 to-pink-600',
     url: 'https://pebblesum.vattitude.ca',
-    tech: ['React', 'TypeScript', 'Gamification', 'Education'],
+    tech: ['React', 'TypeScript', 'Gamification'],
+    metric: '140%',
+    metricLabel: 'Learning Speed',
   },
 ]
 
 const filters = [
-  { key: 'all', label: 'All' },
-  { key: 'web', label: 'Web' },
-  { key: 'app', label: 'Apps' },
+  { key: 'all', label: 'All Projects' },
+  { key: 'websites', label: 'Websites' },
+  { key: 'apps', label: 'Apps' },
 ]
 
 export default function Portfolio() {
   const [active, setActive] = useState('all')
-  const [selected, setSelected] = useState<typeof projects[0] | null>(null)
 
   const filtered = active === 'all' ? projects : projects.filter((p) => p.category === active)
 
   return (
     <section id="portfolio" className="relative py-32 z-10">
-      <div className="max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Immersive <span className="text-cyan-400">Case Studies</span>
-          </h2>
-          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-            Each project is a testament to our commitment to excellence and passion for
-            helping businesses thrive in the digital landscape.
-          </p>
-        </motion.div>
+      <div className="w-full px-8 md:px-16 lg:px-20 xl:px-28">
+        <div className="grid grid-cols-1 lg:grid-cols-[600px_1fr] gap-12 lg:gap-16 items-start">
+          {/* Left column */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="lg:sticky lg:top-32"
+          >
+            <span className="text-sm font-semibold text-cyan-400 uppercase tracking-[0.2em] mb-6 block">
+              Our Portfolio
+            </span>
+            <h2 className="text-4xl md:text-5xl font-bold text-white leading-[1.08] mb-8">
+              Work That Speaks{' '}
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
+                Results
+              </span>
+            </h2>
+            <p className="text-slate-400 text-lg leading-relaxed mb-12 max-w-[380px]">
+              We partner with ambitious brands and help them turn ideas into powerful
+              digital products.
+            </p>
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="flex justify-center gap-2 mb-12"
-        >
-          {filters.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setActive(f.key)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                active === f.key
-                  ? 'bg-cyan-500 text-white shadow-[0_0_20px_rgba(14,165,233,0.4)]'
-                  : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
-              }`}
+          {/* Right column */}
+          <div>
+            {/* Filter tabs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="flex flex-wrap gap-2 mb-8"
             >
-              {f.label}
-            </button>
-          ))}
-        </motion.div>
+              {filters.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setActive(f.key)}
+                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                    active === f.key
+                      ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.2)]'
+                      : 'text-slate-400 border border-white/[0.08] hover:text-white hover:border-white/20'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </motion.div>
 
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((project) => (
-              <motion.div
-                key={project.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
-                onClick={() => setSelected(project)}
-                className="group cursor-pointer"
-              >
-                <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-4 pb-0">
-                  {/* Laptop mockup frame */}
-                  <div className="relative mx-auto">
-                    {/* Screen bezel */}
-                    <div className="rounded-t-lg border-[3px] border-slate-600 border-b-0 bg-slate-800 p-1">
-                      {/* Browser chrome */}
-                      <div className="flex items-center gap-1.5 px-2 py-1.5 bg-slate-700 rounded-t-sm">
-                        <span className="w-2 h-2 rounded-full bg-red-400/70" />
-                        <span className="w-2 h-2 rounded-full bg-yellow-400/70" />
-                        <span className="w-2 h-2 rounded-full bg-green-400/70" />
-                        <span className="ml-2 flex-1 h-4 rounded-sm bg-slate-600 text-[9px] text-slate-400 flex items-center px-2 truncate">
-                          {project.url.replace('https://', '')}
-                        </span>
-                      </div>
-                      {/* Site preview via screenshot service */}
-                      <div className="aspect-[16/10] overflow-hidden bg-white relative">
+            {/* Project cards grid */}
+            <motion.div layout className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <AnimatePresence mode="popLayout">
+                {filtered.map((project, i) => (
+                  <motion.div
+                    key={project.id}
+                    layout
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ delay: i * 0.08, duration: 0.5 }}
+                    whileHover={{ y: -5 }}
+                    className="group relative rounded-2xl transition-all duration-300"
+                  >
+                    {/* Gradient border glow */}
+                    <div className={`absolute -inset-[1px] rounded-2xl bg-gradient-to-b ${project.gradient} opacity-20 group-hover:opacity-50 transition-opacity duration-300 blur-[0.5px]`} />
+
+                    {/* Card body */}
+                    <div className="relative h-full bg-[#0a0f1a] border border-white/[0.08] rounded-2xl group-hover:border-transparent transition-colors overflow-hidden">
+                      {/* Screenshot */}
+                      <div className="aspect-[16/10] overflow-hidden relative">
                         <img
                           src={`https://api.microlink.io/?url=${encodeURIComponent(project.url)}&screenshot=true&meta=false&embed=screenshot.url`}
                           alt={project.title}
                           className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                           loading="lazy"
                         />
-                        <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                        <div className={`absolute inset-0 bg-gradient-to-t from-[#0a0f1a] via-transparent to-transparent opacity-60`} />
                       </div>
-                    </div>
-                    {/* Laptop base/hinge */}
-                    <div className="h-3 bg-slate-600 rounded-b-lg mx-[-2px] relative">
-                      <div className="absolute left-1/2 -translate-x-1/2 top-0 w-16 h-1 bg-slate-500 rounded-b-sm" />
-                    </div>
-                  </div>
-                  {/* Project info overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6 rounded-2xl">
-                    <div>
-                      <h3 className="text-white font-bold text-lg">{project.title}</h3>
-                      <p className="text-slate-300 text-sm mt-1">{project.category}</p>
-                      <div className="flex gap-1.5 mt-2">
-                        {project.tech.slice(0, 3).map((t) => (
-                          <span key={t} className="px-2 py-0.5 text-[10px] rounded-full bg-white/10 text-slate-300">{t}</span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <motion.div
-                    className="absolute inset-0 border-2 border-cyan-400/0 group-hover:border-cyan-400/50 rounded-2xl transition-all"
-                  />
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      </div>
 
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-6"
-            onClick={() => setSelected(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="max-w-lg w-full rounded-3xl border border-white/10 bg-[#0f172a] p-8"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="aspect-video rounded-xl overflow-hidden bg-slate-800 mb-6 relative">
-                <img
-                  src={`https://api.microlink.io/?url=${encodeURIComponent(selected.url)}&screenshot=true&meta=false&embed=screenshot.url`}
-                  alt={selected.title}
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-2">{selected.title}</h3>
-              <span className="inline-block px-3 py-1 text-xs rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 mb-4">
-                {selected.category}
-              </span>
-              <p className="text-slate-400 leading-relaxed mb-4">{selected.description}</p>
-              {'tech' in selected && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {(selected as typeof projects[0]).tech.map((t) => (
-                    <span key={t} className="px-3 py-1 text-xs rounded-full border border-white/10 text-slate-300">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <div className="flex gap-3 mt-6">
-                {'url' in selected && (
-                  <a
-                    href={(selected as typeof projects[0]).url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium text-sm hover:shadow-[0_0_20px_rgba(14,165,233,0.4)] transition-all"
-                  >
-                    Visit Site
-                  </a>
-                )}
-                <button
-                  onClick={() => setSelected(null)}
-                  className="px-6 py-2 rounded-full border border-slate-600 text-slate-300 hover:border-cyan-500/50 hover:text-cyan-400 transition-all"
-                >
-                  Close
-                </button>
-              </div>
+                      {/* Info */}
+                      <div className="p-5">
+                        {/* Title + metric row */}
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <h3 className="font-bold text-white text-base">{project.title}</h3>
+                          <span className="text-cyan-400 font-bold text-sm whitespace-nowrap">
+                            ↑ {project.metric}
+                          </span>
+                        </div>
+
+                        {/* Category + metric label */}
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                          <span className="text-purple-400 text-sm font-medium">{project.categoryLabel}</span>
+                          <span className="text-slate-500 text-xs">{project.metricLabel}</span>
+                        </div>
+
+                        {/* Tech stack */}
+                        <div className="flex flex-wrap gap-2">
+                          {project.tech.map((t) => (
+                            <span
+                              key={t}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded-full bg-white/[0.04] border border-white/[0.08] text-slate-400"
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </div>
     </section>
   )
 }
