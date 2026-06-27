@@ -17,7 +17,7 @@ export default function Contact() {
     e.preventDefault()
     setSending(true)
     try {
-      await fetch('https://getform.io/f/brollqya', {
+      await fetch('https://forminit.com/f/damd7pc3te6', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

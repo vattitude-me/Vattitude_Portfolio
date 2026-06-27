@@ -79,22 +79,44 @@ export default function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#050810]/95 backdrop-blur-xl border-b border-white/5"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden bg-[#0a0f1a]/98 backdrop-blur-2xl border-b border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)]"
           >
-            <div className="px-6 py-4 flex flex-col gap-4">
+            <div className="px-6 py-6 flex flex-col gap-5">
               {links.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
-                  className="text-slate-300 hover:text-cyan-400 transition-colors"
-                  onClick={() => setMobileOpen(false)}
+                  className="text-lg text-slate-300 hover:text-cyan-400 transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setMobileOpen(false)
+                    const target = document.querySelector(link.href)
+                    if (target) {
+                      setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 100)
+                    }
+                  }}
                 >
                   {link.label}
                 </a>
               ))}
+              <a
+                href="#contact"
+                className="mt-2 px-5 py-3 text-center text-sm font-medium bg-cyan-500/10 border border-cyan-500/30 rounded-full text-cyan-400"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setMobileOpen(false)
+                  const target = document.querySelector('#contact')
+                  if (target) {
+                    setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 100)
+                  }
+                }}
+              >
+                Let's Talk
+              </a>
             </div>
           </motion.div>
         )}
