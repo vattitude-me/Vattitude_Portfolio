@@ -10,7 +10,7 @@ const stats = [
 const details = [
   { label: 'Established', value: '2021' },
   { label: 'Location', value: 'Toronto, Canada' },
-  { label: 'Email', value: 'vatsakrish@gmail.com' },
+  { label: 'Email', value: 'info.vattitude@gmail.com' },
   { label: 'Phone', value: '+1 437 990 8118' },
   { label: 'Projects', value: '20+ Completed' },
   { label: 'Status', value: 'Available for Hire' },
