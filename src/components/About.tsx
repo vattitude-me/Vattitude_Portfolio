@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion'
 
 const stats = [
-  { value: '20+', label: 'Projects Completed' },
+  { value: '25+', label: 'Projects Completed' },
   { value: '19+', label: 'Years Experience' },
-  { value: '100%', label: 'Client Satisfaction' },
+  { value: '98%', label: 'Client Satisfaction' },
   { value: '15+', label: 'Happy Clients' },
 ]
 
@@ -11,8 +11,8 @@ const details = [
   { label: 'Established', value: '2021' },
   { label: 'Location', value: 'Toronto, Canada' },
   { label: 'Email', value: 'info.vattitude@gmail.com' },
-  { label: 'Phone', value: '+1 437 990 8118' },
-  { label: 'Projects', value: '20+ Completed' },
+  { label: 'Phone', value: '+1 (437) 990-8118' },
+  { label: 'Projects', value: '25+ Completed' },
   { label: 'Status', value: 'Available for Hire' },
 ]
 
@@ -86,7 +86,7 @@ export default function About() {
             </div>
             <div className="text-green-400 mt-4">$ cat mission.txt</div>
             <div className="text-slate-400 pl-4 leading-relaxed">
-              With 19+ years in the industry, we've delivered 20+ projects ranging from
+              With 19+ years in the industry, we've delivered 25+ projects ranging from
               local business sites to interactive educational apps. Our mission is to help
               businesses grow by building digital products that stand out from the
               competition and deliver measurable results.

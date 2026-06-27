@@ -43,7 +43,7 @@ const services = [
       </svg>
     ),
     title: 'Web Development',
-    subtitle: 'Modern & Responsive',
+    subtitle: 'Modern & Scalable',
     desc: 'Fast, secure and scalable websites built with the latest technologies.',
     color: 'cyan',
   },
@@ -54,7 +54,7 @@ const services = [
       </svg>
     ),
     title: 'Digital Growth',
-    subtitle: 'ROI Driven Marketing',
+    subtitle: 'ROI Driven',
     desc: 'Data-driven strategies that increase visibility and maximize ROI.',
     color: 'purple',
   },
@@ -65,7 +65,7 @@ const services = [
       </svg>
     ),
     title: 'Brand Identity',
-    subtitle: 'Unique & Consistent',
+    subtitle: 'Unique & Memorable',
     desc: 'Memorable brand identities that connect and convert.',
     color: 'pink',
   },
@@ -219,29 +219,33 @@ export default function Hero() {
               whileHover={{ y: -5, borderColor: `rgba(139,92,246,0.4)` }}
               className="group p-4 rounded-xl border border-white/5 bg-white/[0.03] backdrop-blur-md hover:bg-white/[0.05] transition-all"
             >
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${
-                card.color === 'cyan' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
-                card.color === 'purple' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
-                'bg-pink-500/10 text-pink-400 border border-pink-500/20'
-              }`}>
-                {card.icon}
+              <div className="flex items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${
+                    card.color === 'cyan' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
+                    card.color === 'purple' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
+                    'bg-pink-500/10 text-pink-400 border border-pink-500/20'
+                  }`}>
+                    {card.icon}
+                  </div>
+                  <h3 className="font-semibold text-white text-sm mb-0.5">{card.title}</h3>
+                  <p className={`text-xs font-medium mb-1.5 ${
+                    card.color === 'cyan' ? 'text-cyan-400' :
+                    card.color === 'purple' ? 'text-purple-400' :
+                    'text-pink-400'
+                  }`}>{card.subtitle}</p>
+                  <p className="text-xs text-slate-500">{card.desc}</p>
+                </div>
+                <a href="#contact" className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center border transition-all ${
+                  card.color === 'cyan' ? 'border-cyan-500/30 text-cyan-400 group-hover:bg-cyan-500/10' :
+                  card.color === 'purple' ? 'border-purple-500/30 text-purple-400 group-hover:bg-purple-500/10' :
+                  'border-pink-500/30 text-pink-400 group-hover:bg-pink-500/10'
+                }`}>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
               </div>
-              <h3 className="font-semibold text-white text-sm mb-0.5">{card.title}</h3>
-              <p className={`text-xs font-medium mb-1.5 ${
-                card.color === 'cyan' ? 'text-cyan-400' :
-                card.color === 'purple' ? 'text-purple-400' :
-                'text-pink-400'
-              }`}>{card.subtitle}</p>
-              <p className="text-xs text-slate-500 mb-3">{card.desc}</p>
-              <a href="#contact" className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all ${
-                card.color === 'cyan' ? 'border-cyan-500/30 text-cyan-400 group-hover:bg-cyan-500/10' :
-                card.color === 'purple' ? 'border-purple-500/30 text-purple-400 group-hover:bg-purple-500/10' :
-                'border-pink-500/30 text-pink-400 group-hover:bg-pink-500/10'
-              }`}>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </a>
             </motion.div>
           ))}
         </div>

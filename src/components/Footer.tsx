@@ -68,7 +68,7 @@ export default function Footer() {
   return (
     <footer className="relative z-10 border-t border-white/[0.06]">
       <div className="w-full px-8 md:px-16 lg:px-20 xl:px-28 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-10 lg:gap-8">
           {/* Brand column */}
           <div>
             <motion.a href="#home" className="flex items-center gap-2 mb-4" whileHover={{ scale: 1.03 }}>
@@ -96,46 +96,49 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Services */}
-          <div>
-            <h4 className="text-white font-semibold mb-5">Services</h4>
-            <ul className="space-y-3">
-              {footerLinks.services.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-slate-400 text-sm hover:text-cyan-400 transition-colors">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Link columns — 2-col grid on mobile, inline on lg */}
+          <div className="grid grid-cols-2 gap-8 lg:contents">
+            {/* Services */}
+            <div>
+              <h4 className="text-white font-semibold mb-5">Services</h4>
+              <ul className="space-y-3">
+                {footerLinks.services.map((link) => (
+                  <li key={link.label}>
+                    <a href={link.href} className="text-slate-400 text-sm hover:text-cyan-400 transition-colors">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Company */}
-          <div>
-            <h4 className="text-white font-semibold mb-5">Company</h4>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-slate-400 text-sm hover:text-cyan-400 transition-colors">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* Company */}
+            <div>
+              <h4 className="text-white font-semibold mb-5">Company</h4>
+              <ul className="space-y-3">
+                {footerLinks.company.map((link) => (
+                  <li key={link.label}>
+                    <a href={link.href} className="text-slate-400 text-sm hover:text-cyan-400 transition-colors">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* Resources */}
-          <div>
-            <h4 className="text-white font-semibold mb-5">Resources</h4>
-            <ul className="space-y-3">
-              {footerLinks.resources.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-slate-400 text-sm hover:text-cyan-400 transition-colors">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {/* Resources */}
+            <div>
+              <h4 className="text-white font-semibold mb-5">Resources</h4>
+              <ul className="space-y-3">
+                {footerLinks.resources.map((link) => (
+                  <li key={link.label}>
+                    <a href={link.href} className="text-slate-400 text-sm hover:text-cyan-400 transition-colors">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
         </div>
@@ -149,7 +152,7 @@ export default function Footer() {
           </p>
           <div className="flex gap-6">
             <a href="/privacy" className="text-slate-500 text-sm hover:text-cyan-400 transition-colors">Privacy Policy</a>
-            <a href="/terms" className="text-slate-500 text-sm hover:text-cyan-400 transition-colors">Terms of Service</a>
+            <a href="/terms" className="text-slate-500 text-sm hover:text-cyan-400 transition-colors">Terms & Conditions</a>
           </div>
         </div>
       </div>

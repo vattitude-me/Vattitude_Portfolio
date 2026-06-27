@@ -123,7 +123,7 @@ export default function Contact() {
             </p>
 
             {/* Contact cards — 2×2 grid */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {contactCards.map((card, i) => (
                 <motion.a
                   key={card.title}

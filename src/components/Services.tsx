@@ -164,32 +164,36 @@ export default function Services() {
 
                 {/* Card body */}
                 <div className="relative p-7 h-full bg-[#0a0f1a] border border-white/[0.08] rounded-2xl group-hover:border-transparent transition-colors">
-                  {/* Icon */}
-                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 border ${getIconStyles(service.color)}`}>
-                    {service.icon}
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      {/* Icon */}
+                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 border ${getIconStyles(service.color)}`}>
+                        {service.icon}
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="font-bold text-white text-lg mb-1.5">
+                        {service.title}
+                      </h3>
+
+                      {/* Colored subtitle */}
+                      <p className={`text-sm font-semibold mb-4 ${getTextColor(service.color)}`}>
+                        {service.subtitle}
+                      </p>
+
+                      {/* Description */}
+                      <p className="text-[0.9rem] text-slate-500 leading-relaxed">
+                        {service.desc}
+                      </p>
+                    </div>
+
+                    {/* Arrow button */}
+                    <a href="#contact" className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center border-2 ${getArrowStyles(service.color)} group-hover:scale-110 transition-transform duration-300 mt-1`}>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </a>
                   </div>
-
-                  {/* Title */}
-                  <h3 className="font-bold text-white text-lg mb-1.5">
-                    {service.title}
-                  </h3>
-
-                  {/* Colored subtitle */}
-                  <p className={`text-sm font-semibold mb-4 ${getTextColor(service.color)}`}>
-                    {service.subtitle}
-                  </p>
-
-                  {/* Description */}
-                  <p className="text-[0.9rem] text-slate-500 leading-relaxed mb-8">
-                    {service.desc}
-                  </p>
-
-                  {/* Arrow button */}
-                  <a href="#contact" className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${getArrowStyles(service.color)} group-hover:scale-110 transition-transform duration-300`}>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </a>
                 </div>
               </motion.div>
             ))}
