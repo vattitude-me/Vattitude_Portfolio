@@ -29,12 +29,6 @@ function CypherText({ text, className }: { text: string; className?: string }) {
 
 const roles = ['Developers', 'Designers', 'Strategists', 'Creatives']
 
-const stats = [
-  { icon: '⭐', value: '19+', label: 'Years Experience' },
-  { icon: '🚀', value: '25+', label: 'Projects Delivered' },
-  { icon: '😊', value: '98%', label: 'Client Satisfaction' },
-]
-
 const services = [
   {
     icon: (
@@ -179,26 +173,7 @@ export default function Hero() {
             </motion.a>
           </motion.div>
 
-          {/* Stats row */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex flex-wrap items-center gap-6 md:gap-10"
-          >
-            {stats.map((stat, i) => (
-              <div key={stat.label} className="flex items-center gap-3">
-                <span className="text-lg">{stat.icon}</span>
-                <div>
-                  <div className="text-xl md:text-2xl font-bold text-white">{stat.value}</div>
-                  <div className="text-xs text-slate-500">{stat.label}</div>
-                </div>
-                {i < stats.length - 1 && (
-                  <div className="w-px h-10 bg-slate-700/50 ml-4" />
-                )}
-              </div>
-            ))}
-          </motion.div>
+          <div className="mb-8" />
         </div>
       </div>
 
