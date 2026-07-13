@@ -142,15 +142,18 @@ export default function Portfolio() {
             <motion.div layout className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
               <AnimatePresence mode="popLayout">
                 {filtered.map((project, i) => (
-                  <motion.div
+                  <motion.a
                     key={project.id}
+                    href={project.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     layout
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ delay: i * 0.08, duration: 0.5 }}
                     whileHover={{ y: -5 }}
-                    className="group relative rounded-2xl transition-all duration-300"
+                    className="group relative rounded-2xl transition-all duration-300 cursor-pointer"
                   >
                     {/* Gradient border glow */}
                     <div className={`absolute -inset-[1px] rounded-2xl bg-gradient-to-b ${project.gradient} opacity-20 group-hover:opacity-50 transition-opacity duration-300 blur-[0.5px]`} />
@@ -197,7 +200,7 @@ export default function Portfolio() {
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </motion.a>
                 ))}
               </AnimatePresence>
             </motion.div>
