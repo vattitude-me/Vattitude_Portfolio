@@ -113,7 +113,7 @@ export default function Services() {
   return (
     <section id="services" className="relative py-32 z-10">
       <div className="w-full px-8 md:px-16 lg:px-20 xl:px-28">
-        <div className="grid grid-cols-1 lg:grid-cols-[600px_1fr] gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] xl:grid-cols-[420px_1fr] 2xl:grid-cols-[520px_1fr] gap-12 lg:gap-16 items-center">
           {/* Left column */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
