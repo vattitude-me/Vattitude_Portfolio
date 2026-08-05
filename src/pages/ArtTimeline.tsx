@@ -93,6 +93,8 @@ function EraScene({
         caption: `${artist!.name} · ${work.year}`,
         imageUrl: work.imageUrl,
         factoid: work.factoid,
+        sourceCredit: work.sourceCredit,
+        sourceLink: work.sourceLink,
         key: `${artist!.name}-${work.title}`,
       }
     : {
@@ -100,6 +102,8 @@ function EraScene({
         caption: `${era.heroArtwork.artist} · ${era.heroArtwork.year}`,
         imageUrl: era.heroArtwork.imageUrl,
         factoid: era.heroArtwork.factoid,
+        sourceCredit: era.heroArtwork.sourceCredit,
+        sourceLink: era.heroArtwork.sourceLink,
         key: era.heroArtwork.title,
       }
 
@@ -318,68 +322,79 @@ function EraScene({
                 aria-label={display.factoid ? `${display.title} — reveal detail` : display.title}
                 aria-pressed={heroFlipped}
                 className="relative block w-full aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-default"
-                style={{
-                  transformStyle: 'preserve-3d',
-                  transition: 'transform 700ms cubic-bezier(0.22,1,0.36,1)',
-                  transform: heroFlipped ? 'rotateY(180deg)' : 'none',
-                }}
+                style={{ transformStyle: 'preserve-3d' }}
               >
+                {/* The flip lives on this inner layer: Framer animates the
+                    button's own transform, and would overwrite a rotateY set
+                    there. */}
                 <span
-                  className="absolute inset-0 rounded-2xl overflow-hidden border border-white/10 bg-black/50"
-                  style={{ backfaceVisibility: 'hidden', boxShadow: `0 30px 90px -20px ${era.theme.glow}` }}
+                  className="absolute inset-0"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transition: reduced ? 'none' : 'transform 700ms cubic-bezier(0.22,1,0.36,1)',
+                    transform: heroFlipped ? 'rotateY(180deg)' : 'none',
+                  }}
                 >
-                  {/* Blurred fill behind, whole painting contained in front —
-                      never crop the artwork. */}
                   <span
-                    aria-hidden
-                    className="absolute inset-0 scale-110 blur-2xl opacity-45"
-                    style={{ backgroundImage: `url(${display.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-                  />
-                  <ArtImage
-                    key={display.imageUrl}
-                    src={display.imageUrl}
-                    alt={`${display.title} — ${display.caption}`}
-                    className="relative w-full h-full object-contain"
-                    eager={index === 0}
-                  />
-                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-5 pt-14 text-left">
-                    <span className="block text-lg font-semibold text-white leading-tight">{display.title}</span>
-                    <span className="block text-[13px] text-white/60 mt-1">{display.caption}</span>
-                  </span>
-                  {display.factoid && (
+                    className="absolute inset-0 rounded-2xl overflow-hidden border border-white/10 bg-black/50"
+                    style={{ backfaceVisibility: 'hidden', boxShadow: `0 30px 90px -20px ${era.theme.glow}` }}
+                  >
+                    {/* Blurred fill behind, whole painting contained in front —
+                        never crop the artwork. */}
                     <span
                       aria-hidden
-                      className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-medium tracking-wide backdrop-blur"
-                      style={{ background: `${era.theme.accent}22`, color: era.theme.accent, border: `1px solid ${era.theme.accent}55` }}
-                    >
-                      DID YOU KNOW?
+                      className="absolute inset-0 scale-110 blur-2xl opacity-45"
+                      style={{ backgroundImage: `url(${display.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                    />
+                    <ArtImage
+                      key={display.imageUrl}
+                      src={display.imageUrl}
+                      alt={`${display.title} — ${display.caption}`}
+                      className="relative w-full h-full object-contain"
+                      eager={index === 0}
+                    />
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-5 pt-14 text-left">
+                      <span className="block text-lg font-semibold text-white leading-tight">{display.title}</span>
+                      <span className="block text-[13px] text-white/60 mt-1">{display.caption}</span>
                     </span>
-                  )}
-                </span>
+                    {display.factoid && (
+                      <span
+                        aria-hidden
+                        className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-medium tracking-wide backdrop-blur"
+                        style={{ background: `${era.theme.accent}22`, color: era.theme.accent, border: `1px solid ${era.theme.accent}55` }}
+                      >
+                        DID YOU KNOW?
+                      </span>
+                    )}
+                  </span>
 
-                <span
-                  className="absolute inset-0 rounded-2xl overflow-hidden border p-7 sm:p-9 flex flex-col justify-center bg-[#07070d]/96 text-left"
-                  style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', borderColor: `${era.theme.accent}55` }}
-                >
-                  <span className="block text-[10px] uppercase tracking-[0.22em] mb-4" style={{ color: era.theme.accent }}>
-                    Did you know?
+                  <span
+                    className="absolute inset-0 rounded-2xl overflow-hidden border p-7 sm:p-9 flex flex-col justify-center bg-[#07070d]/96 text-left"
+                    style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', borderColor: `${era.theme.accent}55` }}
+                  >
+                    <span className="block text-[10px] uppercase tracking-[0.22em] mb-4" style={{ color: era.theme.accent }}>
+                      Did you know?
+                    </span>
+                    <span className="block text-white/85 leading-relaxed text-[15px] sm:text-base">
+                      {display.factoid}
+                    </span>
+                    <span className="block mt-6 text-[11px] text-white/35">
+                      {display.title}
+                      {display.sourceCredit && <span className="block mt-1">{display.sourceCredit}</span>}
+                    </span>
                   </span>
-                  <span className="block text-white/85 leading-relaxed text-[15px] sm:text-base">
-                    {display.factoid}
-                  </span>
-                  <span className="block mt-6 text-[11px] text-white/35">{display.title}</span>
                 </span>
               </motion.button>
             </div>
 
-            {!artist && (
+            {display.sourceCredit && (
               <a
-                href={era.heroArtwork.sourceLink}
+                href={display.sourceLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block mt-3 text-[11px] text-white/35 hover:text-white/70 transition"
               >
-                {era.heroArtwork.sourceCredit} ↗
+                {display.sourceCredit} ↗
               </a>
             )}
 
