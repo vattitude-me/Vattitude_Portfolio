@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'framer-motion'
-import { eras, type Era, type Artist, type Artwork } from '../data/artEras'
+import { eras, type Era, type Artist } from '../data/artEras'
 
 /* ------------------------------------------------------------------ *
  * Image with graceful fallback — never render a blank frame.
@@ -57,191 +57,51 @@ function ArtImage({
 }
 
 /* ------------------------------------------------------------------ *
- * Flip card — factoid on the back.
- * ------------------------------------------------------------------ */
-function WorkCard({ work, accent }: { work: Artwork; accent: string }) {
-  const [flipped, setFlipped] = useState(false)
-  const canFlip = Boolean(work.factoid)
-
-  return (
-    <div className="w-full">
-      <div
-        className="relative w-full aspect-[4/5]"
-        style={{ perspective: '1200px' }}
-        onMouseEnter={() => canFlip && setFlipped(true)}
-        onMouseLeave={() => canFlip && setFlipped(false)}
-      >
-        <button
-          type="button"
-          disabled={!canFlip}
-          aria-label={canFlip ? `${work.title} — reveal detail` : work.title}
-          aria-pressed={flipped}
-          onClick={() => canFlip && setFlipped((f) => !f)}
-          className="relative block w-full h-full rounded-xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-default"
-          style={{ transformStyle: 'preserve-3d', transition: 'transform 600ms cubic-bezier(0.22,1,0.36,1)', transform: flipped ? 'rotateY(180deg)' : 'none' }}
-        >
-          {/* Front */}
-          <span
-            className="absolute inset-0 rounded-xl overflow-hidden border border-white/10 bg-black/40"
-            style={{ backfaceVisibility: 'hidden' }}
-          >
-            <span
-              aria-hidden
-              className="absolute inset-0 scale-110 blur-xl opacity-40"
-              style={{ backgroundImage: `url(${work.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-            />
-            <ArtImage
-              src={work.imageUrl}
-              alt={`${work.title}, ${work.year}`}
-              className="relative w-full h-full object-contain"
-            />
-            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-3">
-              <span className="block text-[13px] font-medium text-white leading-tight">{work.title}</span>
-              <span className="block text-[11px] text-white/50 mt-0.5">{work.year}</span>
-            </span>
-            {canFlip && (
-              <span
-                aria-hidden
-                className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-semibold backdrop-blur"
-                style={{ background: `${accent}26`, color: accent, border: `1px solid ${accent}59` }}
-              >
-                i
-              </span>
-            )}
-          </span>
-
-          {/* Back */}
-          <span
-            className="absolute inset-0 rounded-xl overflow-hidden border p-4 flex items-center bg-[#0a0a12]/95"
-            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', borderColor: `${accent}59` }}
-          >
-            <span className="block text-[12.5px] leading-relaxed text-white/80">{work.factoid}</span>
-          </span>
-        </button>
-      </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ *
- * Artist detail modal.
- * ------------------------------------------------------------------ */
-function ArtistModal({ artist, accent, onClose }: { artist: Artist; accent: string; onClose: () => void }) {
-  const panelRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose()
-        return
-      }
-      if (e.key !== 'Tab' || !panelRef.current) return
-      const items = panelRef.current.querySelectorAll<HTMLElement>(
-        'button, a[href], [tabindex]:not([tabindex="-1"])',
-      )
-      if (!items.length) return
-      const first = items[0]
-      const last = items[items.length - 1]
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault()
-        last.focus()
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault()
-        first.focus()
-      }
-    }
-    document.addEventListener('keydown', onKey)
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    panelRef.current?.querySelector<HTMLElement>('button')?.focus()
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prevOverflow
-    }
-  }, [onClose])
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} aria-hidden />
-      <motion.div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label={artist.name}
-        initial={{ opacity: 0, y: 30, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.98 }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-2xl border bg-[#08080f]/95 backdrop-blur-xl"
-        style={{ borderColor: `${accent}40`, boxShadow: `0 0 80px ${accent}22` }}
-      >
-        <button
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full flex items-center justify-center bg-white/[0.06] border border-white/10 text-white/60 hover:text-white hover:bg-white/[0.12] transition"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        <div className="p-6 sm:p-8">
-          <div className="flex flex-col sm:flex-row gap-6 mb-8">
-            <div className="relative w-full sm:w-40 shrink-0 aspect-square rounded-xl overflow-hidden border border-white/10 bg-black/40">
-              <span
-                aria-hidden
-                className="absolute inset-0 scale-110 blur-xl opacity-40"
-                style={{ backgroundImage: `url(${artist.portraitUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-              />
-              <ArtImage src={artist.portraitUrl} alt={artist.name} className="relative w-full h-full object-contain" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-1.5">{artist.name}</h3>
-              <p className="font-mono text-sm mb-4" style={{ color: accent }}>
-                {artist.years} · {artist.nationality}
-              </p>
-              <p className="text-slate-300 leading-relaxed text-[15px]">{artist.bio}</p>
-            </div>
-          </div>
-
-          <h4 className="text-[11px] uppercase tracking-[0.2em] text-white/40 mb-4">
-            Selected Works{artist.works.some((w) => w.factoid) && ' — tap a card for the story'}
-          </h4>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {artist.works.map((w) => (
-              <WorkCard key={w.title} work={w} accent={accent} />
-            ))}
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  )
-}
-
-/* ------------------------------------------------------------------ *
  * One era scene. The "bulge": scenes fade + recede toward viewport edges.
  * ------------------------------------------------------------------ */
 function EraScene({
   era,
   index,
-  onArtist,
   onActive,
   reduced,
 }: {
   era: Era
   index: number
-  onArtist: (a: Artist) => void
   onActive: (i: number) => void
   reduced: boolean
 }) {
   const ref = useRef<HTMLElement>(null)
   const [bulge, setBulge] = useState(0) // 1 = centred, 0 = at edge
   const [heroFlipped, setHeroFlipped] = useState(false)
+
+  // Which artist (if any) has taken over the big frame, and which of their
+  // works is showing there. `null` = the era's own hero artwork.
+  const [artist, setArtist] = useState<Artist | null>(null)
+  const [workIndex, setWorkIndex] = useState(0)
+
+  const selectArtist = (a: Artist) => {
+    setHeroFlipped(false)
+    setWorkIndex(0)
+    setArtist((cur) => (cur?.name === a.name ? null : a))
+  }
+
+  const work = artist?.works[workIndex]
+  // Unified shape so the big frame renders one way regardless of source.
+  const display = work
+    ? {
+        title: work.title,
+        caption: `${artist!.name} · ${work.year}`,
+        imageUrl: work.imageUrl,
+        factoid: work.factoid,
+        key: `${artist!.name}-${work.title}`,
+      }
+    : {
+        title: era.heroArtwork.title,
+        caption: `${era.heroArtwork.artist} · ${era.heroArtwork.year}`,
+        imageUrl: era.heroArtwork.imageUrl,
+        factoid: era.heroArtwork.factoid,
+        key: era.heroArtwork.title,
+      }
 
   useEffect(() => {
     const el = ref.current
@@ -346,38 +206,118 @@ function EraScene({
               ))}
             </div>
 
-            <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/40 mb-3">Key Artists</h3>
+            <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/40 mb-3">
+              Key Artists{' '}
+              <span className="normal-case tracking-normal text-white/25">— tap to view their work</span>
+            </h3>
             <div className="flex flex-wrap gap-2.5">
-              {era.keyArtists.map((a) => (
-                <button
-                  key={a.name}
-                  onClick={() => onArtist(a)}
-                  className="group flex items-center gap-2.5 pl-1.5 pr-4 py-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] hover:bg-white/[0.08] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-                  style={{ transitionProperty: 'background, border-color, transform' }}
-                >
-                  <span className="w-8 h-8 rounded-full overflow-hidden border border-white/15 shrink-0">
-                    <ArtImage src={a.portraitUrl} alt={a.name} className="w-full h-full object-cover object-top" />
-                  </span>
-                  <span className="text-[13.5px] text-white/80 group-hover:text-white whitespace-nowrap">{a.name}</span>
-                </button>
-              ))}
+              {era.keyArtists.map((a) => {
+                const on = artist?.name === a.name
+                return (
+                  <button
+                    key={a.name}
+                    onClick={() => selectArtist(a)}
+                    aria-pressed={on}
+                    className="group flex items-center gap-2.5 pl-1.5 pr-4 py-1.5 rounded-full border transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                    style={{
+                      borderColor: on ? `${era.theme.accent}99` : 'rgba(255,255,255,0.1)',
+                      background: on ? `${era.theme.accent}1f` : 'rgba(255,255,255,0.03)',
+                      boxShadow: on ? `0 0 20px ${era.theme.accent}33` : 'none',
+                    }}
+                  >
+                    <span className="w-8 h-8 rounded-full overflow-hidden border border-white/15 shrink-0">
+                      <ArtImage src={a.portraitUrl} alt={a.name} className="w-full h-full object-cover object-top" />
+                    </span>
+                    <span
+                      className="text-[13.5px] whitespace-nowrap transition-colors"
+                      style={{ color: on ? era.theme.accent : undefined }}
+                    >
+                      <span className={on ? '' : 'text-white/80 group-hover:text-white'}>{a.name}</span>
+                    </span>
+                  </button>
+                )
+              })}
             </div>
+
+            {/* Selected artist's context — the bio the modal used to hold. */}
+            <AnimatePresence initial={false}>
+              {artist && (
+                <motion.div
+                  key={artist.name}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: reduced ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-6 rounded-xl border border-white/[0.09] bg-white/[0.02] p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="text-[15px] font-semibold text-white">{artist.name}</p>
+                        <p className="font-mono text-[11.5px] mt-0.5" style={{ color: era.theme.accent }}>
+                          {artist.years} · {artist.nationality}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setArtist(null)}
+                        className="shrink-0 text-[11px] text-white/40 hover:text-white/80 transition whitespace-nowrap"
+                      >
+                        Back to era ✕
+                      </button>
+                    </div>
+                    <p className="text-[13.5px] text-slate-300/85 leading-relaxed mt-3">{artist.bio}</p>
+
+                    {artist.works.length > 1 && (
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {artist.works.map((w, i) => {
+                          const on = i === workIndex
+                          return (
+                            <button
+                              key={w.title}
+                              onClick={() => {
+                                setHeroFlipped(false)
+                                setWorkIndex(i)
+                              }}
+                              aria-pressed={on}
+                              className="text-[11.5px] px-3 py-1.5 rounded-full border transition"
+                              style={{
+                                borderColor: on ? `${era.theme.accent}88` : 'rgba(255,255,255,0.09)',
+                                background: on ? `${era.theme.accent}1a` : 'transparent',
+                                color: on ? era.theme.accent : 'rgba(255,255,255,0.6)',
+                              }}
+                            >
+                              {w.title}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Hero artwork — flips to reveal the factoid */}
+          {/* Big frame — shows the era hero, or the selected artist's work.
+              Flips to reveal the factoid when one exists. */}
           <div className="relative">
             <div
               className="relative w-full"
               style={{ perspective: '1600px' }}
-              onMouseEnter={() => setHeroFlipped(true)}
-              onMouseLeave={() => setHeroFlipped(false)}
+              onMouseEnter={() => display.factoid && setHeroFlipped(true)}
+              onMouseLeave={() => display.factoid && setHeroFlipped(false)}
             >
-              <button
+              <motion.button
+                key={display.key}
+                initial={{ opacity: 0, scale: reduced ? 1 : 0.985 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: reduced ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
                 type="button"
-                onClick={() => setHeroFlipped((f) => !f)}
-                aria-label={`${era.heroArtwork.title} — reveal detail`}
+                disabled={!display.factoid}
+                onClick={() => display.factoid && setHeroFlipped((f) => !f)}
+                aria-label={display.factoid ? `${display.title} — reveal detail` : display.title}
                 aria-pressed={heroFlipped}
-                className="relative block w-full aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                className="relative block w-full aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-default"
                 style={{
                   transformStyle: 'preserve-3d',
                   transition: 'transform 700ms cubic-bezier(0.22,1,0.36,1)',
@@ -393,27 +333,28 @@ function EraScene({
                   <span
                     aria-hidden
                     className="absolute inset-0 scale-110 blur-2xl opacity-45"
-                    style={{ backgroundImage: `url(${era.heroArtwork.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                    style={{ backgroundImage: `url(${display.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                   />
                   <ArtImage
-                    src={era.heroArtwork.imageUrl}
-                    alt={`${era.heroArtwork.title} by ${era.heroArtwork.artist}, ${era.heroArtwork.year}`}
+                    key={display.imageUrl}
+                    src={display.imageUrl}
+                    alt={`${display.title} — ${display.caption}`}
                     className="relative w-full h-full object-contain"
                     eager={index === 0}
                   />
                   <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-5 pt-14 text-left">
-                    <span className="block text-lg font-semibold text-white leading-tight">{era.heroArtwork.title}</span>
-                    <span className="block text-[13px] text-white/60 mt-1">
-                      {era.heroArtwork.artist} · {era.heroArtwork.year}
+                    <span className="block text-lg font-semibold text-white leading-tight">{display.title}</span>
+                    <span className="block text-[13px] text-white/60 mt-1">{display.caption}</span>
+                  </span>
+                  {display.factoid && (
+                    <span
+                      aria-hidden
+                      className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-medium tracking-wide backdrop-blur"
+                      style={{ background: `${era.theme.accent}22`, color: era.theme.accent, border: `1px solid ${era.theme.accent}55` }}
+                    >
+                      DID YOU KNOW?
                     </span>
-                  </span>
-                  <span
-                    aria-hidden
-                    className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-medium tracking-wide backdrop-blur"
-                    style={{ background: `${era.theme.accent}22`, color: era.theme.accent, border: `1px solid ${era.theme.accent}55` }}
-                  >
-                    DID YOU KNOW?
-                  </span>
+                  )}
                 </span>
 
                 <span
@@ -424,21 +365,23 @@ function EraScene({
                     Did you know?
                   </span>
                   <span className="block text-white/85 leading-relaxed text-[15px] sm:text-base">
-                    {era.heroArtwork.factoid}
+                    {display.factoid}
                   </span>
-                  <span className="block mt-6 text-[11px] text-white/35">{era.heroArtwork.title}</span>
+                  <span className="block mt-6 text-[11px] text-white/35">{display.title}</span>
                 </span>
-              </button>
+              </motion.button>
             </div>
 
-            <a
-              href={era.heroArtwork.sourceLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block mt-3 text-[11px] text-white/35 hover:text-white/70 transition"
-            >
-              {era.heroArtwork.sourceCredit} ↗
-            </a>
+            {!artist && (
+              <a
+                href={era.heroArtwork.sourceLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-3 text-[11px] text-white/35 hover:text-white/70 transition"
+              >
+                {era.heroArtwork.sourceCredit} ↗
+              </a>
+            )}
 
             {/* Still in copyright — described here, viewable at the holding museum. */}
             {era.offsiteWorks && era.offsiteWorks.length > 0 && (
@@ -489,7 +432,6 @@ function EraScene({
  * ------------------------------------------------------------------ */
 export default function ArtTimeline() {
   const [active, setActive] = useState(0)
-  const [artist, setArtist] = useState<Artist | null>(null)
   const prefersReduced = useReducedMotion()
   const reduced = Boolean(prefersReduced)
 
@@ -578,7 +520,6 @@ export default function ArtTimeline() {
             key={era.id}
             era={era}
             index={i}
-            onArtist={setArtist}
             onActive={handleActive}
             reduced={reduced}
           />
@@ -658,10 +599,6 @@ export default function ArtTimeline() {
           ← Back to Vattitude
         </a>
       </footer>
-
-      <AnimatePresence>
-        {artist && <ArtistModal artist={artist} accent={accent} onClose={() => setArtist(null)} />}
-      </AnimatePresence>
     </div>
   )
 }
