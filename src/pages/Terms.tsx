@@ -36,7 +36,7 @@ export default function Terms() {
             <section>
               <h2 className="text-xl font-semibold text-white mb-3">3. Intellectual Property</h2>
               <p>
-                All content on this website — including design, text, graphics, logos, and code — is the
+                All content on this website - including design, text, graphics, logos, and code - is the
                 property of Vattitude and is protected by intellectual property laws. Client deliverables
                 are transferred upon full payment as outlined in individual agreements.
               </p>

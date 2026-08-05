@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 
 import { eras, type Era, type Artist } from '../data/artEras'
 
 /* ------------------------------------------------------------------ *
- * Image with graceful fallback — never render a blank frame.
+ * Image with graceful fallback - never render a blank frame.
  * ------------------------------------------------------------------ */
 function ArtImage({
   src,
@@ -122,7 +122,7 @@ function EraScene({
 
       // Scenes shorter than the viewport get the centre-proximity "bulge".
       // Scenes taller than it (typical on mobile) can never centre, so they use
-      // viewport coverage instead — otherwise they'd stay permanently blurred.
+      // viewport coverage instead - otherwise they'd stay permanently blurred.
       const focus =
         rect.height <= vh
           ? 1 - Math.min(Math.abs(rect.top + rect.height / 2 - vh / 2) / vh, 1)
@@ -212,7 +212,7 @@ function EraScene({
 
             <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/40 mb-3">
               Key Artists{' '}
-              <span className="normal-case tracking-normal text-white/25">— tap to view their work</span>
+              <span className="normal-case tracking-normal text-white/25">- tap to view their work</span>
             </h3>
             <div className="flex flex-wrap gap-2.5">
               {era.keyArtists.map((a) => {
@@ -243,7 +243,7 @@ function EraScene({
               })}
             </div>
 
-            {/* Selected artist's context — the bio the modal used to hold. */}
+            {/* Selected artist's context - the bio the modal used to hold. */}
             <AnimatePresence initial={false}>
               {artist && (
                 <motion.div
@@ -302,7 +302,7 @@ function EraScene({
             </AnimatePresence>
           </div>
 
-          {/* Big frame — shows the era hero, or the selected artist's work.
+          {/* Big frame - shows the era hero, or the selected artist's work.
               Flips to reveal the factoid when one exists. */}
           <div className="relative">
             <div
@@ -319,7 +319,7 @@ function EraScene({
                 type="button"
                 disabled={!display.factoid}
                 onClick={() => display.factoid && setHeroFlipped((f) => !f)}
-                aria-label={display.factoid ? `${display.title} — reveal detail` : display.title}
+                aria-label={display.factoid ? `${display.title} - reveal detail` : display.title}
                 aria-pressed={heroFlipped}
                 className="relative block w-full aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-default"
                 style={{ transformStyle: 'preserve-3d' }}
@@ -339,7 +339,7 @@ function EraScene({
                     className="absolute inset-0 rounded-2xl overflow-hidden border border-white/10 bg-black/50"
                     style={{ backfaceVisibility: 'hidden', boxShadow: `0 30px 90px -20px ${era.theme.glow}` }}
                   >
-                    {/* Blurred fill behind, whole painting contained in front —
+                    {/* Blurred fill behind, whole painting contained in front -
                         never crop the artwork. */}
                     <span
                       aria-hidden
@@ -349,7 +349,7 @@ function EraScene({
                     <ArtImage
                       key={display.imageUrl}
                       src={display.imageUrl}
-                      alt={`${display.title} — ${display.caption}`}
+                      alt={`${display.title} - ${display.caption}`}
                       className="relative w-full h-full object-contain"
                       eager={index === 0}
                     />
@@ -398,14 +398,14 @@ function EraScene({
               </a>
             )}
 
-            {/* Still in copyright — described here, viewable at the holding museum. */}
+            {/* Still in copyright - described here, viewable at the holding museum. */}
             {era.offsiteWorks && era.offsiteWorks.length > 0 && (
               <div className="mt-8 rounded-xl border border-white/[0.09] bg-white/[0.02] p-5">
                 <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">
                   Still in copyright
                 </h4>
                 <p className="text-[11.5px] text-white/35 mb-4 leading-relaxed">
-                  We can’t reproduce these here — view them at the museums that hold them.
+                  We can’t reproduce these here - view them at the museums that hold them.
                 </p>
                 <ul className="space-y-3">
                   {era.offsiteWorks.map((w) => (
@@ -469,7 +469,7 @@ export default function ArtTimeline() {
 
   useEffect(() => {
     const prevTitle = document.title
-    document.title = 'The Art Timeline — 40,000 Years of Art | Vattitude'
+    document.title = 'The Art Timeline - 40,000 Years of Art | Vattitude'
     return () => {
       document.title = prevTitle
     }
@@ -505,7 +505,7 @@ export default function ArtTimeline() {
           style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 45%, #1e293b66 0%, #05081000 70%)' }}
         />
         <div className="relative">
-          <p className="font-mono text-xs tracking-[0.3em] text-white/40 mb-6">40,000 BCE — 1950 CE</p>
+          <p className="font-mono text-xs tracking-[0.3em] text-white/40 mb-6">40,000 BCE - 1950 CE</p>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.04] mb-6">
             The Art{' '}
             <span className="bg-gradient-to-r from-amber-300 via-rose-400 to-violet-400 bg-clip-text text-transparent">
@@ -514,7 +514,7 @@ export default function ArtTimeline() {
           </h1>
           <p className="text-slate-400 text-lg max-w-xl mx-auto leading-relaxed mb-10">
             Seven ages of human image-making, from firelit cave walls to the empty diner at midnight.
-            Scroll to travel forward — or tap any artist to go deeper.
+            Scroll to travel forward - or tap any artist to go deeper.
           </p>
           <button
             onClick={() => jump(eras[0].id)}

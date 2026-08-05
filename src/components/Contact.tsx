@@ -100,7 +100,7 @@ export default function Contact() {
     <section id="contact" className="relative py-32 z-10">
       <div className="w-full px-8 md:px-16 lg:px-20 xl:px-28">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-12 lg:gap-16 items-center">
-          {/* Left column — heading + contact cards */}
+          {/* Left column - heading + contact cards */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -122,7 +122,7 @@ export default function Contact() {
               Have a project in mind or just want to explore ideas? We'd love to hear from you.
             </p>
 
-            {/* Contact cards — 2×2 grid */}
+            {/* Contact cards - 2×2 grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {contactCards.map((card, i) => (
                 <motion.a
@@ -176,7 +176,7 @@ export default function Contact() {
             </div>
           </motion.div>
 
-          {/* Right column — form */}
+          {/* Right column - form */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}

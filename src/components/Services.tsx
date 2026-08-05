@@ -131,7 +131,7 @@ export default function Services() {
               </span>
             </h2>
             <p className="text-slate-400 text-lg leading-relaxed mb-12 max-w-[380px]">
-              From stunning websites to powerful branding and growth strategies — we help
+              From stunning websites to powerful branding and growth strategies - we help
               businesses build, launch and scale with confidence.
             </p>
             <motion.a
@@ -147,7 +147,7 @@ export default function Services() {
             </motion.a>
           </motion.div>
 
-          {/* Right column — 3×2 card grid */}
+          {/* Right column - 3×2 card grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {services.map((service, i) => (
               <motion.div

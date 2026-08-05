@@ -96,7 +96,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Link columns — 2-col grid on mobile, inline on lg */}
+          {/* Link columns - 2-col grid on mobile, inline on lg */}
           <div className="grid grid-cols-2 gap-8 lg:contents">
             {/* Services */}
             <div>
