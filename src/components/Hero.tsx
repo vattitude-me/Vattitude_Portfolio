@@ -65,7 +65,7 @@ const services = [
   },
 ]
 
-const brandLogos = ['UserReno', 'AllJunk&Reno', 'BMO', 'Loblaws', 'Scotiabank', 'PwC', 'HomeDepot', 'AceBarber']
+const brandLogos = ['UseReno', 'AllJunk&Reno', 'BMO', 'Loblaws', 'Scotiabank', 'PwC', 'HomeDepot', 'AceBarber']
 
 export default function Hero() {
   const [roleIndex, setRoleIndex] = useState(0)
