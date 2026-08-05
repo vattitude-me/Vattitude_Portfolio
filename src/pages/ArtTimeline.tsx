@@ -1,60 +1,9 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 'framer-motion'
 import { eras, type Era, type Artist } from '../data/artEras'
-
-/* ------------------------------------------------------------------ *
- * Image with graceful fallback - never render a blank frame.
- * ------------------------------------------------------------------ */
-function ArtImage({
-  src,
-  alt,
-  className,
-  eager = false,
-}: {
-  src: string
-  alt: string
-  className?: string
-  eager?: boolean
-}) {
-  const [status, setStatus] = useState<'loading' | 'ok' | 'error'>('loading')
-
-  return (
-    <span className="relative block w-full h-full overflow-hidden">
-      {status !== 'ok' && (
-        <span
-          aria-hidden
-          className={`absolute inset-0 bg-gradient-to-br from-white/[0.07] to-white/[0.02] ${
-            status === 'loading' ? 'animate-pulse' : ''
-          }`}
-        />
-      )}
-      {status === 'error' ? (
-        <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
-          <svg className="w-7 h-7 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16v12H4z"
-            />
-          </svg>
-          <span className="text-[11px] leading-snug text-white/40">{alt}</span>
-        </span>
-      ) : (
-        <img
-          src={src}
-          alt={alt}
-          loading={eager ? 'eager' : 'lazy'}
-          decoding="async"
-          referrerPolicy="no-referrer"
-          onLoad={() => setStatus('ok')}
-          onError={() => setStatus('error')}
-          className={`${className ?? ''} ${status === 'ok' ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700`}
-        />
-      )}
-    </span>
-  )
-}
+import GildedFrame from '../components/GildedFrame'
+import ArtImage from '../components/ArtImage'
 
 /* ------------------------------------------------------------------ *
  * One era scene. The "bulge": scenes fade + recede toward viewport edges.
@@ -398,6 +347,32 @@ function EraScene({
               </a>
             )}
 
+            {/* Step into the era - the deep-dive page opens out of this canvas. */}
+            <Link
+              to={`/art-timeline/${era.id}`}
+              className="group mt-5 flex items-center justify-between gap-4 w-full rounded-xl border px-5 py-4 transition-all duration-300"
+              style={{
+                borderColor: `${era.theme.accent}44`,
+                background: `${era.theme.accent}0d`,
+              }}
+            >
+              <span className="text-left">
+                <span className="block text-[13.5px] font-medium text-white/90 group-hover:text-white transition">
+                  Step inside {era.name}
+                </span>
+                <span className="block text-[11.5px] text-white/45 mt-0.5">
+                  {era.keyArtists.length} artists · full story · every work
+                </span>
+              </span>
+              <span
+                className="shrink-0 text-lg transition-transform duration-300 group-hover:translate-x-1"
+                style={{ color: era.theme.accent }}
+                aria-hidden
+              >
+                →
+              </span>
+            </Link>
+
             {/* Still in copyright - described here, viewable at the holding museum. */}
             {era.offsiteWorks && era.offsiteWorks.length > 0 && (
               <div className="mt-8 rounded-xl border border-white/[0.09] bg-white/[0.02] p-5">
@@ -478,18 +453,19 @@ export default function ArtTimeline() {
   const eraList = useMemo(() => eras, [])
 
   return (
+    <GildedFrame accent={accent}>
     <div className="relative bg-[#050810] min-h-screen">
-      {/* Scroll progress bar */}
+      {/* Scroll progress bar - sits just inside the frame's top rail. */}
       <motion.div
         aria-hidden
-        className="fixed top-0 left-0 right-0 h-[2px] z-[70] origin-left"
+        className="fixed left-0 right-0 h-[2px] z-[70] origin-left top-0 sm:top-[30px]"
         style={{ scaleX: progress, background: accent, transition: 'background 600ms ease' }}
       />
 
       {/* Back link */}
       <a
         href="/#portfolio"
-        className="fixed top-4 left-4 z-[65] inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[13px] bg-black/70 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:border-white/25 transition"
+        className="fixed top-4 left-4 sm:top-8 sm:left-8 z-[85] inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[13px] bg-black/70 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:border-white/25 transition"
       >
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -544,7 +520,7 @@ export default function ArtTimeline() {
       {/* Desktop rail */}
       <nav
         aria-label="Timeline navigation"
-        className="hidden lg:flex fixed right-8 top-1/2 -translate-y-1/2 z-[60] flex-col gap-1"
+        className="hidden lg:flex fixed right-12 top-1/2 -translate-y-1/2 z-[85] flex-col gap-1"
       >
         {eraList.map((era, i) => {
           const on = i === active
@@ -580,7 +556,7 @@ export default function ArtTimeline() {
       {/* Mobile bottom bar */}
       <nav
         aria-label="Timeline navigation"
-        className="lg:hidden fixed bottom-0 inset-x-0 z-[60] bg-black/80 backdrop-blur-xl border-t border-white/10"
+        className="lg:hidden fixed bottom-0 sm:bottom-[30px] inset-x-0 sm:inset-x-[30px] z-[85] bg-black/80 backdrop-blur-xl border-t border-white/10"
       >
         <div className="flex gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {eraList.map((era, i) => {
@@ -615,5 +591,6 @@ export default function ArtTimeline() {
         </a>
       </footer>
     </div>
+    </GildedFrame>
   )
 }
