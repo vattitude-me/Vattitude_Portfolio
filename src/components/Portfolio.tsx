@@ -63,6 +63,20 @@ const projects = [
     metricLabel: 'User Engagement',
   },
   {
+    id: 7,
+    title: 'The Art Timeline',
+    category: 'apps',
+    categoryLabel: 'Interactive Experience',
+    description: 'A scroll-driven journey through 40,000 years of art — seven eras, cinematic depth-of-field transitions, and flip-to-reveal stories behind each masterpiece.',
+    gradient: 'from-amber-500 to-violet-500',
+    url: '/art-timeline',
+    internal: true,
+    image: '/art-timeline-preview.jpg',
+    tech: ['React', 'Scroll Animation', 'Public Domain Art'],
+    metric: '40k',
+    metricLabel: 'Years of Art',
+  },
+  {
     id: 6,
     title: 'PebbleSum',
     category: 'apps',
@@ -145,8 +159,8 @@ export default function Portfolio() {
                   <motion.a
                     key={project.id}
                     href={project.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    target={project.internal ? undefined : '_blank'}
+                    rel={project.internal ? undefined : 'noopener noreferrer'}
                     layout
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -163,7 +177,11 @@ export default function Portfolio() {
                       {/* Screenshot */}
                       <div className="aspect-[16/10] overflow-hidden relative">
                         <img
-                          src={`https://api.microlink.io/?url=${encodeURIComponent(project.url)}&screenshot=true&meta=false&embed=screenshot.url`}
+                          src={
+                            project.image
+                              ? project.image
+                              : `https://api.microlink.io/?url=${encodeURIComponent(project.url)}&screenshot=true&meta=false&embed=screenshot.url`
+                          }
                           alt={project.title}
                           className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                           loading="lazy"
@@ -177,7 +195,7 @@ export default function Portfolio() {
                         <div className="flex items-start justify-between gap-2 mb-1.5">
                           <h3 className="font-bold text-white text-base">{project.title}</h3>
                           <span className="text-cyan-400 font-bold text-sm whitespace-nowrap">
-                            ↑ {project.metric}
+                            {project.internal ? '' : '↑ '}{project.metric}
                           </span>
                         </div>
 
