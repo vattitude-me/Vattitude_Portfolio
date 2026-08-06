@@ -1,6 +1,13 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 export default function Privacy() {
+  useEffect(() => {
+    const prev = document.title
+    document.title = 'Privacy Policy | Vattitude'
+    return () => { document.title = prev }
+  }, [])
+
   return (
     <div className="min-h-screen bg-[#050810] text-slate-300">
       <div className="max-w-4xl mx-auto px-6 py-24">
@@ -13,7 +20,7 @@ export default function Privacy() {
           </a>
 
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Privacy Policy</h1>
-          <p className="text-slate-500 mb-12">Last updated: June 2025</p>
+          <p className="text-slate-500 mb-12">Last updated: August 2025</p>
 
           <div className="space-y-8 text-slate-400 leading-relaxed">
             <section>

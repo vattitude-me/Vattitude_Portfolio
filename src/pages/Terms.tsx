@@ -1,6 +1,13 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 export default function Terms() {
+  useEffect(() => {
+    const prev = document.title
+    document.title = 'Terms & Conditions | Vattitude'
+    return () => { document.title = prev }
+  }, [])
+
   return (
     <div className="min-h-screen bg-[#050810] text-slate-300">
       <div className="max-w-4xl mx-auto px-6 py-24">
@@ -13,7 +20,7 @@ export default function Terms() {
           </a>
 
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Terms & Conditions</h1>
-          <p className="text-slate-500 mb-12">Last updated: June 2025</p>
+          <p className="text-slate-500 mb-12">Last updated: August 2025</p>
 
           <div className="space-y-8 text-slate-400 leading-relaxed">
             <section>
@@ -87,7 +94,20 @@ export default function Terms() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-3">9. Governing Law</h2>
+              <h2 className="text-xl font-semibold text-white mb-3">9. The Art Timeline</h2>
+              <p>
+                The Art Timeline (<a href="https://vattitude.ca/art-timeline" className="text-cyan-400 hover:underline">vattitude.ca/art-timeline</a>) is a free,
+                interactive educational experience provided for informational and cultural purposes only.
+                No purchase or account is required to access it. All written content, design, and code
+                within The Art Timeline are the intellectual property of Vattitude. Artwork images are
+                used for educational reference; all original artworks remain the property of their
+                respective rights holders. Vattitude makes no warranty as to the completeness or
+                accuracy of historical content and accepts no liability for decisions made based on it.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-3">10. Governing Law</h2>
               <p>
                 These terms are governed by the laws of the Province of Ontario, Canada.
                 Any disputes shall be resolved in the courts of Ontario.
@@ -95,7 +115,7 @@ export default function Terms() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-3">10. Contact</h2>
+              <h2 className="text-xl font-semibold text-white mb-3">11. Contact</h2>
               <p>
                 For questions about these terms, reach out at{' '}
                 <a href="mailto:info.vattitude@gmail.com" className="text-cyan-400 hover:underline">

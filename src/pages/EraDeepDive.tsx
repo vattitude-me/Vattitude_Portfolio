@@ -296,8 +296,42 @@ export default function EraDeepDive() {
     if (!era) return
     const prev = document.title
     document.title = `${era.name} — The Art Timeline | Vattitude`
+
+    const setMeta = (name: string, content: string, prop = false) => {
+      const attr = prop ? 'property' : 'name'
+      let el = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null
+      if (!el) {
+        el = document.createElement('meta')
+        el.setAttribute(attr, name)
+        document.head.appendChild(el)
+      }
+      el.setAttribute('content', content)
+    }
+
+    const desc = `Explore ${era.name} — key movements, iconic artists, and defining works from The Art Timeline. An interactive art history experience by Vattitude.`
+    const url = `https://vattitude.ca/art-timeline/${era.id}`
+
+    setMeta('description', desc)
+    setMeta('og:title', `${era.name} — The Art Timeline | Vattitude`, true)
+    setMeta('og:description', desc, true)
+    setMeta('og:url', url, true)
+    setMeta('og:type', 'website', true)
+    setMeta('twitter:title', `${era.name} — The Art Timeline | Vattitude`)
+    setMeta('twitter:description', desc)
+
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null
+    const prevCanonical = canonical?.getAttribute('href') ?? ''
+    if (canonical) canonical.setAttribute('href', url)
+
     return () => {
       document.title = prev
+      if (canonical) canonical.setAttribute('href', prevCanonical)
+      setMeta('description', 'Toronto-based digital agency building high-performance websites, apps, and brand identities. 19+ years of experience. UI/UX design, SEO, e-commerce, and automation for businesses ready to grow.')
+      setMeta('og:title', 'Vattitude — Web Development, Branding & Digital Growth | Toronto', true)
+      setMeta('og:description', 'Toronto-based digital agency building high-performance websites, apps, and brand identities. UI/UX design, SEO, e-commerce, and automation for businesses ready to grow.', true)
+      setMeta('og:url', 'https://vattitude.ca/', true)
+      setMeta('twitter:title', 'Vattitude — Web Development, Branding & Digital Growth | Toronto')
+      setMeta('twitter:description', 'Toronto-based digital agency building high-performance websites, apps, and brand identities. UI/UX design, SEO, e-commerce, and automation for businesses ready to grow.')
     }
   }, [era])
 
