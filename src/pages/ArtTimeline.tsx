@@ -347,29 +347,87 @@ function EraScene({
               </a>
             )}
 
-            {/* Step into the era - the deep-dive page opens out of this canvas. */}
+            {/* Step into the era. This is the whole point of the page, so it gets
+                the weight of a door rather than a footnote: era-tinted glow, a
+                light sweep on hover, and the collection's size stated up front. */}
             <Link
               to={`/art-timeline/${era.id}`}
-              className="group mt-5 flex items-center justify-between gap-4 w-full rounded-xl border px-5 py-4 transition-all duration-300"
+              className="group relative mt-6 block w-full overflow-hidden rounded-2xl border transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
               style={{
-                borderColor: `${era.theme.accent}44`,
-                background: `${era.theme.accent}0d`,
+                borderColor: `${era.theme.accent}66`,
+                background: `linear-gradient(135deg, ${era.theme.accent}1f 0%, ${era.theme.accent}08 55%, transparent 100%)`,
+                boxShadow: `0 0 0 1px ${era.theme.accent}14, 0 18px 50px -22px ${era.theme.glow}`,
               }}
             >
-              <span className="text-left">
-                <span className="block text-[13.5px] font-medium text-white/90 group-hover:text-white transition">
-                  Step inside {era.name}
+              {/* Light raking across the surface, the way a gallery lights a door. */}
+              {!reduced && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 -left-full w-1/2 skew-x-[-18deg] transition-all duration-[900ms] ease-out group-hover:left-[130%]"
+                  style={{
+                    background: `linear-gradient(90deg, transparent, ${era.theme.accent}2e, transparent)`,
+                  }}
+                />
+              )}
+
+              <span className="relative flex items-center gap-5 px-6 py-5 sm:px-7 sm:py-6">
+                <span className="min-w-0 flex-1 text-left">
+                  <span
+                    className="block font-mono text-[10px] uppercase tracking-[0.24em] mb-2"
+                    style={{ color: era.theme.accent }}
+                  >
+                    Enter the gallery
+                  </span>
+                  <span className="block text-xl sm:text-2xl font-semibold text-white leading-tight">
+                    Step inside {era.name}
+                  </span>
+                  <span className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-white/50">
+                    <span className="tabular-nums">
+                      <strong className="font-semibold text-white/80">{era.keyArtists.length}</strong> artists
+                    </span>
+                    <span aria-hidden style={{ color: `${era.theme.accent}66` }}>
+                      ◆
+                    </span>
+                    <span className="tabular-nums">
+                      <strong className="font-semibold text-white/80">
+                        {era.keyArtists.reduce((n, a) => n + a.works.length, 0)}
+                      </strong>{' '}
+                      works
+                    </span>
+                    <span aria-hidden style={{ color: `${era.theme.accent}66` }}>
+                      ◆
+                    </span>
+                    <span>the full story</span>
+                  </span>
                 </span>
-                <span className="block text-[11.5px] text-white/45 mt-0.5">
-                  {era.keyArtists.length} artists · full story · every work
+
+                {/* Arrow in a ring that fills on hover. */}
+                <span
+                  aria-hidden
+                  className="relative shrink-0 grid place-items-center w-12 h-12 sm:w-14 sm:h-14 rounded-full border transition-all duration-500 group-hover:scale-105"
+                  style={{
+                    borderColor: `${era.theme.accent}77`,
+                    background: `${era.theme.accent}14`,
+                  }}
+                >
+                  <span
+                    className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                    style={{ background: era.theme.accent }}
+                  />
+                  {/* Two arrows crossfade: an inline `color` would beat any
+                      hover class, so swap opacity instead of colour. */}
+                  <span className="relative text-xl transition-transform duration-500 group-hover:translate-x-0.5">
+                    <span
+                      className="block transition-opacity duration-500 group-hover:opacity-0"
+                      style={{ color: era.theme.accent }}
+                    >
+                      →
+                    </span>
+                    <span className="absolute inset-0 grid place-items-center text-black opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                      →
+                    </span>
+                  </span>
                 </span>
-              </span>
-              <span
-                className="shrink-0 text-lg transition-transform duration-300 group-hover:translate-x-1"
-                style={{ color: era.theme.accent }}
-                aria-hidden
-              >
-                →
               </span>
             </Link>
 
