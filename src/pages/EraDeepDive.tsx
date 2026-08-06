@@ -76,6 +76,7 @@ function Lightbox({
   onPrev,
   onNext,
   reduced,
+  position,
 }: {
   work: Artwork
   artistName: string
@@ -84,6 +85,8 @@ function Lightbox({
   onPrev: () => void
   onNext: () => void
   reduced: boolean
+  /** "3 / 7" - where this work sits in the artist's set. */
+  position: string
 }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -107,40 +110,59 @@ function Lightbox({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: reduced ? 0 : 0.25 }}
-      className="fixed inset-0 z-[95] bg-black/94 backdrop-blur-md flex items-center justify-center p-5 sm:p-12"
+      className="fixed inset-0 z-[95] bg-black/95 backdrop-blur-md"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={`${work.title} by ${artistName}`}
     >
+      {/* The painting's own colour, bloomed behind it, so the void reads as a room. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none opacity-[0.18]"
+        style={{
+          background: `radial-gradient(ellipse 60% 55% at 45% 45%, ${accent}, transparent 70%)`,
+        }}
+      />
+
+      {/* Painting fills the height; the caption rail is a fixed column beside it.
+          On smaller screens they stack and the whole thing scrolls. */}
       <motion.div
-        initial={{ scale: reduced ? 1 : 0.96, opacity: 0 }}
+        initial={{ scale: reduced ? 1 : 0.97, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: reduced ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-5xl grid lg:grid-cols-[1.4fr_1fr] gap-8 items-center"
+        className="relative h-full w-full flex flex-col lg:flex-row items-center gap-6 lg:gap-0 overflow-y-auto lg:overflow-hidden p-5 pt-16 lg:p-0"
         onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className="relative w-full rounded-lg overflow-hidden bg-black/60 border border-white/10"
-          style={{ maxHeight: '78vh', aspectRatio: '4 / 3' }}
-        >
-          <ArtImage
-            src={work.imageUrl}
-            alt={`${work.title} — ${artistName}`}
-            className="w-full h-full object-contain"
-            eager
-          />
+        {/* Canvas side - takes all remaining width and the full viewport height. */}
+        <div className="flex-1 min-w-0 w-full flex items-center justify-center lg:h-full lg:p-12 xl:p-16">
+          <figure
+            className="relative max-w-full max-h-full"
+            style={{ filter: 'drop-shadow(0 45px 90px rgba(0,0,0,0.85))' }}
+          >
+            <img
+              src={work.imageUrl}
+              alt={`${work.title} — ${artistName}`}
+              decoding="async"
+              referrerPolicy="no-referrer"
+              className="block max-w-full max-h-[60vh] lg:max-h-[calc(100vh-8rem)] w-auto h-auto object-contain rounded-sm"
+              style={{ boxShadow: `0 0 0 1px rgba(0,0,0,0.9), 0 0 0 7px ${accent}33` }}
+            />
+          </figure>
         </div>
 
-        <div className="text-left">
+        {/* Caption rail - a fixed measure so long factoids never sprawl. */}
+        <aside className="w-full lg:w-[min(30vw,400px)] shrink-0 lg:h-full lg:overflow-y-auto flex flex-col text-left px-1 lg:px-10 xl:px-12 lg:pt-24 xl:pt-28 lg:pb-12 lg:border-l border-white/10 lg:bg-white/[0.02]">
           <p className="font-mono text-[11px] tracking-[0.2em] mb-2" style={{ color: accent }}>
             {work.year}
           </p>
-          <h3 className="text-2xl font-semibold text-white leading-tight">{work.title}</h3>
-          <p className="text-white/55 text-sm mt-1">{artistName}</p>
+          <h3 className="text-2xl xl:text-[27px] font-semibold text-white leading-tight">
+            {work.title}
+          </h3>
+          <p className="text-white/55 text-sm mt-1.5">{artistName}</p>
 
           {work.factoid && (
-            <p className="text-[14px] text-slate-300/90 leading-relaxed mt-5 pt-5 border-t border-white/10">
+            <p className="text-[14.5px] text-slate-300/90 leading-relaxed mt-6 pt-6 border-t border-white/10">
               {work.factoid}
             </p>
           )}
@@ -150,33 +172,36 @@ function Lightbox({
               href={work.sourceLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block mt-5 text-[11.5px] text-white/40 hover:text-white/80 transition"
+              className="inline-block mt-6 text-[11.5px] text-white/40 hover:text-white/80 transition"
               onClick={(e) => e.stopPropagation()}
             >
               {work.sourceCredit} ↗
             </a>
           )}
 
-          <div className="flex gap-2 mt-7">
+          <div className="flex items-center gap-2 mt-8">
             <button
               onClick={onPrev}
-              className="px-3.5 py-2 rounded-full border border-white/15 text-[12px] text-white/70 hover:text-white hover:border-white/35 transition"
+              className="px-4 py-2 rounded-full border border-white/15 text-[12px] text-white/70 hover:text-white hover:border-white/35 transition"
             >
               ← Prev
             </button>
             <button
               onClick={onNext}
-              className="px-3.5 py-2 rounded-full border border-white/15 text-[12px] text-white/70 hover:text-white hover:border-white/35 transition"
+              className="px-4 py-2 rounded-full border border-white/15 text-[12px] text-white/70 hover:text-white hover:border-white/35 transition"
             >
               Next →
             </button>
+            <span className="ml-auto font-mono text-[10.5px] text-white/25 tabular-nums">
+              {position}
+            </span>
           </div>
-        </div>
+        </aside>
 
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute -top-2 right-0 lg:-right-10 w-9 h-9 rounded-full bg-white/10 border border-white/20 text-white/70 hover:text-white hover:bg-white/20 transition"
+          className="fixed top-5 right-5 lg:top-7 lg:right-7 z-10 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white/70 hover:text-white hover:bg-white/20 transition backdrop-blur"
         >
           ✕
         </button>
@@ -624,6 +649,7 @@ export default function EraDeepDive() {
             artistName={lightbox.artist.name}
             accent={accent}
             reduced={reduced}
+            position={`${lightbox.index + 1} / ${lightbox.artist.works.length}`}
             onClose={() => setLightbox(null)}
             onPrev={() => step(-1)}
             onNext={() => step(1)}
