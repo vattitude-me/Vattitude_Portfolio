@@ -130,7 +130,11 @@ function EraScene({
           willChange: 'transform, opacity, filter',
         }}
       >
-        <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-center">
+        {/* Top-aligned: the left column grows when an era carries offsite works,
+            and centring would float the artwork frame out of line with the era
+            heading. The frame sticks instead, so it stays in view while the
+            longer column scrolls. */}
+        <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-start">
           {/* Text column */}
           <div>
             <div className="flex items-center gap-3 mb-5">
@@ -253,7 +257,7 @@ function EraScene({
 
           {/* Big frame - shows the era hero, or the selected artist's work.
               Flips to reveal the factoid when one exists. */}
-          <div className="relative">
+          <div className="relative lg:sticky lg:top-24">
             <div
               className="relative w-full"
               style={{ perspective: '1600px' }}
