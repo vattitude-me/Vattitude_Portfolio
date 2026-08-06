@@ -16,6 +16,14 @@
 // verified line-by-line against each institution's catalogue. Treat the
 // `sourceCredit` text as indicative; the `imageUrl` values are the part that is
 // machine-verified.
+//
+// Licensing note for the `contemporary` era: unlike every earlier era, whose
+// images are public domain, its images are CC BY or CC BY-SA. Those licences
+// REQUIRE visible attribution to the photographer, so each `sourceCredit` there
+// names the photographer and licence and must not be shortened. The era is also
+// deliberately weighted to sculpture, installation and street art: the US has no
+// freedom of panorama and no post-1950 painting of note is freely licensed, so
+// Pollock, Rothko, Warhol and Basquiat appear under `offsiteWorks` instead.
 
 export type Artwork = {
   title: string
@@ -2283,6 +2291,261 @@ export const eras: Era[] = [
         "note": "A double self-portrait painted around her divorce from Diego Rivera: two Fridas share a severed artery, one in European dress, one in Tehuana.",
         "holder": "Museo de Arte Moderno, Mexico City",
         "link": "https://mam.inba.gob.mx/"
+      }
+    ]
+  },
+  {
+    "id": "contemporary",
+    "name": "Contemporary Art",
+    "shortName": "Contemporary",
+    "yearRange": "1950 – now",
+    "tagline": "Art walks off the wall",
+    "description": "Modern art had emptied the picture until there was almost nothing left to remove. What followed was not a new style but an escape from the frame altogether — into rooms you walk through, steel that reshapes a landscape, a wall in the street. The question stopped being what a painting should look like and became whether the thing needed to be a painting at all.",
+    "characteristics": [
+      "Installation",
+      "Monumental scale",
+      "Site-specific",
+      "Audience as participant"
+    ],
+    "theme": {
+      "accent": "#f472b6",
+      "gradientFrom": "#831843",
+      "gradientTo": "#0a0510",
+      "glow": "rgba(244, 114, 182, 0.3)"
+    },
+    "heroArtwork": {
+      "title": "Sunflower Seeds",
+      "artist": "Ai Weiwei",
+      "year": "2010",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Ai_Weiwei%27s_Sunflower_Seeds%2C_Tate_Modern_1.jpg/1920px-Ai_Weiwei%27s_Sunflower_Seeds%2C_Tate_Modern_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "sourceCredit": "Tate Modern, London — photograph by Mike Peel, CC BY-SA 4.0",
+      "sourceLink": "https://www.tate.org.uk/art/artworks/ai-sunflower-seeds-t13408",
+      "factoid": "One hundred million porcelain seeds, each one individually hand-painted by around 1,600 artisans in Jingdezhen, the town that made imperial porcelain for centuries. Visitors were meant to walk across them; the floor closed after six days when the ceramic dust proved hazardous."
+    },
+    "deepDive": {
+      "essay": [
+        "Modern painting had spent fifty years removing things — perspective, then subject matter, then in Malevich's case the image itself. By 1950 the reduction had nowhere left to go. What came next was not another way of painting but a series of arguments about whether painting was still the point.",
+        "The first answers were still made of paint. Pollock put the canvas on the floor and poured, so the finished work recorded the movement of a body rather than a view of anything. Rothko stacked blocks of colour and asked to have them hung low and lit dimly, close enough to fill your vision. Then Warhol screen-printed soup tins, and the distance between an artwork and a product collapsed on purpose.",
+        "After that the work left the wall in earnest. Serra cut concrete into a field so the sculpture became the walk between its parts. Gormley stood a twenty-metre steel figure beside a motorway and planted a hundred more in a tidal beach to be swallowed twice a day. Kusama handed visitors sheets of coloured dots and let them obliterate a white room themselves. Ai Weiwei filled the Turbine Hall with a hundred million hand-painted seeds. The audience stopped being someone who looked at the work and became someone standing inside it."
+      ],
+      "moments": [
+        {
+          "year": "1950",
+          "title": "Pollock drips",
+          "detail": "Pollock lays canvas on the floor and pours paint from above — no easel, no brush touching cloth. The painting becomes a record of movement rather than an image of anything."
+        },
+        {
+          "year": "1953",
+          "title": "Rothko's rectangles",
+          "detail": "Rothko settles on stacked blocks of soft-edged colour and instructs that they hang low, in dim light, close enough to fill the viewer's field of vision entirely."
+        },
+        {
+          "year": "1962",
+          "title": "Warhol paints soup",
+          "detail": "Thirty-two canvases, one for every flavour Campbell's sold, made with screen-printing. Fine art adopts the visual logic of the supermarket shelf."
+        },
+        {
+          "year": "1970",
+          "title": "Serra cuts the land",
+          "detail": "Six concrete sections set across an Ontario field. The sculpture is not the concrete but the walk between the parts, and the way the ground reveals itself as you move.",
+          "anchorWork": "Shift"
+        },
+        {
+          "year": "1998",
+          "title": "The Angel lands",
+          "detail": "Twenty metres of weathering steel goes up beside the A1 at Gateshead. Local opposition is fierce; within a decade it is the emblem of the North East.",
+          "anchorWork": "Angel of the North"
+        },
+        {
+          "year": "2008",
+          "title": "Banksy on Newman Street",
+          "detail": "Painted over three nights on scaffolding beside a CCTV camera, in full view of it. Removed the following year — impermanence built into the work.",
+          "anchorWork": "One Nation Under CCTV"
+        },
+        {
+          "year": "2010",
+          "title": "One hundred million seeds",
+          "detail": "Ai Weiwei fills Tate's Turbine Hall with hand-painted porcelain seeds, each one identical at a glance and individual up close.",
+          "anchorWork": "Sunflower Seeds"
+        }
+      ],
+      "lookFor": [
+        {
+          "label": "Where you are standing",
+          "detail": "Much of this work only exists while you are inside it. Your position and the scale around you are the medium, not the subject."
+        },
+        {
+          "label": "What it is made of",
+          "detail": "Porcelain, weathering steel, a brick wall. The material usually carries the argument — Ai Weiwei's seeds mean what they mean because of where porcelain comes from."
+        },
+        {
+          "label": "Who actually made it",
+          "detail": "Fabricated by engineering firms, foundries and whole towns of artisans. The artist's own hand is often nowhere in the finished object."
+        },
+        {
+          "label": "Whether it is meant to last",
+          "detail": "Tides cover it, councils scrub it off, the steel rusts on purpose. Permanence stopped being the point."
+        },
+        {
+          "label": "The paintings you cannot see here",
+          "detail": "Every major painting after 1950 is still in copyright. The works below are sculpture, installation and street art because those are what can be shown — the absence is legal, not editorial."
+        }
+      ],
+      "legacy": "This is the first era on the timeline whose artists are largely still alive, and the first where the images run out. Pollock, Rothko, Warhol and Basquiat sit below as links to the museums that hold them, because copyright reaches roughly seventy years past an artist's death and none of them are far enough away yet. The timeline ends not because art stopped, but because the pictures stop being ours to show."
+    },
+    "keyArtists": [
+      {
+        "name": "Ai Weiwei",
+        "years": "b. 1957",
+        "nationality": "Chinese",
+        "epithet": "Scale as argument",
+        "bio": "Sculptor, architect and dissident who works at industrial scale, usually with materials that carry Chinese history inside them.",
+        "longBio": "The son of the poet Ai Qing, who was denounced and exiled during the Anti-Rightist Movement, Ai Weiwei grew up in internal exile in Xinjiang. He helped design Beijing's Olympic stadium, then publicly disowned the project. His work catalogues state failure — most notably the names of the schoolchildren killed in the 2008 Sichuan earthquake — and he was detained for 81 days in 2011 and had his passport withheld until 2015. Much of his practice depends on traditional Chinese craft carried out by large teams of artisans.",
+        "portraitUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Ai_Weiwei_Rendel.jpg/960px-Ai_Weiwei_Rendel.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "works": [
+          {
+            "title": "Sunflower Seeds",
+            "year": "2010",
+            "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Ai_Weiwei%27s_Sunflower_Seeds%2C_Tate_Modern_1.jpg/1920px-Ai_Weiwei%27s_Sunflower_Seeds%2C_Tate_Modern_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "factoid": "Under Mao, propaganda showed the people as sunflowers turning towards the sun. Ai gives you a hundred million seeds instead — mass-produced, identical from a distance, every one different in the hand.",
+            "sourceCredit": "Tate Modern, London — photograph by Mike Peel, CC BY-SA 4.0",
+            "sourceLink": "https://www.tate.org.uk/art/artworks/ai-sunflower-seeds-t13408"
+          }
+        ]
+      },
+      {
+        "name": "Antony Gormley",
+        "years": "b. 1950",
+        "nationality": "British",
+        "epithet": "The body as a place",
+        "bio": "Almost every work starts as a cast of his own body, then gets multiplied, weathered and put somewhere the public cannot avoid it.",
+        "longBio": "Gormley studied archaeology and anthropology at Cambridge and spent three years in India studying Buddhism before training as a sculptor. His method has been consistent for four decades: his own body, held still and cast, used less as a self-portrait than as a standard human unit. The results are deliberately sited outside galleries — on a motorway verge, a tidal beach, the rooftops of central London — where they are encountered by people who did not set out to look at sculpture.",
+        "portraitUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Antony_Gormley_portrait.jpg/960px-Antony_Gormley_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "works": [
+          {
+            "title": "Angel of the North",
+            "year": "1998",
+            "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Angel_of_the_North_2016_004.jpg/1920px-Angel_of_the_North_2016_004.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "factoid": "The wings are angled twelve degrees forward rather than flat, which Gormley described as creating a sense of embrace. It stands on the site of a former colliery bath house, above the pit workings.",
+            "sourceCredit": "Gateshead, Tyne and Wear — photograph by Mike Peel, CC BY-SA 4.0",
+            "sourceLink": "https://www.gateshead.gov.uk/article/3957/Angel-of-the-North"
+          },
+          {
+            "title": "Another Place",
+            "year": "1997",
+            "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Crosby_Beach%2C_Another_Place_by_Antony_Gormley_-_panoramio_%281%29.jpg/1920px-Crosby_Beach%2C_Another_Place_by_Antony_Gormley_-_panoramio_%281%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "factoid": "One hundred iron figures stand across three kilometres of Crosby Beach, all facing the sea. The tide covers and uncovers them twice a day, so the work is never twice the same and is sometimes not visible at all.",
+            "sourceCredit": "Crosby Beach, Merseyside — photograph by Heikki Immonen, CC BY 3.0",
+            "sourceLink": "https://www.antonygormley.com/artworks/"
+          }
+        ]
+      },
+      {
+        "name": "Richard Serra",
+        "years": "1938 – 2024",
+        "nationality": "American",
+        "epithet": "Steel that moves you",
+        "bio": "Worked in steel mills before he worked in galleries, and made sculpture heavy enough that walking through it changes how you stand.",
+        "longBio": "Serra paid for his art education by working in steel mills, and never really left the material. His sculptures are made of plates weighing many tonnes, curved so that walking between them makes the space narrow and widen unpredictably. His public work drew unusual public anger: Tilted Arc, installed in a New York plaza in 1981, was removed in 1989 after a federal hearing, and Serra always maintained that relocating a site-specific work destroys it.",
+        "portraitUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Oliver_Mark_-_Richard_Serra%2C_Siegen_2005.jpg/960px-Oliver_Mark_-_Richard_Serra%2C_Siegen_2005.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "works": [
+          {
+            "title": "Shift",
+            "year": "1970",
+            "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Richard_Serra%27s_%22Shift%22_%281970%29_%2815889992437%29.jpg/1920px-Richard_Serra%27s_%22Shift%22_%281970%29_%2815889992437%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "factoid": "Serra set the concrete sections by having two people walk the field until they lost sight of each other. The work maps the exact curvature of the ground rather than being imposed on it.",
+            "sourceCredit": "King City, Ontario — photograph by Jason Paris, CC BY 2.0",
+            "sourceLink": "https://www.ontario.ca/"
+          }
+        ]
+      },
+      {
+        "name": "Banksy",
+        "years": "b. c. 1974",
+        "nationality": "British",
+        "epithet": "Anonymous, everywhere",
+        "bio": "Stencils painted illegally on public walls, usually overnight, by an artist whose identity has never been confirmed.",
+        "longBio": "Working out of Bristol from the early 1990s, Banksy adopted stencils because they cut the time spent exposed at a wall. The identity remains unconfirmed, which is structural rather than coy: the work is criminal damage, and the anonymity is what makes it possible. The pieces are also deliberately precarious — painted over by councils, cut out of walls and sold by others, or in the case of Girl with Balloon, shredded by a mechanism hidden in the frame moments after selling at Sotheby's in 2018.",
+        "portraitUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Banksy_graffiti_on_Newman_Street_-_One_Nation_Under_CCTV.jpg/1920px-Banksy_graffiti_on_Newman_Street_-_One_Nation_Under_CCTV.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "works": [
+          {
+            "title": "One Nation Under CCTV",
+            "year": "2008",
+            "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Banksy_graffiti_on_Newman_Street_-_One_Nation_Under_CCTV.jpg/1920px-Banksy_graffiti_on_Newman_Street_-_One_Nation_Under_CCTV.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "factoid": "Painted over three nights from full scaffolding, directly beside a working CCTV camera and within its view. Westminster Council removed it in 2009.",
+            "sourceCredit": "Newman Street, London — photograph by VirtuallyLondonBecky, CC BY-SA 4.0",
+            "sourceLink": "https://www.banksy.co.uk/"
+          }
+        ]
+      },
+      {
+        "name": "Yayoi Kusama",
+        "years": "b. 1929",
+        "nationality": "Japanese",
+        "epithet": "Dots without end",
+        "bio": "Has painted, printed and installed the same repeating dot for seventy years, following hallucinations she has had since childhood.",
+        "longBio": "Kusama has described seeing fields of dots spreading over surfaces since she was a child, and has called her work an attempt to record and survive them. She moved to New York in 1958, staged guerrilla happenings through the 1960s, then returned to Japan in 1973 and has lived voluntarily in a psychiatric hospital in Tokyo since 1977, walking to her studio each day. Her infinity rooms have made her among the most-visited living artists in the world.",
+        "portraitUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Yayoi_Kusama_circa_2004.jpg/960px-Yayoi_Kusama_circa_2004.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+        "works": [
+          {
+            "title": "Pumpkin",
+            "year": "1994",
+            "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Yayoi_Kusama_Pumpkin.jpg/960px-Yayoi_Kusama_Pumpkin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "factoid": "Kusama has said the pumpkin's shape has comforted her since childhood — she called it charming for its generous unpretentiousness. The yellow one sits on a pier on Naoshima island and has been washed into the sea by typhoons more than once.",
+            "sourceCredit": "Naoshima, Japan — photograph by Zlatko, CC0",
+            "sourceLink": "https://benesse-artsite.jp/en/"
+          },
+          {
+            "title": "The Obliteration Room",
+            "year": "2002 – ongoing",
+            "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Yayoi_Kusama_Obliteration_Room.jpg/960px-Yayoi_Kusama_Obliteration_Room.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+            "factoid": "The room begins entirely white — walls, furniture, piano, everything. Visitors are handed sheets of coloured dot stickers and told to put them anywhere. Over the weeks of a show the room disappears under them.",
+            "sourceCredit": "Photograph via Helsinki Art Museum / The Broad, CC BY-SA 4.0",
+            "sourceLink": "https://www.thebroad.org/art/yayoi-kusama"
+          }
+        ]
+      }
+    ],
+    "offsiteWorks": [
+      {
+        "title": "Autumn Rhythm (Number 30)",
+        "artist": "Jackson Pollock",
+        "year": "1950",
+        "note": "Over five metres wide, made with the canvas flat on the floor and paint poured, flung and dripped from sticks and hardened brushes. Pollock said he could walk around it and be literally in the painting.",
+        "holder": "The Metropolitan Museum of Art, New York",
+        "link": "https://www.metmuseum.org/art/collection/search/488978"
+      },
+      {
+        "title": "No. 61 (Rust and Blue)",
+        "artist": "Mark Rothko",
+        "year": "1953",
+        "note": "Rothko left instructions that his paintings hang low and be lit dimly, and wanted viewers to stand about forty-five centimetres away so the colour filled their vision. He described the work as being about tragedy and ecstasy, not about colour.",
+        "holder": "The Museum of Contemporary Art, Los Angeles",
+        "link": "https://www.moca.org/collection"
+      },
+      {
+        "title": "Campbell's Soup Cans",
+        "artist": "Andy Warhol",
+        "year": "1962",
+        "note": "Thirty-two canvases, one for each variety the company then sold, shown in a row on shelves like stock. Warhol said he ate the same soup for lunch every day for twenty years.",
+        "holder": "Museum of Modern Art, New York",
+        "link": "https://www.moma.org/collection/works/79809"
+      },
+      {
+        "title": "Untitled (Skull)",
+        "artist": "Jean-Michel Basquiat",
+        "year": "1981",
+        "note": "Painted at twenty-one, a few years after he was writing SAMO graffiti on Lower Manhattan walls. The head is part skull, part street map, part anatomical diagram. He died at twenty-seven.",
+        "holder": "The Broad, Los Angeles",
+        "link": "https://www.thebroad.org/art/jean-michel-basquiat"
+      },
+      {
+        "title": "The Physical Impossibility of Death in the Mind of Someone Living",
+        "artist": "Damien Hirst",
+        "year": "1991",
+        "note": "A fourteen-foot tiger shark suspended in formaldehyde in a steel and glass tank. The original specimen decayed badly and was replaced in 2006, which raised the question of whether the result is still the same artwork.",
+        "holder": "Private collection — exhibited internationally",
+        "link": "https://www.damienhirst.com/the-physical-impossibility-of"
       }
     ]
   }
