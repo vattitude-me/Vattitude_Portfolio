@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { eras, type Artist, type Artwork } from '../data/artEras'
+import { eras, type Artist, type Artwork, type EraMoment } from '../data/artEras'
 import GildedFrame from '../components/GildedFrame'
 import ArtImage from '../components/ArtImage'
 
@@ -63,6 +63,72 @@ function WorkTile({
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         style={{ boxShadow: `inset 0 0 0 2px ${accent}88` }}
       />
+    </motion.button>
+  )
+}
+
+/**
+ * The work attached to a turning point, shown as a small framed plate beside
+ * the text - so a reader new to the era sees what the moment actually looked
+ * like instead of just reading its name. Opens the same lightbox as the
+ * gallery tiles, so the two routes into a painting behave identically.
+ */
+function MomentPlate({
+  work,
+  artistName,
+  accent,
+  align,
+  onOpen,
+  reduced,
+}: {
+  work: Artwork
+  artistName: string
+  accent: string
+  /** Which side of the spine this sits on, so it hugs the text edge. */
+  align: 'left' | 'right'
+  onOpen: () => void
+  reduced: boolean
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onOpen}
+      initial={{ opacity: 0, scale: reduced ? 1 : 0.96 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: '-50px' }}
+      transition={{ duration: reduced ? 0 : 0.5, delay: reduced ? 0 : 0.1 }}
+      aria-label={`View ${work.title} by ${artistName}`}
+      /* Shrink to content and hug the spine on whichever side we're on, so the
+         plates form a column down the centre instead of drifting outward. */
+      className={`group mt-5 flex w-full lg:w-auto items-center gap-4 rounded-lg border border-white/10 bg-black/30 p-2.5 text-left transition-all duration-300 hover:border-white/25 hover:bg-black/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 ${
+        align === 'right'
+          ? 'pr-4 lg:pr-2.5 lg:pl-4 lg:ml-auto lg:flex-row-reverse lg:text-right'
+          : 'pr-4 lg:mr-auto'
+      }`}
+    >
+      {/* Gilt-edged so it reads as a hung painting, not a UI avatar. */}
+      <span
+        className="relative shrink-0 w-[76px] h-[76px] sm:w-[88px] sm:h-[88px] rounded overflow-hidden bg-black/60"
+        style={{ boxShadow: `0 0 0 1px ${accent}55, 0 8px 22px -10px ${accent}` }}
+      >
+        <ArtImage
+          src={work.imageUrl}
+          alt=""
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.07]"
+        />
+      </span>
+
+      <span className="min-w-0 lg:max-w-[15rem]">
+        <span className="block text-[10px] uppercase tracking-[0.18em] text-white/35 mb-1">
+          See it
+        </span>
+        <span className="block text-[14px] font-medium text-white/90 group-hover:text-white leading-snug transition">
+          {work.title}
+        </span>
+        <span className="block text-[12px] text-white/45 mt-0.5">
+          {artistName} · {work.year}
+        </span>
+      </span>
     </motion.button>
   )
 }
@@ -242,6 +308,24 @@ export default function EraDeepDive() {
   const prevEra = index > 0 ? eras[index - 1] : null
   const nextEra = index < eras.length - 1 ? eras[index + 1] : null
 
+  /**
+   * Resolve a moment's `anchorWork` to the artist and index the lightbox needs.
+   * Returns null when the moment has no anchor, or names a work that isn't in
+   * this era - so a data slip degrades to plain text rather than crashing.
+   */
+  const anchorFor = (m: EraMoment) => {
+    if (!m.anchorWork) return null
+    for (const artist of era.keyArtists) {
+      const index = artist.works.findIndex((w) => w.title === m.anchorWork)
+      if (index !== -1) {
+        return { artist, artistName: artist.name, index, work: artist.works[index] }
+      }
+    }
+    return null
+  }
+
+  const anchoredCount = (era.deepDive?.moments ?? []).filter((m) => anchorFor(m)).length
+
   const step = (dir: number) => {
     if (!lightbox) return
     const n = lightbox.artist.works.length
@@ -389,36 +473,100 @@ export default function EraDeepDive() {
           </section>
         )}
 
-        {/* ---------- Chronology ---------- */}
+        {/* ---------- Chronology: the era as a walk past paintings ---------- */}
         {era.deepDive?.moments && era.deepDive.moments.length > 0 && (
           <section className="relative px-6 sm:px-12 lg:px-20 py-20 border-t border-white/[0.06]">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-[11px] uppercase tracking-[0.24em] text-white/40 mb-10">
+            <div className="max-w-[1100px] mx-auto">
+              <h2 className="text-[11px] uppercase tracking-[0.24em] text-white/40 mb-3">
                 Turning points
               </h2>
-              <ol className="relative border-l border-white/12 ml-2">
-                {era.deepDive.moments.map((m, i) => (
-                  <motion.li
-                    key={m.year + m.title}
-                    initial={{ opacity: 0, x: reduced ? 0 : -12 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: '-60px' }}
-                    transition={{ duration: reduced ? 0 : 0.45, delay: reduced ? 0 : i * 0.05 }}
-                    className="relative pl-8 pb-10 last:pb-0"
-                  >
-                    <span
-                      className="absolute -left-[6.5px] top-1.5 w-[11px] h-[11px] rounded-full border-2"
-                      style={{ background: '#050810', borderColor: accent }}
-                    />
-                    <p className="font-mono text-[11.5px] mb-1.5" style={{ color: accent }}>
-                      {m.year}
-                    </p>
-                    <p className="text-white font-medium text-[16px]">{m.title}</p>
-                    <p className="text-slate-300/80 text-[14.5px] leading-relaxed mt-1.5">
-                      {m.detail}
-                    </p>
-                  </motion.li>
-                ))}
+              <p className="text-white/45 text-[14px] mb-14 max-w-xl">
+                {anchoredCount > 0
+                  ? 'The moments that changed what art could do — and, where one survives, the work that did it. Click a painting to see it full size.'
+                  : 'The moments that changed what art could do.'}
+              </p>
+
+              <ol className="relative">
+                {/* The spine. On large screens it runs down the centre and the
+                    entries alternate around it, so the era reads as a walk
+                    rather than a list. Below lg everything stacks left. */}
+                <span
+                  aria-hidden
+                  className="absolute top-2 bottom-2 left-[7px] lg:left-1/2 w-px -translate-x-0 lg:-translate-x-1/2"
+                  style={{
+                    background: `linear-gradient(180deg, transparent, ${accent}55 8%, ${accent}55 92%, transparent)`,
+                  }}
+                />
+
+                {era.deepDive.moments.map((m, i) => {
+                  const anchor = anchorFor(m)
+                  // Alternate sides on lg+; odd entries sit right of the spine.
+                  const flip = i % 2 === 1
+                  return (
+                    <motion.li
+                      key={m.year + m.title}
+                      initial={{ opacity: 0, y: reduced ? 0 : 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: '-70px' }}
+                      transition={{ duration: reduced ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      className="relative pl-9 lg:pl-0 pb-14 last:pb-0"
+                    >
+                      {/* Node on the spine. Filled when the moment has a work. */}
+                      <span
+                        aria-hidden
+                        className="absolute top-1.5 left-0 lg:left-1/2 lg:-translate-x-1/2 w-[15px] h-[15px] rounded-full border-2 grid place-items-center"
+                        style={{
+                          background: '#050810',
+                          borderColor: accent,
+                          boxShadow: anchor ? `0 0 16px -2px ${accent}` : 'none',
+                        }}
+                      >
+                        {anchor && (
+                          <span
+                            className="w-[5px] h-[5px] rounded-full"
+                            style={{ background: accent }}
+                          />
+                        )}
+                      </span>
+
+                      <div className="lg:grid lg:grid-cols-2 lg:gap-14">
+                        <div
+                          className={
+                            flip
+                              ? 'lg:col-start-2 lg:text-left lg:pl-4'
+                              : 'lg:col-start-1 lg:text-right lg:pr-4'
+                          }
+                        >
+                          <p
+                            className="font-mono text-[11.5px] tracking-wider mb-2"
+                            style={{ color: accent }}
+                          >
+                            {m.year}
+                          </p>
+                          <h3 className="text-white font-semibold text-[19px] sm:text-[21px] leading-tight">
+                            {m.title}
+                          </h3>
+                          <p className="text-slate-300/80 text-[14.5px] leading-relaxed mt-2.5 max-w-prose lg:inline-block">
+                            {m.detail}
+                          </p>
+
+                          {anchor && (
+                            <MomentPlate
+                              work={anchor.work}
+                              artistName={anchor.artistName}
+                              accent={accent}
+                              align={flip ? 'left' : 'right'}
+                              reduced={reduced}
+                              onOpen={() =>
+                                setLightbox({ artist: anchor.artist, index: anchor.index })
+                              }
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </motion.li>
+                  )
+                })}
               </ol>
             </div>
           </section>

@@ -49,6 +49,15 @@ export type EraMoment = {
   year: string
   title: string
   detail: string
+  /**
+   * Title of a work in this era's `keyArtists` that the moment is actually
+   * about, so the chronology can show it. Hand-curated rather than matched by
+   * name at runtime: fuzzy matching happily paired "Artemisia's trial" with
+   * "The Art of Painting", and the wrong painting against a date teaches
+   * something false. Moments with no honest match (Cubism, the Salon des
+   * Refusés) simply omit it and render as text.
+   */
+  anchorWork?: string
 }
 
 export type Era = {
@@ -145,27 +154,32 @@ export const eras: Era[] = [
         {
           "year": "c. 40,000 BCE",
           "title": "The first marks",
-          "detail": "Hand stencils and simple discs appear on cave walls in Spain and Indonesia — the earliest images we can date, made by blowing pigment around a hand held to the rock."
+          "detail": "Hand stencils and simple discs appear on cave walls in Spain and Indonesia — the earliest images we can date, made by blowing pigment around a hand held to the rock.",
+          "anchorWork": "Bhimbetka rock shelters"
         },
         {
           "year": "c. 32,000 BCE",
           "title": "Chauvet",
-          "detail": "A cave in southern France is decorated with lions, rhinos and horses of startling sophistication, then sealed by a rockfall — preserving the oldest well-dated paintings on earth."
+          "detail": "A cave in southern France is decorated with lions, rhinos and horses of startling sophistication, then sealed by a rockfall — preserving the oldest well-dated paintings on earth.",
+          "anchorWork": "Panel of the Horses"
         },
         {
           "year": "c. 25,000 BCE",
           "title": "Portable figures",
-          "detail": "Small carved figures like the Venus of Willendorf spread across Europe — art that could travel with a group rather than waiting in a cave."
+          "detail": "Small carved figures like the Venus of Willendorf spread across Europe — art that could travel with a group rather than waiting in a cave.",
+          "anchorWork": "Venus of Willendorf"
         },
         {
           "year": "c. 17,000 BCE",
           "title": "Lascaux",
-          "detail": "Nearly 600 painted animals cover the walls of a Dordogne cave system, including the Hall of the Bulls, the largest of which runs over five metres long."
+          "detail": "Nearly 600 painted animals cover the walls of a Dordogne cave system, including the Hall of the Bulls, the largest of which runs over five metres long.",
+          "anchorWork": "The Hall of the Bulls"
         },
         {
           "year": "c. 15,000 BCE",
           "title": "Altamira",
-          "detail": "Polychrome bison are painted on a low Spanish ceiling. When published in 1880, experts declared them a forgery — no \"primitive\" people could have made them. It took decades to admit they were genuine."
+          "detail": "Polychrome bison are painted on a low Spanish ceiling. When published in 1880, experts declared them a forgery — no \"primitive\" people could have made them. It took decades to admit they were genuine.",
+          "anchorWork": "Bison of Altamira"
         }
       ],
       "lookFor": [
@@ -348,32 +362,38 @@ export const eras: Era[] = [
         {
           "year": "c. 2560 BCE",
           "title": "The Great Sphinx",
-          "detail": "Carved from a single limestone outcrop on the Giza plateau, the largest monolithic statue ever made."
+          "detail": "Carved from a single limestone outcrop on the Giza plateau, the largest monolithic statue ever made.",
+          "anchorWork": "The Great Sphinx of Giza"
         },
         {
           "year": "c. 1345 BCE",
           "title": "The Amarna experiment",
-          "detail": "Akhenaten's brief religious revolution produces a startlingly naturalistic court style — including the Nefertiti bust — before being erased by his successors."
+          "detail": "Akhenaten's brief religious revolution produces a startlingly naturalistic court style — including the Nefertiti bust — before being erased by his successors.",
+          "anchorWork": "Bust of Nefertiti"
         },
         {
           "year": "c. 480 BCE",
           "title": "Contrapposto",
-          "detail": "Greek sculptors work out how to distribute weight through a standing figure. Statues stop standing to attention and start inhabiting space."
+          "detail": "Greek sculptors work out how to distribute weight through a standing figure. Statues stop standing to attention and start inhabiting space.",
+          "anchorWork": "Doryphoros (Spear-Bearer)"
         },
         {
           "year": "c. 440 BCE",
           "title": "The Parthenon",
-          "detail": "Phidias oversees the sculptural programme of the Athenian Acropolis — the high-water mark of the classical style."
+          "detail": "Phidias oversees the sculptural programme of the Athenian Acropolis — the high-water mark of the classical style.",
+          "anchorWork": "The Parthenon Frieze (Cavalcade)"
         },
         {
           "year": "c. 20 BCE",
           "title": "Augustus of Prima Porta",
-          "detail": "Rome fuses Greek idealised anatomy with imperial propaganda: a portrait of a real ruler on the body of a god."
+          "detail": "Rome fuses Greek idealised anatomy with imperial propaganda: a portrait of a real ruler on the body of a god.",
+          "anchorWork": "Augustus of Prima Porta"
         },
         {
           "year": "c. 100–300 CE",
           "title": "The Fayum portraits",
-          "detail": "Encaustic panel portraits attached to Egyptian mummies produce the most lifelike faces to survive from the ancient world."
+          "detail": "Encaustic panel portraits attached to Egyptian mummies produce the most lifelike faces to survive from the ancient world.",
+          "anchorWork": "Fayum Mummy Portrait"
         }
       ],
       "lookFor": [
@@ -610,32 +630,38 @@ export const eras: Era[] = [
         {
           "year": "c. 547",
           "title": "Ravenna mosaics",
-          "detail": "The San Vitale mosaics fix the Byzantine imperial style: frontal, weightless, set against shimmering gold tesserae."
+          "detail": "The San Vitale mosaics fix the Byzantine imperial style: frontal, weightless, set against shimmering gold tesserae.",
+          "anchorWork": "Emperor Justinian and His Court"
         },
         {
           "year": "c. 800",
           "title": "The Book of Kells",
-          "detail": "Irish monks produce an illuminated gospel book of obsessive intricacy, with initials that dissolve into interlaced animals."
+          "detail": "Irish monks produce an illuminated gospel book of obsessive intricacy, with initials that dissolve into interlaced animals.",
+          "anchorWork": "Book of Kells, Chi Rho page"
         },
         {
           "year": "1077",
           "title": "The Bayeux Tapestry",
-          "detail": "Seventy metres of embroidered narrative record the Norman conquest — secular storytelling on an epic scale."
+          "detail": "Seventy metres of embroidered narrative record the Norman conquest — secular storytelling on an epic scale.",
+          "anchorWork": "The Death of Harold"
         },
         {
           "year": "c. 1280",
           "title": "Cimabue and Duccio",
-          "detail": "Italian panel painters begin softening Byzantine rigidity, giving the Virgin a hint of physical presence."
+          "detail": "Italian panel painters begin softening Byzantine rigidity, giving the Virgin a hint of physical presence.",
+          "anchorWork": "Maestà (Santa Trinita)"
         },
         {
           "year": "c. 1305",
           "title": "The Scrovegni Chapel",
-          "detail": "Giotto frescoes a Paduan chapel with figures that have volume and emotion. Western painting changes direction."
+          "detail": "Giotto frescoes a Paduan chapel with figures that have volume and emotion. Western painting changes direction.",
+          "anchorWork": "The Lamentation"
         },
         {
           "year": "c. 1412",
           "title": "Les Très Riches Heures",
-          "detail": "The Limbourg brothers illuminate a book of hours whose calendar pages record real landscape, weather and labour."
+          "detail": "The Limbourg brothers illuminate a book of hours whose calendar pages record real landscape, weather and labour.",
+          "anchorWork": "Les Très Riches Heures: June"
         }
       ],
       "lookFor": [
@@ -883,22 +909,26 @@ export const eras: Era[] = [
         {
           "year": "1434",
           "title": "The Arnolfini Portrait",
-          "detail": "Van Eyck shows what oil paint can do — a convex mirror reflecting the whole room, and a signature on the wall."
+          "detail": "Van Eyck shows what oil paint can do — a convex mirror reflecting the whole room, and a signature on the wall.",
+          "anchorWork": "The Arnolfini Portrait"
         },
         {
           "year": "c. 1486",
           "title": "The Birth of Venus",
-          "detail": "Botticelli paints a monumental pagan nude for a Medici patron, unthinkable a century earlier."
+          "detail": "Botticelli paints a monumental pagan nude for a Medici patron, unthinkable a century earlier.",
+          "anchorWork": "The Birth of Venus"
         },
         {
           "year": "1498",
           "title": "The Last Supper completed",
-          "detail": "Leonardo finishes his Milan mural — and it begins deteriorating almost immediately because of his experimental technique."
+          "detail": "Leonardo finishes his Milan mural — and it begins deteriorating almost immediately because of his experimental technique.",
+          "anchorWork": "The Last Supper"
         },
         {
           "year": "1508–1512",
           "title": "The Sistine Ceiling",
-          "detail": "Michelangelo, who insisted he was a sculptor and not a painter, spends four years on his back under a ceiling."
+          "detail": "Michelangelo, who insisted he was a sculptor and not a painter, spends four years on his back under a ceiling.",
+          "anchorWork": "The Creation of Adam"
         },
         {
           "year": "1506",
@@ -1242,32 +1272,38 @@ export const eras: Era[] = [
         {
           "year": "1600",
           "title": "Caravaggio's Contarelli Chapel",
-          "detail": "The Calling of St Matthew is unveiled in Rome. Its raking light and street realism make Caravaggio instantly famous and widely imitated."
+          "detail": "The Calling of St Matthew is unveiled in Rome. Its raking light and street realism make Caravaggio instantly famous and widely imitated.",
+          "anchorWork": "The Calling of St Matthew"
         },
         {
           "year": "1610",
           "title": "Caravaggio dies in exile",
-          "detail": "Wanted for murder, he dies at 38 on a beach in Tuscany while trying to reach a papal pardon."
+          "detail": "Wanted for murder, he dies at 38 on a beach in Tuscany while trying to reach a papal pardon.",
+          "anchorWork": "The Incredulity of Saint Thomas"
         },
         {
           "year": "1612",
           "title": "Artemisia's trial",
-          "detail": "Artemisia Gentileschi testifies under torture at the trial of her rapist. Her Judith paintings follow."
+          "detail": "Artemisia Gentileschi testifies under torture at the trial of her rapist. Her Judith paintings follow.",
+          "anchorWork": "Judith Beheading Holofernes (Naples)"
         },
         {
           "year": "1632",
           "title": "The Anatomy Lesson",
-          "detail": "A 26-year-old Rembrandt makes his name in Amsterdam with a group portrait built around a dissection."
+          "detail": "A 26-year-old Rembrandt makes his name in Amsterdam with a group portrait built around a dissection.",
+          "anchorWork": "The Anatomy Lesson of Dr Nicolaes Tulp"
         },
         {
           "year": "1642",
           "title": "The Night Watch",
-          "detail": "Rembrandt turns a static militia portrait into a scene of movement and light — and, tradition wrongly holds, damages his career doing it."
+          "detail": "Rembrandt turns a static militia portrait into a scene of movement and light — and, tradition wrongly holds, damages his career doing it.",
+          "anchorWork": "The Night Watch"
         },
         {
           "year": "c. 1665",
           "title": "Girl with a Pearl Earring",
-          "detail": "Vermeer produces a tronie — a study of a type, not a portrait of a person — that becomes one of the most recognisable faces in art."
+          "detail": "Vermeer produces a tronie — a study of a type, not a portrait of a person — that becomes one of the most recognisable faces in art.",
+          "anchorWork": "Girl with a Pearl Earring"
         }
       ],
       "lookFor": [
@@ -1557,12 +1593,14 @@ export const eras: Era[] = [
         {
           "year": "1874",
           "title": "The first independent show",
-          "detail": "Monet, Degas, Renoir, Pissarro and Morisot exhibit together. A critic mocks Monet's Impression, Sunrise, and accidentally names the movement."
+          "detail": "Monet, Degas, Renoir, Pissarro and Morisot exhibit together. A critic mocks Monet's Impression, Sunrise, and accidentally names the movement.",
+          "anchorWork": "Impression, Sunrise"
         },
         {
           "year": "1884",
           "title": "Seurat begins La Grande Jatte",
-          "detail": "Pointillism applies colour theory systematically — Impressionist optics turned into a method."
+          "detail": "Pointillism applies colour theory systematically — Impressionist optics turned into a method.",
+          "anchorWork": "A Sunday on La Grande Jatte"
         },
         {
           "year": "1886",
@@ -1572,12 +1610,14 @@ export const eras: Era[] = [
         {
           "year": "1888",
           "title": "Arles",
-          "detail": "Van Gogh and Gauguin share a house for nine weeks. It ends with a severed ear and the end of the friendship."
+          "detail": "Van Gogh and Gauguin share a house for nine weeks. It ends with a severed ear and the end of the friendship.",
+          "anchorWork": "The Bedroom"
         },
         {
           "year": "1890",
           "title": "Van Gogh dies",
-          "detail": "He dies at 37 having sold almost nothing. Within twenty years he is among the most celebrated painters in Europe."
+          "detail": "He dies at 37 having sold almost nothing. Within twenty years he is among the most celebrated painters in Europe.",
+          "anchorWork": "Wheatfield with Crows"
         }
       ],
       "lookFor": [
@@ -1954,7 +1994,8 @@ export const eras: Era[] = [
         {
           "year": "1893",
           "title": "The Scream",
-          "detail": "Munch turns a private panic attack into an image that becomes shorthand for modern anxiety."
+          "detail": "Munch turns a private panic attack into an image that becomes shorthand for modern anxiety.",
+          "anchorWork": "The Scream"
         },
         {
           "year": "1905",
@@ -1969,17 +2010,20 @@ export const eras: Era[] = [
         {
           "year": "1911",
           "title": "Kandinsky goes abstract",
-          "detail": "He begins making paintings with no depicted subject at all, arguing that form and colour affect the soul directly."
+          "detail": "He begins making paintings with no depicted subject at all, arguing that form and colour affect the soul directly.",
+          "anchorWork": "Composition VII"
         },
         {
           "year": "1915",
           "title": "Black Square",
-          "detail": "Malevich exhibits a black square on white and hangs it in the icon corner. Painting reaches zero and starts again."
+          "detail": "Malevich exhibits a black square on white and hangs it in the icon corner. Painting reaches zero and starts again.",
+          "anchorWork": "Black Square"
         },
         {
           "year": "1942",
           "title": "Nighthawks",
-          "detail": "Hopper paints an all-night diner weeks after Pearl Harbor — American loneliness as a permanent condition."
+          "detail": "Hopper paints an all-night diner weeks after Pearl Harbor — American loneliness as a permanent condition.",
+          "anchorWork": "Nighthawks"
         }
       ],
       "lookFor": [
