@@ -546,10 +546,10 @@ export default function ArtTimeline() {
       setMeta('og:title', 'Vattitude — Web Development, Branding & Digital Growth | Toronto', true)
       setMeta('og:description', 'Toronto-based digital agency building high-performance websites, apps, and brand identities. UI/UX design, SEO, e-commerce, and automation for businesses ready to grow.', true)
       setMeta('og:url', 'https://vattitude.ca/', true)
-      setMeta('og:image', 'https://vattitude.ca/og-image.png', true)
+      setMeta('og:image', 'https://vattitude.ca/logo.png', true)
       setMeta('twitter:title', 'Vattitude — Web Development, Branding & Digital Growth | Toronto')
       setMeta('twitter:description', 'Toronto-based digital agency building high-performance websites, apps, and brand identities. UI/UX design, SEO, e-commerce, and automation for businesses ready to grow.')
-      setMeta('twitter:image', 'https://vattitude.ca/og-image.png')
+      setMeta('twitter:image', 'https://vattitude.ca/logo.png')
     }
   }, [])
 
