@@ -522,16 +522,17 @@ export default function ArtTimeline() {
 
     const desc = 'Explore 40,000 years of art history in an interactive scroll-driven experience. From Prehistoric cave paintings to Contemporary digital art — 8 eras, key movements, and iconic masterpieces.'
     const url = 'https://vattitude.ca/art-timeline'
+    const image = 'https://vattitude.ca/art-timeline-preview.jpg'
 
-    const metas = [
-      setMeta('description', desc),
-      setMeta('og:title', 'The Art Timeline — 40,000 Years of Art History | Vattitude', true),
-      setMeta('og:description', desc, true),
-      setMeta('og:url', url, true),
-      setMeta('og:type', 'website', true),
-      setMeta('twitter:title', 'The Art Timeline — 40,000 Years of Art History | Vattitude'),
-      setMeta('twitter:description', desc),
-    ]
+    setMeta('description', desc)
+    setMeta('og:title', 'The Art Timeline — 40,000 Years of Art History | Vattitude', true)
+    setMeta('og:description', desc, true)
+    setMeta('og:url', url, true)
+    setMeta('og:image', image, true)
+    setMeta('og:type', 'website', true)
+    setMeta('twitter:title', 'The Art Timeline — 40,000 Years of Art History | Vattitude')
+    setMeta('twitter:description', desc)
+    setMeta('twitter:image', image)
 
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null
     const prevCanonical = canonical?.getAttribute('href') ?? ''
@@ -545,8 +546,10 @@ export default function ArtTimeline() {
       setMeta('og:title', 'Vattitude — Web Development, Branding & Digital Growth | Toronto', true)
       setMeta('og:description', 'Toronto-based digital agency building high-performance websites, apps, and brand identities. UI/UX design, SEO, e-commerce, and automation for businesses ready to grow.', true)
       setMeta('og:url', 'https://vattitude.ca/', true)
+      setMeta('og:image', 'https://vattitude.ca/logo.png', true)
       setMeta('twitter:title', 'Vattitude — Web Development, Branding & Digital Growth | Toronto')
       setMeta('twitter:description', 'Toronto-based digital agency building high-performance websites, apps, and brand identities. UI/UX design, SEO, e-commerce, and automation for businesses ready to grow.')
+      setMeta('twitter:image', 'https://vattitude.ca/logo.png')
     }
   }, [])
 
