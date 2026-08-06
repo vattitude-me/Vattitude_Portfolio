@@ -532,14 +532,67 @@ export default function ArtTimeline() {
       </a>
 
       {/* Intro */}
-      <header className="relative min-h-screen flex flex-col items-center justify-center text-center px-6">
+      <header className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
         <div
           aria-hidden
           className="absolute inset-0"
           style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 45%, #1e293b66 0%, #05081000 70%)' }}
         />
+
+        {/* Fanned collage of every era's hero artwork, drawn from the data so it
+            stays in step if an era is added. Decorative: the same images all
+            appear again, captioned, in the scenes below. */}
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[62vh] flex items-end justify-center pointer-events-none">
+          <div className="relative w-[min(92vw,1100px)] h-[min(52vh,440px)] translate-y-[26%]">
+            {eraList.map((era, i) => {
+              const mid = (eraList.length - 1) / 2
+              const off = i - mid // -3.5 … +3.5
+              // Outer cards recede slightly, so the eye settles at the centre.
+              const rest = 0.9 - Math.abs(off) * 0.07
+              return (
+                <motion.div
+                  key={era.id}
+                  className="absolute top-1/2 left-1/2 w-[26%] max-w-[210px] aspect-[3/4] rounded-lg overflow-hidden shadow-2xl shadow-black/60 ring-1 ring-white/10"
+                  initial={reduced ? false : { opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: rest, scale: 1 }}
+                  transition={{ delay: reduced ? 0 : 0.15 + i * 0.09, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                  style={{
+                    // Fan out from centre, tilting and dipping toward the edges.
+                    x: `calc(-50% + ${off * 11}vw)`,
+                    y: `calc(-50% + ${Math.abs(off) * 14}px)`,
+                    rotate: off * 5,
+                    zIndex: 10 - Math.round(Math.abs(off)),
+                  }}
+                >
+                  <img
+                    src={era.heroArtwork.imageUrl}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: `linear-gradient(180deg, ${era.theme.gradientFrom}22 0%, #050810cc 100%)` }}
+                  />
+                </motion.div>
+              )
+            })}
+            {/* Fade the fan into the background at its top edge, where the copy
+                sits, and again at the very bottom so it dissolves into the page
+                rather than ending on a hard line. */}
+            <div
+              className="absolute -inset-x-[30%] -top-[55%] bottom-0"
+              style={{
+                background:
+                  'linear-gradient(180deg, #050810 0%, #050810e0 38%, #05081066 58%, #05081000 78%)',
+              }}
+            />
+          </div>
+        </div>
+
         <div className="relative">
-          <p className="font-mono text-xs tracking-[0.3em] text-white/40 mb-6">40,000 BCE - 1950 CE</p>
+          <p className="font-mono text-xs tracking-[0.3em] text-white/40 mb-6">40,000 BCE - TODAY</p>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.04] mb-6">
             The Art{' '}
             <span className="bg-gradient-to-r from-amber-300 via-rose-400 to-violet-400 bg-clip-text text-transparent">
@@ -547,8 +600,8 @@ export default function ArtTimeline() {
             </span>
           </h1>
           <p className="text-slate-400 text-lg max-w-xl mx-auto leading-relaxed mb-10">
-            Seven ages of human image-making, from firelit cave walls to the empty diner at midnight.
-            Scroll to travel forward - or tap any artist to go deeper.
+            Eight ages of human image-making, from firelit cave walls to a hundred million
+            porcelain seeds. Scroll to travel forward - or tap any artist to go deeper.
           </p>
           <button
             onClick={() => jump(eras[0].id)}
