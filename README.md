@@ -1,32 +1,37 @@
-# React + TypeScript + Vite
+# Vattitude
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Vatsa's portfolio site, built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Pages
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `/` — main portfolio (hero, about, services, portfolio, contact)
+- `/art-timeline` — interactive scroll-driven Art History Timeline (see [docs/art-history-timeline-plan.md](docs/art-history-timeline-plan.md))
+- `/art-timeline/:eraId` — deep-dive view for a single art era
+- `/privacy`, `/terms` — legal pages
 
-## React Compiler
+## Project structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+src/
+  components/   shared UI components used on the main portfolio page
+  pages/        route-level pages (ArtTimeline, EraDeepDive, Privacy, Terms)
+  data/         static content data (art eras, etc.)
+  lib/          third-party integrations (Firebase)
+scripts/        build-time scripts (social preview prerendering)
+public/         static assets served as-is
+docs/           planning/spec docs
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Development
+
+```bash
+npm install
+npm run dev       # start dev server
+npm run build     # type-check, build, and prerender social preview images
+npm run preview   # preview the production build
+npm run lint      # run oxlint
+```
+
+## Deployment
+
+Configured for both Netlify (`netlify.toml`) and Vercel (`vercel.json`), each serving `dist/` as an SPA.
