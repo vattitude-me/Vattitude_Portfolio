@@ -23,6 +23,19 @@ function EraScene({
   const [bulge, setBulge] = useState(0) // 1 = centred, 0 = at edge
   const [heroFlipped, setHeroFlipped] = useState(false)
 
+  // Touch devices fire a synthetic mouseenter right before click, which was
+  // flipping the card on then immediately back off via the click toggle.
+  // Only wire up hover-to-flip on devices that actually have a hover-capable
+  // pointer; touch relies solely on the click toggle below.
+  const [canHover, setCanHover] = useState(true)
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)')
+    setCanHover(mq.matches)
+    const onChange = () => setCanHover(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
   // Which artist (if any) has taken over the big frame, and which of their
   // works is showing there. Defaults to the first artist so the hero image
   // is immediately meaningful and the artist buttons read as interactive.
@@ -123,7 +136,7 @@ function EraScene({
       />
 
       <div
-        className="relative w-full max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16"
+        className="relative w-full max-w-[1400px] xl:max-w-[1680px] 2xl:max-w-[1920px] mx-auto px-6 sm:px-10 lg:px-16"
         style={{
           opacity,
           transform: `scale(${scale})`,
@@ -136,7 +149,7 @@ function EraScene({
             and centring would float the artwork frame out of line with the era
             heading. The frame sticks instead, so it stays in view while the
             longer column scrolls. */}
-        <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-16 items-start">
+        <div className="grid lg:grid-cols-[1.05fr_1fr] xl:grid-cols-[1fr_1.15fr] gap-10 lg:gap-16 items-start">
           {/* Text column */}
           <div>
             <div className="flex items-center gap-3 mb-5">
@@ -173,7 +186,46 @@ function EraScene({
                 tap to explore
               </span>
             </div>
-            <div className="flex flex-wrap gap-2.5">
+
+            {/* Mobile: a compact select keeps the artist picker to one line, so
+                the hero frame below isn't pushed down by a wrapped pill list. */}
+            <div className="sm:hidden relative">
+              <select
+                value={artist?.name ?? ''}
+                onChange={(e) => {
+                  const a = era.keyArtists.find((x) => x.name === e.target.value)
+                  setHeroFlipped(false)
+                  setWorkIndex(0)
+                  setArtist(a ?? null)
+                }}
+                aria-label="Select an artist"
+                className="w-full appearance-none rounded-full border pl-4 pr-10 py-2.5 text-[13.5px] bg-white/[0.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                style={{
+                  borderColor: artist ? `${era.theme.accent}99` : 'rgba(255,255,255,0.1)',
+                  color: artist ? era.theme.accent : 'rgba(255,255,255,0.8)',
+                }}
+              >
+                <option value="" className="bg-[#0a0a12] text-white">
+                  Era overview
+                </option>
+                {era.keyArtists.map((a) => (
+                  <option key={a.name} value={a.name} className="bg-[#0a0a12] text-white">
+                    {a.name}
+                  </option>
+                ))}
+              </select>
+              <svg
+                aria-hidden
+                className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+
+            <div className="max-sm:hidden flex flex-wrap gap-2.5">
               {era.keyArtists.map((a) => {
                 const on = artist?.name === a.name
                 return (
@@ -267,8 +319,8 @@ function EraScene({
             <div
               className="relative w-full"
               style={{ perspective: '1600px' }}
-              onMouseEnter={() => display.factoid && setHeroFlipped(true)}
-              onMouseLeave={() => display.factoid && setHeroFlipped(false)}
+              onMouseEnter={() => canHover && display.factoid && setHeroFlipped(true)}
+              onMouseLeave={() => canHover && display.factoid && setHeroFlipped(false)}
             >
               <motion.button
                 key={display.key}
@@ -280,7 +332,7 @@ function EraScene({
                 onClick={() => display.factoid && setHeroFlipped((f) => !f)}
                 aria-label={display.factoid ? `${display.title} - reveal detail` : display.title}
                 aria-pressed={heroFlipped}
-                className="relative block w-full aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-default"
+                className="relative block w-full aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] xl:aspect-[5/5.5] rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-default"
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 {/* The flip lives on this inner layer: Framer animates the
