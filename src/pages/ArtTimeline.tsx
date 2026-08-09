@@ -24,13 +24,15 @@ function EraScene({
   const [heroFlipped, setHeroFlipped] = useState(false)
 
   // Which artist (if any) has taken over the big frame, and which of their
-  // works is showing there. `null` = the era's own hero artwork.
-  const [artist, setArtist] = useState<Artist | null>(null)
+  // works is showing there. Defaults to the first artist so the hero image
+  // is immediately meaningful and the artist buttons read as interactive.
+  const [artist, setArtist] = useState<Artist | null>(era.keyArtists[0] ?? null)
   const [workIndex, setWorkIndex] = useState(0)
 
   const selectArtist = (a: Artist) => {
     setHeroFlipped(false)
     setWorkIndex(0)
+    // Clicking the active artist deselects back to era hero
     setArtist((cur) => (cur?.name === a.name ? null : a))
   }
 
@@ -163,10 +165,14 @@ function EraScene({
               ))}
             </div>
 
-            <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/40 mb-3">
-              Key Artists{' '}
-              <span className="normal-case tracking-normal text-white/25">- tap to view their work</span>
-            </h3>
+            <div className="flex items-center gap-2.5 mb-3">
+              <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/40">
+                Key Artists
+              </h3>
+              <span className="text-[10px] px-2 py-0.5 rounded-full border border-white/[0.12] bg-white/[0.05] text-white/45 tracking-wide">
+                tap to explore
+              </span>
+            </div>
             <div className="flex flex-wrap gap-2.5">
               {era.keyArtists.map((a) => {
                 const on = artist?.name === a.name
