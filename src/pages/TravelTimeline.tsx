@@ -1,166 +1,102 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  motion,
-  AnimatePresence,
-  useReducedMotion,
-} from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import {
   type TravelDestination,
   loadDestinations,
   saveDestinations,
   exportJSON,
   mergeImport,
+  landmarkFor,
+  realPhotos,
 } from '../data/travelData'
 
-/* ------------------------------------------------------------------ *
- * Country-flag emoji helper (works on all modern OS/browsers)
- * ------------------------------------------------------------------ */
-function countryFlag(country: string): string {
-  const map: Record<string, string> = {
-    'United States': '🇺🇸',
-    Canada: '🇨🇦',
-    Peru: '🇵🇪',
-    Mexico: '🇲🇽',
-    'United Arab Emirates': '🇦🇪',
-    France: '🇫🇷',
-    Netherlands: '🇳🇱',
-    Brazil: '🇧🇷',
-    Italy: '🇮🇹',
-    Egypt: '🇪🇬',
-    Philippines: '🇵🇭',
-    Japan: '🇯🇵',
-    'South Korea': '🇰🇷',
-    Iceland: '🇮🇸',
-  }
-  return map[country] ?? '🌍'
+const FLAGS: Record<string, string> = {
+  'United States': '🇺🇸',
+  Canada: '🇨🇦',
+  Peru: '🇵🇪',
+  Mexico: '🇲🇽',
+  'United Arab Emirates': '🇦🇪',
+  France: '🇫🇷',
+  Netherlands: '🇳🇱',
+  Brazil: '🇧🇷',
+  Italy: '🇮🇹',
+  Egypt: '🇪🇬',
+  Philippines: '🇵🇭',
+  Japan: '🇯🇵',
+  'South Korea': '🇰🇷',
+  Iceland: '🇮🇸',
+}
+const flag = (c: string) => FLAGS[c] ?? '🌍'
+
+/** Trailing 4-digit year, used for the sticky rail and past/upcoming split. */
+function yearOf(date: string): string {
+  const m = date.match(/(\d{4})\s*$/) ?? date.match(/(\d{4})/)
+  return m ? m[1] : '—'
 }
 
+const NOW_YEAR = new Date().getFullYear()
+
 /* ------------------------------------------------------------------ *
- * Photo slot — uses Unsplash source as a location-keyed placeholder
- * when no real URL is provided.
+ * Image with landmark fallback. Personal photos win; otherwise the
+ * locally hosted city landmark carries the strip.
  * ------------------------------------------------------------------ */
-
-// Unsplash source API: returns a relevant photo for a given keyword.
-// The `sig` param makes each slot request a different image for the same location.
-function placeholderUrl(location: string, sig: number): string {
-  const keyword = encodeURIComponent(location.split(',')[0].trim())
-  return `https://source.unsplash.com/800x600/?${keyword},travel,city&sig=${sig}`
-}
-
-function PhotoSlot({
-  url,
-  index,
-  location,
-  destSig,
+function StripImage({
+  src,
+  alt,
+  eager,
+  className = '',
 }: {
-  url: string
-  index: number
-  location: string
-  destSig: number
+  src: string | null
+  alt: string
+  eager?: boolean
+  className?: string
 }) {
-  const isPlaceholder = !url || url === 'photo1_url' || url === 'photo2_url' || url === 'photo3_url'
-  const [src, setSrc] = useState(() =>
-    isPlaceholder ? placeholderUrl(location, destSig * 3 + index) : url,
-  )
-  const [loaded, setLoaded] = useState(false)
-  const [errored, setErrored] = useState(false)
+  const [failed, setFailed] = useState(false)
 
-  // When the real URL changes (admin edit), update src
   useEffect(() => {
-    const next = isPlaceholder ? placeholderUrl(location, destSig * 3 + index) : url
-    setSrc(next)
-    setLoaded(false)
-    setErrored(false)
-  }, [url, location, index, destSig, isPlaceholder])
+    setFailed(false)
+  }, [src])
 
-  if (errored) {
+  if (!src || failed) {
     return (
-      <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-        <svg className="w-8 h-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      </div>
+      <div
+        className={`w-full h-full bg-[#12161d] ${className}`}
+        style={{
+          backgroundImage:
+            'radial-gradient(120% 80% at 30% 0%, rgba(94,234,212,0.10), transparent 60%), radial-gradient(100% 90% at 90% 100%, rgba(56,189,248,0.08), transparent 55%)',
+        }}
+        aria-hidden
+      />
     )
   }
 
   return (
-    <div className="w-full h-full relative">
-      {!loaded && (
-        <div className="absolute inset-0 bg-slate-800 animate-pulse" />
-      )}
-      <img
-        src={src}
-        alt={`${location} photo ${index + 1}`}
-        className={`w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-        onLoad={() => setLoaded(true)}
-        onError={() => setErrored(true)}
-      />
-    </div>
+    <img
+      src={src}
+      alt={alt}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+      onError={() => setFailed(true)}
+      className={`w-full h-full object-cover ${className}`}
+    />
   )
 }
 
 /* ------------------------------------------------------------------ *
- * Staggered 3-photo gallery layout
+ * One destination = one full-bleed strip. No gaps, no margins: strips
+ * butt directly against each other so the page reads as one ribbon.
  * ------------------------------------------------------------------ */
-function PhotoGallery({
-  photos,
-  location,
-  destSig,
-}: {
-  photos: string[]
-  location: string
-  destSig: number
-}) {
-  return (
-    <div className="relative w-full h-full">
-      {/* Main large photo */}
-      <div className="absolute inset-0 rounded-2xl overflow-hidden">
-        <PhotoSlot url={photos[0] ?? ''} index={0} location={location} destSig={destSig} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-      </div>
-
-      {/* Two smaller overlapping photos */}
-      <motion.div
-        className="absolute -bottom-4 -right-4 w-[42%] h-[42%] rounded-xl overflow-hidden shadow-2xl border-2 border-[#0d1829]/80 z-10"
-        initial={{ opacity: 0, scale: 0.8, rotate: 3 }}
-        whileInView={{ opacity: 1, scale: 1, rotate: 3 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-      >
-        <PhotoSlot url={photos[1] ?? ''} index={1} location={location} destSig={destSig} />
-      </motion.div>
-
-      <motion.div
-        className="absolute -top-4 -right-6 w-[36%] h-[36%] rounded-xl overflow-hidden shadow-2xl border-2 border-[#0d1829]/80 z-10"
-        initial={{ opacity: 0, scale: 0.8, rotate: -4 }}
-        whileInView={{ opacity: 1, scale: 1, rotate: -4 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.5, duration: 0.6 }}
-      >
-        <PhotoSlot url={photos[2] ?? ''} index={2} location={location} destSig={destSig} />
-      </motion.div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ *
- * Single destination section
- * ------------------------------------------------------------------ */
-function DestinationCard({
+function Strip({
   dest,
   index,
-  onVisible,
+  onActive,
+  onOpen,
 }: {
   dest: TravelDestination
   index: number
-  onVisible: (i: number) => void
+  onActive: (i: number) => void
+  onOpen: (d: TravelDestination) => void
 }) {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
@@ -168,213 +104,380 @@ function DestinationCard({
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.intersectionRatio > 0.5) onVisible(index)
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) onActive(index)
       },
-      { threshold: 0.5 },
+      { rootMargin: '-45% 0px -45% 0px' },
     )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [index, onVisible])
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [index, onActive])
 
-  const isEven = index % 2 === 0
-  const accent = 'rgb(251 191 36)' // amber-400
+  const photos = realPhotos(dest)
+  const landmark = landmarkFor(dest)
+  const hero = photos[0] ?? landmark
+  const extras = photos.slice(1, 3)
+  const usingLandmark = photos.length === 0
+  const flip = index % 2 === 1
+  const upcoming = Number(yearOf(dest.date)) > NOW_YEAR
 
   return (
     <section
       ref={ref}
       id={`dest-${dest.id}`}
-      className="min-h-screen flex items-center py-20 px-6 md:px-12 lg:px-20 relative"
+      className="relative border-t border-white/[0.07] first:border-t-0"
     >
-      {/* Subtle vertical rule on the left */}
-      <div
-        className="absolute left-6 md:left-12 lg:left-20 top-0 bottom-0 w-px"
-        style={{ background: 'linear-gradient(to bottom, transparent, rgba(251,191,36,0.2), transparent)' }}
-      />
-
-      <div
-        className={`w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center ${
-          isEven ? '' : 'lg:[direction:rtl]'
-        }`}
+      <button
+        type="button"
+        onClick={() => onOpen(dest)}
+        className="group block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60 focus-visible:-ring-offset-2"
       >
-        {/* Text side */}
-        <motion.div
-          className="lg:[direction:ltr]"
-          initial={{ opacity: 0, x: isEven ? -40 : 40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: reduced ? 0 : 0.7, ease: 'easeOut' }}
+        <div
+          className={`relative grid grid-cols-1 md:grid-cols-[1.15fr_1fr] ${
+            flip ? 'md:[direction:rtl]' : ''
+          }`}
         >
-          {/* Index badge */}
-          <div className="flex items-center gap-3 mb-6">
-            <span
-              className="text-xs font-mono font-bold tracking-[0.3em] px-3 py-1 rounded-full border"
-              style={{ color: accent, borderColor: 'rgba(251,191,36,0.3)', background: 'rgba(251,191,36,0.06)' }}
+          {/* Image side — fixed band height, edge to edge */}
+          <div className="relative h-56 sm:h-64 md:h-[19rem] lg:h-[21rem] overflow-hidden md:[direction:ltr]">
+            <motion.div
+              className="absolute inset-0"
+              initial={reduced ? false : { scale: 1.06, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: reduced ? 0 : 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
-              {String(index + 1).padStart(2, '0')}
-            </span>
-            <span className="text-2xl" role="img" aria-label={dest.country}>
-              {countryFlag(dest.country)}
-            </span>
-            <span className="text-slate-500 text-sm">{dest.country}</span>
+              <StripImage
+                src={hero}
+                alt={usingLandmark ? `${dest.location} landmark` : `${dest.location} photo`}
+                eager={index < 2}
+                className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+              />
+            </motion.div>
+
+            {/* Legibility wash + seam blend into the text panel */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+            <div
+              className={`hidden md:block absolute inset-y-0 w-24 ${flip ? 'left-0' : 'right-0'}`}
+              style={{
+                background: `linear-gradient(to ${flip ? 'right' : 'left'}, #0b0e13, transparent)`,
+              }}
+            />
+
+            {/* Thumbnails only when the user actually has more photos */}
+            {extras.length > 0 && (
+              <div className="absolute bottom-3 left-3 flex gap-2 md:[direction:ltr]">
+                {extras.map((p, i) => (
+                  <span
+                    key={i}
+                    className="block w-12 h-12 sm:w-14 sm:h-14 rounded-md overflow-hidden ring-1 ring-white/25 shadow-lg"
+                  >
+                    <StripImage src={p} alt={`${dest.location} photo ${i + 2}`} />
+                  </span>
+                ))}
+                {photos.length > 3 && (
+                  <span className="self-end text-[11px] text-white/70 pb-1">
+                    +{photos.length - 3}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {usingLandmark && (
+              <span className="absolute top-3 left-3 text-[10px] uppercase tracking-[0.18em] text-white/55 bg-black/35 backdrop-blur-sm px-2 py-0.5 rounded md:[direction:ltr]">
+                Landmark
+              </span>
+            )}
           </div>
 
-          {/* Location */}
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
-            {dest.location}
-          </h2>
+          {/* Text side */}
+          <div className="relative flex flex-col justify-center px-6 sm:px-8 md:px-10 lg:px-14 py-7 md:py-0 bg-[#0b0e13] md:[direction:ltr]">
+            <div className="flex items-center gap-2.5 mb-3">
+              <span className="text-base leading-none" aria-hidden>
+                {flag(dest.country)}
+              </span>
+              <span className="text-[11px] uppercase tracking-[0.22em] text-white/40">
+                {dest.country}
+              </span>
+              {upcoming && (
+                <span className="text-[10px] uppercase tracking-[0.16em] text-teal-300/90 border border-teal-300/30 bg-teal-300/[0.07] px-1.5 py-0.5 rounded">
+                  Planned
+                </span>
+              )}
+            </div>
 
-          {/* Date */}
-          <p
-            className="text-lg font-medium mb-8"
-            style={{ color: accent }}
-          >
-            {dest.date}
-          </p>
+            <h2 className="text-2xl sm:text-3xl lg:text-[2.1rem] font-semibold text-white leading-[1.15] tracking-tight">
+              {dest.location}
+            </h2>
 
-          {/* Decorative divider */}
-          <div
-            className="w-16 h-0.5 rounded-full"
-            style={{ background: 'rgba(251,191,36,0.4)' }}
-          />
-        </motion.div>
+            <p className="mt-2.5 text-sm text-white/55 font-light tabular-nums">{dest.date}</p>
 
-        {/* Photo side */}
-        <motion.div
-          className="lg:[direction:ltr] relative h-72 md:h-96 lg:h-[420px]"
-          initial={{ opacity: 0, scale: 0.92 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: reduced ? 0 : 0.8, ease: 'easeOut', delay: 0.15 }}
-        >
-          <PhotoGallery photos={dest.photos} location={dest.location} destSig={index} />
-        </motion.div>
-      </div>
+            <div className="mt-5 flex items-center gap-3">
+              <span className="h-px w-8 bg-gradient-to-r from-teal-300/60 to-transparent" />
+              <span className="text-[11px] font-mono text-white/25">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+            </div>
+          </div>
+        </div>
+      </button>
     </section>
   )
 }
 
 /* ------------------------------------------------------------------ *
- * Admin panel — CRUD + Import/Export
+ * Lightbox — full view of a destination's photos
  * ------------------------------------------------------------------ */
-const EMPTY_DEST: Omit<TravelDestination, 'id'> = {
+function Lightbox({
+  dest,
+  onClose,
+}: {
+  dest: TravelDestination
+  onClose: () => void
+}) {
+  const photos = realPhotos(dest)
+  const landmark = landmarkFor(dest)
+  const shots = photos.length ? photos : landmark ? [landmark] : []
+  const [i, setI] = useState(0)
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowRight') setI((v) => (v + 1) % Math.max(shots.length, 1))
+      if (e.key === 'ArrowLeft') setI((v) => (v - 1 + shots.length) % Math.max(shots.length, 1))
+    }
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
+  }, [onClose, shots.length])
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 bg-black/92 backdrop-blur-sm flex flex-col"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <div className="flex items-start justify-between px-5 sm:px-8 py-5 shrink-0">
+        <div>
+          <h3 className="text-white text-lg sm:text-xl font-semibold">{dest.location}</h3>
+          <p className="text-white/50 text-sm mt-0.5">
+            {flag(dest.country)} {dest.country} · {dest.date}
+          </p>
+        </div>
+        <button
+          onClick={onClose}
+          className="w-9 h-9 rounded-full border border-white/15 text-white/60 hover:text-white hover:border-white/40 transition-colors shrink-0"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div
+        className="flex-1 min-h-0 flex items-center justify-center px-4 sm:px-8 pb-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {shots.length > 0 ? (
+          <img
+            src={shots[i]}
+            alt={`${dest.location} ${i + 1}`}
+            className="max-w-full max-h-full object-contain rounded-lg"
+          />
+        ) : (
+          <p className="text-white/40 text-sm">No photos yet for this destination.</p>
+        )}
+      </div>
+
+      {shots.length > 1 && (
+        <div
+          className="shrink-0 flex justify-center gap-2 pb-6"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {shots.map((p, n) => (
+            <button
+              key={n}
+              onClick={() => setI(n)}
+              className={`w-14 h-14 rounded overflow-hidden ring-1 transition-all ${
+                n === i ? 'ring-teal-300' : 'ring-white/15 opacity-55 hover:opacity-100'
+              }`}
+            >
+              <img src={p} alt="" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  )
+}
+
+/* ------------------------------------------------------------------ *
+ * Editor
+ * ------------------------------------------------------------------ */
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]
+
+const EMPTY: Omit<TravelDestination, 'id'> = {
   country: '',
   location: '',
   date: '',
-  photos: ['', '', ''],
+  photos: [],
 }
 
-function AdminPanel({
+function Editor({
   destinations,
   onClose,
   onChange,
+  initial,
 }: {
   destinations: TravelDestination[]
   onClose: () => void
   onChange: (d: TravelDestination[]) => void
+  initial: TravelDestination | null
 }) {
-  const [editing, setEditing] = useState<TravelDestination | null>(null)
-  const [form, setForm] = useState<Omit<TravelDestination, 'id'>>(EMPTY_DEST)
-  const fileRef = useRef<HTMLInputElement>(null)
+  const [editing, setEditing] = useState<TravelDestination | null>(initial)
+  const [form, setForm] = useState<Omit<TravelDestination, 'id'>>(
+    initial
+      ? { country: initial.country, location: initial.location, date: initial.date, photos: realPhotos(initial) }
+      : EMPTY,
+  )
+  const [month, setMonth] = useState('')
+  const [year, setYear] = useState('')
+  const [err, setErr] = useState('')
+  const importRef = useRef<HTMLInputElement>(null)
+  const uploadRef = useRef<HTMLInputElement>(null)
 
-  const openNew = () => {
-    setEditing(null)
-    setForm(EMPTY_DEST)
-  }
-
-  const openEdit = (d: TravelDestination) => {
+  const startEdit = (d: TravelDestination) => {
     setEditing(d)
-    setForm({ country: d.country, location: d.location, date: d.date, photos: [...d.photos] })
+    setForm({ country: d.country, location: d.location, date: d.date, photos: realPhotos(d) })
+    setMonth('')
+    setYear('')
+    setErr('')
   }
 
-  const handleSave = () => {
-    if (!form.location.trim() || !form.date.trim()) return
-    let next: TravelDestination[]
-    if (editing) {
-      next = destinations.map((d) =>
-        d.id === editing.id ? { ...editing, ...form } : d,
-      )
-    } else {
-      const newId = String(Date.now())
-      next = [...destinations, { id: newId, ...form }]
-    }
-    onChange(next)
+  const reset = () => {
     setEditing(null)
-    setForm(EMPTY_DEST)
+    setForm(EMPTY)
+    setMonth('')
+    setYear('')
+    setErr('')
   }
 
-  const handleDelete = (id: string) => {
+  // Month + year pickers are a convenience writer into the free-text date
+  // field, which still has to accept ranges like "May – June 2023".
+  const applyMonthYear = (m: string, y: string) => {
+    if (m && y) setForm((f) => ({ ...f, date: `${m} ${y}` }))
+    else if (y) setForm((f) => ({ ...f, date: y }))
+  }
+
+  const setPhoto = (i: number, val: string) =>
+    setForm((f) => {
+      const p = [...f.photos]
+      p[i] = val
+      return { ...f, photos: p }
+    })
+
+  const removePhoto = (i: number) =>
+    setForm((f) => ({ ...f, photos: f.photos.filter((_, n) => n !== i) }))
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []).slice(0, 3 - form.photos.length)
+    files.forEach((file) => {
+      const r = new FileReader()
+      r.onload = (ev) =>
+        setForm((f) =>
+          f.photos.length >= 3 ? f : { ...f, photos: [...f.photos, ev.target?.result as string] },
+        )
+      r.readAsDataURL(file)
+    })
+    e.target.value = ''
+  }
+
+  const save = () => {
+    if (!form.location.trim()) return setErr('Location is required.')
+    if (!form.date.trim()) return setErr('Date is required.')
+    const clean = { ...form, photos: form.photos.filter((p) => p && p.trim()) }
+    onChange(
+      editing
+        ? destinations.map((d) => (d.id === editing.id ? { ...d, ...clean } : d))
+        : [...destinations, { id: String(Date.now()), ...clean }],
+    )
+    reset()
+  }
+
+  const remove = (id: string) => {
     if (!confirm('Delete this destination?')) return
     onChange(destinations.filter((d) => d.id !== id))
+    if (editing?.id === id) reset()
   }
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
+    const r = new FileReader()
+    r.onload = (ev) => {
       try {
-        const parsed = JSON.parse(ev.target?.result as string) as TravelDestination[]
-        onChange(mergeImport(destinations, parsed))
+        const parsed = JSON.parse(ev.target?.result as string)
+        if (!Array.isArray(parsed)) throw new Error()
+        const merged = mergeImport(destinations, parsed as TravelDestination[])
+        onChange(merged)
+        setErr(`Imported ${merged.length - destinations.length} new (duplicates skipped).`)
       } catch {
-        alert('Invalid JSON file.')
+        setErr('Invalid JSON file.')
       }
     }
-    reader.readAsText(file)
+    r.readAsText(file)
     e.target.value = ''
   }
 
-  const photoLabel = ['Photo 1 URL', 'Photo 2 URL', 'Photo 3 URL']
+  const field =
+    'w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/25 focus:outline-none focus:border-teal-300/50'
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-start justify-end"
+      className="fixed inset-0 z-50 flex justify-end"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Panel */}
       <motion.aside
-        className="relative z-10 h-full w-full max-w-md bg-[#0d1829] border-l border-amber-400/20 overflow-y-auto flex flex-col"
+        className="relative z-10 h-full w-full max-w-md bg-[#0b0e13] border-l border-white/10 overflow-y-auto"
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
-        transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 34 }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 sticky top-0 bg-[#0d1829] z-10">
-          <h2 className="text-white font-bold text-lg">Travel Editor</h2>
+        <div className="sticky top-0 z-10 bg-[#0b0e13] flex items-center justify-between px-5 py-4 border-b border-white/10">
+          <h2 className="text-white font-semibold">Trip editor</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+            className="w-8 h-8 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label="Close editor"
           >
             ✕
           </button>
         </div>
 
         {/* Import / Export */}
-        <div className="px-6 py-4 border-b border-white/10 flex gap-3">
+        <div className="px-5 py-4 border-b border-white/10 flex gap-2.5">
           <button
-            onClick={() => fileRef.current?.click()}
-            className="flex-1 py-2 px-4 rounded-lg text-sm font-medium bg-white/[0.06] hover:bg-white/10 text-slate-300 transition-colors border border-white/10"
+            onClick={() => importRef.current?.click()}
+            className="flex-1 py-2 rounded-lg text-sm bg-white/[0.05] hover:bg-white/10 text-white/75 border border-white/10 transition-colors"
           >
-            Import JSON
+            Import
           </button>
           <button
             onClick={() => exportJSON(destinations)}
-            className="flex-1 py-2 px-4 rounded-lg text-sm font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 transition-colors border border-amber-400/20"
+            className="flex-1 py-2 rounded-lg text-sm bg-teal-300/10 hover:bg-teal-300/20 text-teal-200 border border-teal-300/25 transition-colors"
           >
-            Export JSON
+            Export
           </button>
           <input
-            ref={fileRef}
+            ref={importRef}
             type="file"
             accept=".json,application/json"
             className="hidden"
@@ -383,118 +486,189 @@ function AdminPanel({
         </div>
 
         {/* Form */}
-        <div className="px-6 py-5 border-b border-white/10">
-          <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-widest mb-4">
-            {editing ? 'Edit Destination' : 'Add Destination'}
+        <div className="px-5 py-5 border-b border-white/10 space-y-3">
+          <h3 className="text-[11px] uppercase tracking-[0.2em] text-teal-300/80">
+            {editing ? 'Edit trip' : 'Add trip'}
           </h3>
 
-          <div className="space-y-3">
-            {(['location', 'country', 'date'] as const).map((field) => (
-              <div key={field}>
-                <label className="block text-xs text-slate-500 mb-1 capitalize">{field}</label>
-                <input
-                  type="text"
-                  value={form[field]}
-                  onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-400/50"
-                  placeholder={field === 'date' ? 'e.g. May 2024' : ''}
-                />
-              </div>
-            ))}
-
-            {form.photos.map((url, i) => (
-              <div key={i}>
-                <label className="block text-xs text-slate-500 mb-1">{photoLabel[i]}</label>
-                <input
-                  type="text"
-                  value={url}
-                  onChange={(e) => {
-                    const p = [...form.photos]
-                    p[i] = e.target.value
-                    setForm((f) => ({ ...f, photos: p }))
-                  }}
-                  className="w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-400/50"
-                  placeholder="https://..."
-                />
-              </div>
-            ))}
+          <div>
+            <label className="block text-[11px] text-white/40 mb-1">Location</label>
+            <input
+              className={field}
+              value={form.location}
+              onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+              placeholder="Paris"
+            />
           </div>
 
-          <div className="flex gap-2 mt-5">
-            <button
-              onClick={handleSave}
-              className="flex-1 py-2 rounded-lg text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-black transition-colors"
-            >
-              {editing ? 'Save Changes' : 'Add'}
-            </button>
-            {editing && (
-              <button
-                onClick={() => { setEditing(null); setForm(EMPTY_DEST) }}
-                className="px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/10 transition-colors"
-              >
-                Cancel
-              </button>
-            )}
-            {!editing && (
-              <button
-                onClick={() => setForm(EMPTY_DEST)}
-                className="px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/10 transition-colors"
-              >
-                Clear
-              </button>
-            )}
+          <div>
+            <label className="block text-[11px] text-white/40 mb-1">Country</label>
+            <input
+              className={field}
+              value={form.country}
+              onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
+              placeholder="France"
+            />
           </div>
-        </div>
 
-        {/* Destination list */}
-        <div className="px-6 py-5 flex-1">
-          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-            {destinations.length} Destinations
-          </h3>
-          <ul className="space-y-2">
-            {destinations.map((d) => (
-              <li
-                key={d.id}
-                className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border text-sm transition-colors ${
-                  editing?.id === d.id
-                    ? 'border-amber-400/40 bg-amber-500/10'
-                    : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05]'
-                }`}
+          <div>
+            <label className="block text-[11px] text-white/40 mb-1">Month & year</label>
+            <div className="flex gap-2">
+              <select
+                className={field}
+                value={month}
+                onChange={(e) => {
+                  setMonth(e.target.value)
+                  applyMonthYear(e.target.value, year)
+                }}
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium truncate">{d.location}</p>
-                  <p className="text-slate-500 text-xs">{d.date}</p>
-                </div>
-                <div className="flex gap-1 shrink-0">
+                <option value="">Month</option>
+                {MONTHS.map((m) => (
+                  <option key={m} value={m} className="bg-[#0b0e13]">
+                    {m}
+                  </option>
+                ))}
+              </select>
+              <select
+                className={field}
+                value={year}
+                onChange={(e) => {
+                  setYear(e.target.value)
+                  applyMonthYear(month, e.target.value)
+                }}
+              >
+                <option value="">Year</option>
+                {Array.from({ length: 16 }, (_, n) => String(NOW_YEAR + 3 - n)).map((y) => (
+                  <option key={y} value={y} className="bg-[#0b0e13]">
+                    {y}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <input
+              className={`${field} mt-2`}
+              value={form.date}
+              onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+              placeholder="May 2024  ·  or a range like May – June 2023"
+            />
+          </div>
+
+          {/* Photos */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] text-white/40">Photos (optional · up to 3)</label>
+              <button
+                onClick={() => uploadRef.current?.click()}
+                disabled={form.photos.length >= 3}
+                className="text-[11px] text-teal-300 hover:text-teal-200 disabled:text-white/20 disabled:cursor-not-allowed"
+              >
+                + Upload
+              </button>
+              <input
+                ref={uploadRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleUpload}
+              />
+            </div>
+
+            <div className="space-y-2">
+              {form.photos.map((p, i) => (
+                <div key={i} className="flex gap-2 items-center">
+                  <span className="w-9 h-9 rounded overflow-hidden bg-white/5 shrink-0 ring-1 ring-white/10">
+                    {p && <img src={p} alt="" className="w-full h-full object-cover" />}
+                  </span>
+                  <input
+                    className={field}
+                    value={p.startsWith('data:') ? '' : p}
+                    placeholder={p.startsWith('data:') ? 'Uploaded image' : 'https://…'}
+                    disabled={p.startsWith('data:')}
+                    onChange={(e) => setPhoto(i, e.target.value)}
+                  />
                   <button
-                    onClick={() => openEdit(d)}
-                    className="w-7 h-7 flex items-center justify-center rounded text-slate-400 hover:text-white hover:bg-white/10 transition-colors text-xs"
-                    title="Edit"
-                  >
-                    ✎
-                  </button>
-                  <button
-                    onClick={() => handleDelete(d.id)}
-                    className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:text-red-400 hover:bg-red-400/10 transition-colors text-xs"
-                    title="Delete"
+                    onClick={() => removePhoto(i)}
+                    className="text-white/30 hover:text-red-400 px-1 shrink-0"
+                    aria-label="Remove photo"
                   >
                     ✕
                   </button>
                 </div>
+              ))}
+
+              {form.photos.length < 3 && (
+                <button
+                  onClick={() => setForm((f) => ({ ...f, photos: [...f.photos, ''] }))}
+                  className="w-full py-2 rounded-lg border border-dashed border-white/15 text-[12px] text-white/40 hover:text-white/70 hover:border-white/30 transition-colors"
+                >
+                  + Add image URL
+                </button>
+              )}
+            </div>
+
+            {form.photos.length === 0 && (
+              <p className="text-[11px] text-white/30 mt-2 leading-relaxed">
+                No photos? A landmark shot for this location is used automatically.
+              </p>
+            )}
+          </div>
+
+          {err && <p className="text-[12px] text-amber-300/90">{err}</p>}
+
+          <div className="flex gap-2 pt-1">
+            <button
+              onClick={save}
+              className="flex-1 py-2 rounded-lg text-sm font-medium bg-teal-300 hover:bg-teal-200 text-[#06131a] transition-colors"
+            >
+              {editing ? 'Save changes' : 'Add trip'}
+            </button>
+            <button
+              onClick={reset}
+              className="px-4 py-2 rounded-lg text-sm text-white/50 hover:text-white bg-white/[0.05] hover:bg-white/10 transition-colors"
+            >
+              {editing ? 'Cancel' : 'Clear'}
+            </button>
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="px-5 py-5">
+          <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/35 mb-3">
+            {destinations.length} trips
+          </h3>
+          <ul className="space-y-1.5">
+            {destinations.map((d) => (
+              <li
+                key={d.id}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm ${
+                  editing?.id === d.id
+                    ? 'border-teal-300/40 bg-teal-300/[0.08]'
+                    : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05]'
+                }`}
+              >
+                <span className="shrink-0" aria-hidden>{flag(d.country)}</span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-white/90 truncate">{d.location}</span>
+                  <span className="block text-white/35 text-[11px]">{d.date}</span>
+                </span>
+                <button
+                  onClick={() => startEdit(d)}
+                  className="w-7 h-7 rounded text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                  aria-label={`Edit ${d.location}`}
+                >
+                  ✎
+                </button>
+                <button
+                  onClick={() => remove(d.id)}
+                  className="w-7 h-7 rounded text-white/25 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                  aria-label={`Delete ${d.location}`}
+                >
+                  ✕
+                </button>
               </li>
             ))}
           </ul>
-          {destinations.length === 0 && (
-            <p className="text-slate-600 text-sm text-center py-8">No destinations yet.</p>
-          )}
-          {editing && (
-            <button
-              onClick={openNew}
-              className="mt-4 w-full py-2 rounded-lg text-sm text-amber-400 hover:text-amber-300 border border-amber-400/20 hover:border-amber-400/40 transition-colors"
-            >
-              + New destination
-            </button>
-          )}
         </div>
       </motion.aside>
     </motion.div>
@@ -502,213 +676,175 @@ function AdminPanel({
 }
 
 /* ------------------------------------------------------------------ *
- * Main page
+ * Page
  * ------------------------------------------------------------------ */
 export default function TravelTimeline() {
   const [destinations, setDestinations] = useState<TravelDestination[]>(() => loadDestinations())
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [adminOpen, setAdminOpen] = useState(false)
-  const reduced = useReducedMotion()
+  const [active, setActive] = useState(0)
+  const [editorOpen, setEditorOpen] = useState(false)
+  const [editorSeed, setEditorSeed] = useState<TravelDestination | null>(null)
+  const [lightbox, setLightbox] = useState<TravelDestination | null>(null)
+  const [progress, setProgress] = useState(0)
 
-  // Persist whenever destinations change
   useEffect(() => {
     saveDestinations(destinations)
   }, [destinations])
 
-  // Keyboard shortcut: Ctrl+Shift+E opens admin panel
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+    const h = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'e') {
         e.preventDefault()
-        setAdminOpen((v) => !v)
+        setEditorSeed(null)
+        setEditorOpen((v) => !v)
       }
     }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
   }, [])
 
-  const handleVisible = useCallback((i: number) => setActiveIndex(i), [])
+  useEffect(() => {
+    let frame = 0
+    const onScroll = () => {
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        const max = document.documentElement.scrollHeight - window.innerHeight
+        setProgress(max > 0 ? window.scrollY / max : 0)
+      })
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (frame) cancelAnimationFrame(frame)
+    }
+  }, [])
 
-  const scrollTo = (i: number) => {
-    const el = document.getElementById(`dest-${destinations[i].id}`)
-    el?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' })
+  const handleActive = useCallback((i: number) => setActive(i), [])
+
+  const stats = useMemo(
+    () => ({
+      countries: new Set(destinations.map((d) => d.country)).size,
+      years: Array.from(new Set(destinations.map((d) => yearOf(d.date)))),
+    }),
+    [destinations],
+  )
+
+  const activeYear = destinations[active] ? yearOf(destinations[active].date) : ''
+
+  const jumpToYear = (y: string) => {
+    const i = destinations.findIndex((d) => yearOf(d.date) === y)
+    if (i >= 0)
+      document.getElementById(`dest-${destinations[i].id}`)?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
-    <div className="min-h-screen bg-[#0a1020] text-white relative overflow-x-hidden">
-      {/* Ambient background glow */}
+    <div className="min-h-screen bg-[#0b0e13] text-white">
+      {/* Scroll progress hairline */}
       <div
-        className="pointer-events-none fixed inset-0 z-0"
-        style={{
-          background:
-            'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(251,191,36,0.05) 0%, transparent 70%)',
-        }}
+        className="fixed top-0 left-0 h-[2px] bg-gradient-to-r from-teal-300 to-sky-400 z-40 origin-left"
+        style={{ width: `${progress * 100}%` }}
       />
 
-      {/* ── Header ── */}
-      <header className="relative z-10 flex items-center justify-between px-6 md:px-12 lg:px-20 py-6 border-b border-white/[0.06]">
-        <Link
-          to="/"
-          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm group"
-        >
-          <span className="group-hover:-translate-x-1 transition-transform inline-block">←</span>
-          <span>Back</span>
-        </Link>
+      {/* Compact sticky header — replaces the old full-screen hero */}
+      <header className="sticky top-0 z-30 bg-[#0b0e13]/88 backdrop-blur-md border-b border-white/[0.07]">
+        <div className="flex items-center justify-between gap-4 px-5 sm:px-8 h-14">
+          <Link
+            to="/"
+            className="group flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors shrink-0"
+          >
+            <span className="inline-block transition-transform group-hover:-translate-x-0.5">←</span>
+            <span className="hidden sm:inline">Back</span>
+          </Link>
 
-        <div className="text-center">
-          <h1 className="text-xl font-bold text-white tracking-wide">Travel Timeline</h1>
-          <p className="text-xs text-slate-500 mt-0.5">{destinations.length} destinations</p>
+          <div className="flex items-baseline gap-2.5 min-w-0">
+            <h1 className="text-sm font-semibold tracking-tight truncate">Travel</h1>
+            <span className="text-[11px] text-white/35 tabular-nums whitespace-nowrap">
+              {destinations.length} trips · {stats.countries} countries
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-mono text-teal-300/80 tabular-nums w-10 text-right">
+              {activeYear}
+            </span>
+            <button
+              onClick={() => {
+                setEditorSeed(null)
+                setEditorOpen(true)
+              }}
+              className="w-8 h-8 flex items-center justify-center rounded-full border border-white/10 text-white/45 hover:text-teal-300 hover:border-teal-300/40 transition-colors"
+              title="Edit trips (Ctrl+Shift+E)"
+              aria-label="Edit trips"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.8}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <button
-          onClick={() => setAdminOpen(true)}
-          className="w-9 h-9 flex items-center justify-center rounded-full border border-white/10 hover:border-amber-400/40 text-slate-500 hover:text-amber-400 transition-colors"
-          title="Open editor (Ctrl+Shift+E)"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.8}
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-            />
-          </svg>
-        </button>
+        {/* Year rail — horizontal, doubles as navigation */}
+        {stats.years.length > 1 && (
+          <div className="flex gap-1 px-5 sm:px-8 pb-2 overflow-x-auto scrollbar-none">
+            {stats.years.map((y) => (
+              <button
+                key={y}
+                onClick={() => jumpToYear(y)}
+                className={`px-2 py-0.5 rounded text-[11px] font-mono tabular-nums transition-colors shrink-0 ${
+                  y === activeYear
+                    ? 'bg-teal-300/15 text-teal-200'
+                    : 'text-white/30 hover:text-white/70'
+                }`}
+              >
+                {y}
+              </button>
+            ))}
+          </div>
+        )}
       </header>
 
-      {/* ── Intro hero ── */}
-      <section className="relative z-10 flex flex-col items-center justify-center py-28 px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: reduced ? 0 : 0.9, ease: 'easeOut' }}
-        >
-          <span className="text-xs font-semibold text-amber-400 uppercase tracking-[0.3em] mb-6 block">
-            A Cinematic Journey
-          </span>
-          <h2 className="text-5xl md:text-7xl font-extrabold leading-none mb-6">
-            <span className="text-white">Places</span>
-            <br />
-            <span
-              className="bg-clip-text text-transparent"
-              style={{
-                backgroundImage: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
-              }}
-            >
-              I've Been
-            </span>
-          </h2>
-          <p className="text-slate-400 text-lg max-w-lg mx-auto leading-relaxed">
-            Scroll through every chapter of the journey — from Las Vegas nights to Icelandic
-            coastlines.
-          </p>
-        </motion.div>
-
-        {/* Scroll cue */}
-        <motion.div
-          className="mt-16 flex flex-col items-center gap-2 text-slate-600"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.6 }}
-        >
-          <span className="text-xs tracking-widest uppercase">Scroll</span>
-          <motion.div
-            className="w-px h-10 bg-gradient-to-b from-amber-400/40 to-transparent"
-            animate={{ scaleY: [1, 0.4, 1] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </motion.div>
-      </section>
-
-      {/* ── Timeline entries ── */}
-      <main className="relative z-10">
-        {destinations.map((dest, i) => (
-          <DestinationCard
-            key={dest.id}
-            dest={dest}
-            index={i}
-            onVisible={handleVisible}
-          />
+      {/* The ribbon */}
+      <main>
+        {destinations.map((d, i) => (
+          <Strip key={d.id} dest={d} index={i} onActive={handleActive} onOpen={setLightbox} />
         ))}
 
         {destinations.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-40 text-slate-600">
-            <p className="text-lg mb-4">No destinations yet.</p>
+          <div className="flex flex-col items-center justify-center py-32 gap-3">
+            <p className="text-white/40 text-sm">No trips yet.</p>
             <button
-              onClick={() => setAdminOpen(true)}
-              className="text-amber-400 hover:text-amber-300 underline text-sm"
+              onClick={() => setEditorOpen(true)}
+              className="text-teal-300 hover:text-teal-200 text-sm underline underline-offset-4"
             >
-              Open the editor to add one →
+              Add the first one →
             </button>
           </div>
         )}
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="relative z-10 border-t border-white/[0.06] px-6 md:px-12 lg:px-20 py-8 flex items-center justify-between text-slate-600 text-sm">
-        <Link to="/" className="hover:text-slate-400 transition-colors">← Back to Vattitude</Link>
-        <span>{destinations.length} destinations · {new Set(destinations.map((d) => d.country)).size} countries</span>
+      <footer className="border-t border-white/[0.07] px-5 sm:px-8 py-8 flex flex-wrap items-center justify-between gap-3 text-[12px] text-white/30">
+        <Link to="/" className="hover:text-white/60 transition-colors">
+          ← Back to Vattitude
+        </Link>
+        <span>Landmark imagery via Wikimedia Commons</span>
       </footer>
 
-      {/* ── Fixed dot-nav (desktop) ── */}
-      {destinations.length > 0 && (
-        <nav className="fixed right-5 top-1/2 -translate-y-1/2 z-20 hidden lg:flex flex-col gap-2.5">
-          {destinations.map((dest, i) => (
-            <button
-              key={dest.id}
-              onClick={() => scrollTo(i)}
-              title={dest.location}
-              className="group relative flex items-center justify-end"
-            >
-              <span
-                className="absolute right-5 text-xs text-white whitespace-nowrap bg-[#0d1829] border border-white/10 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-              >
-                {dest.location}
-              </span>
-              <span
-                className="block rounded-full transition-all duration-300"
-                style={{
-                  width: i === activeIndex ? 10 : 6,
-                  height: i === activeIndex ? 10 : 6,
-                  background:
-                    i === activeIndex
-                      ? 'rgb(251 191 36)'
-                      : 'rgba(255,255,255,0.2)',
-                  boxShadow: i === activeIndex ? '0 0 8px rgba(251,191,36,0.6)' : 'none',
-                }}
-              />
-            </button>
-          ))}
-        </nav>
-      )}
-
-      {/* ── Mobile bottom progress strip ── */}
-      {destinations.length > 0 && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-20 lg:hidden flex items-center gap-1.5 bg-[#0d1829]/90 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-full">
-          {destinations.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => scrollTo(i)}
-              className="rounded-full transition-all duration-300"
-              style={{
-                width: i === activeIndex ? 18 : 5,
-                height: 5,
-                background:
-                  i === activeIndex
-                    ? 'rgb(251 191 36)'
-                    : 'rgba(255,255,255,0.2)',
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* ── Admin panel ── */}
       <AnimatePresence>
-        {adminOpen && (
-          <AdminPanel
+        {lightbox && <Lightbox dest={lightbox} onClose={() => setLightbox(null)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {editorOpen && (
+          <Editor
             destinations={destinations}
-            onClose={() => setAdminOpen(false)}
+            initial={editorSeed}
+            onClose={() => setEditorOpen(false)}
             onChange={setDestinations}
           />
         )}
