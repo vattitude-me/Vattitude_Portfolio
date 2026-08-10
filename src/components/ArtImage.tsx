@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 /* ------------------------------------------------------------------ *
  * Image with graceful fallback - never render a blank frame.
+ * Supports optional placeholder that displays while main image loads.
  * Shared by the timeline and the era deep-dive pages.
  * ------------------------------------------------------------------ */
 export default function ArtImage({
@@ -9,17 +10,34 @@ export default function ArtImage({
   alt,
   className,
   eager = false,
+  placeholder,
 }: {
   src: string
   alt: string
   className?: string
   eager?: boolean
+  placeholder?: string
 }) {
   const [status, setStatus] = useState<'loading' | 'ok' | 'error'>('loading')
+  const [placeholderLoaded, setPlaceholderLoaded] = useState(!placeholder)
 
   return (
     <span className="relative block w-full h-full overflow-hidden">
-      {status !== 'ok' && (
+      {/* Placeholder (if provided) shows until main image loads */}
+      {placeholder && !placeholderLoaded && (
+        <img
+          src={placeholder}
+          alt=""
+          aria-hidden
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onLoad={() => setPlaceholderLoaded(true)}
+          className={`${className ?? ''} absolute inset-0 w-full h-full`}
+        />
+      )}
+
+      {/* Fallback gradient if no placeholder or main image still loading */}
+      {status !== 'ok' && placeholderLoaded && (
         <span
           aria-hidden
           className={`absolute inset-0 bg-gradient-to-br from-white/[0.07] to-white/[0.02] ${
@@ -27,6 +45,7 @@ export default function ArtImage({
           }`}
         />
       )}
+
       {status === 'error' ? (
         <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
           <svg className="w-7 h-7 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor">

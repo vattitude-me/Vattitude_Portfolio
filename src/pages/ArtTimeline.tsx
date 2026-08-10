@@ -241,7 +241,7 @@ function EraScene({
                     }}
                   >
                     <span className="w-8 h-8 rounded-full overflow-hidden border border-white/15 shrink-0">
-                      <ArtImage src={a.portraitUrl} alt={a.name} className="w-full h-full object-cover object-top" />
+                      <ArtImage src={a.portraitUrl} alt={a.name} className="w-full h-full object-cover object-top" placeholder={a.portraitPlaceholder} />
                     </span>
                     <span
                       className="text-[13.5px] whitespace-nowrap transition-colors"
@@ -362,6 +362,7 @@ function EraScene({
                       src={display.imageUrl}
                       alt={`${display.title} - ${display.caption}`}
                       className="relative w-full h-full object-contain"
+                      placeholder={!artist ? era.heroArtwork.placeholderUrl : undefined}
                       eager={index === 0}
                     />
                     <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-5 pt-14 text-left">

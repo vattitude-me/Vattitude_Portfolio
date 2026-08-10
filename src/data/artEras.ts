@@ -42,6 +42,8 @@ export type Artist = {
   nationality: string
   bio: string
   portraitUrl: string
+  /** Low-quality portrait shown while main portrait loads. */
+  portraitPlaceholder?: string
   works: Artwork[]
   /**
    * Longer biography, shown only on the era deep-dive page. Optional so the
@@ -87,6 +89,8 @@ export type Era = {
     artist: string
     year: string
     imageUrl: string
+    /** Low-quality image shown while the main image loads (LQIP). */
+    placeholderUrl?: string
     sourceCredit: string
     sourceLink: string
     /** Hook shown alongside the hero - the "did you know" that earns attention. */
@@ -148,6 +152,7 @@ export const eras: Era[] = [
       "artist": "The Lascaux painters",
       "year": "c. 17,000 BCE",
       "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Lascaux_painting.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "placeholderUrl": "/placeholder-hero-prehistoric.jpg",
       "sourceCredit": "Cave of Lascaux, Dordogne — replica at Lascaux IV",
       "sourceLink": "https://archeologie.culture.gouv.fr/lascaux/en",
       "factoid": "Lascaux was found in 1940 by four teenagers following a dog down a hole. Within twenty years the breath of visitors had grown algae and crystals across the paintings, and the cave was sealed — what tourists visit today is a full-scale replica."
@@ -356,6 +361,7 @@ export const eras: Era[] = [
       "artist": "Thutmose",
       "year": "c. 1345 BCE",
       "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/46/Nefertiti_30-01-2006.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "placeholderUrl": "/placeholder-hero-classical.jpg",
       "sourceCredit": "Neues Museum, Berlin",
       "sourceLink": "https://www.smb.museum/en/museums-institutions/neues-museum/home/",
       "factoid": "The bust was found in a sculptor's abandoned workshop in 1912, still in his studio — it was never a finished commission but a master model, kept for other artisans to copy. Its left eye was never inlaid."
@@ -624,6 +630,7 @@ export const eras: Era[] = [
       "artist": "Andrei Rublev",
       "year": "c. 1411",
       "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Angelsatmamre-trinity-rublev-1410.jpg/960px-Angelsatmamre-trinity-rublev-1410.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "placeholderUrl": "/placeholder-hero-medieval.jpg",
       "sourceCredit": "Tretyakov Gallery, Moscow",
       "sourceLink": "https://www.tretyakovgallery.ru/en/",
       "factoid": "Three angels sit around a table, and the empty near side of that table is deliberate — the composition leaves a place open, positioning the viewer as the fourth guest."
@@ -898,6 +905,7 @@ export const eras: Era[] = [
       "artist": "Leonardo da Vinci",
       "year": "c. 1503–1519",
       "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Leonardo_da_Vinci_-_Mona_Lisa_%28La_Gioconda%29_-_WGA12711.jpg/960px-Leonardo_da_Vinci_-_Mona_Lisa_%28La_Gioconda%29_-_WGA12711.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "placeholderUrl": "/placeholder-hero-renaissance.jpg",
       "sourceCredit": "Musée du Louvre, Paris",
       "sourceLink": "https://collections.louvre.fr/en/ark:/53355/cl010062370",
       "factoid": "She was a moderately known picture until 1911, when a Louvre handyman walked out with her under his coat. The two-year manhunt, and the crowds who queued to see the empty wall, made her the most famous painting on earth."
@@ -1266,6 +1274,7 @@ export const eras: Era[] = [
       "artist": "Rembrandt van Rijn",
       "year": "1642",
       "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/The_Nightwatch_by_Rembrandt_-_Rijksmuseum.jpg/960px-The_Nightwatch_by_Rembrandt_-_Rijksmuseum.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "placeholderUrl": "/placeholder-hero-baroque.jpg",
       "sourceCredit": "Rijksmuseum, Amsterdam",
       "sourceLink": "https://www.rijksmuseum.nl/en/collection/SK-C-5",
       "factoid": "It is not a night scene. Centuries of darkened varnish fooled everyone, including whoever named it — cleaning revealed broad daylight. It was also cut down in 1715 to fit a wall, and the missing strips are gone for good."
@@ -1582,6 +1591,7 @@ export const eras: Era[] = [
       "artist": "Vincent van Gogh",
       "year": "1889",
       "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/960px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "placeholderUrl": "/placeholder-hero-impressionism.jpg",
       "sourceCredit": "Museum of Modern Art, New York",
       "sourceLink": "https://www.moma.org/collection/works/79802",
       "factoid": "Van Gogh painted this from memory in an asylum room whose window faced east — and mathematicians have found that its swirls closely model turbulent flow, a phenomenon not formally described until decades later."
@@ -1988,6 +1998,7 @@ export const eras: Era[] = [
       "artist": "Edvard Munch",
       "year": "1893",
       "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg/960px-Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "placeholderUrl": "/placeholder-hero-modern.jpg",
       "sourceCredit": "National Gallery, Oslo",
       "sourceLink": "https://www.nasjonalmuseet.no/en/",
       "factoid": "The figure is not screaming. Munch's diary records him standing on a bridge as the sky turned blood red and hearing \"a scream passing through nature\" — the figure is covering its ears against a sound coming from outside."
@@ -2318,6 +2329,7 @@ export const eras: Era[] = [
       "artist": "Ai Weiwei",
       "year": "2010",
       "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Ai_Weiwei%27s_Sunflower_Seeds%2C_Tate_Modern_1.jpg/1920px-Ai_Weiwei%27s_Sunflower_Seeds%2C_Tate_Modern_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "placeholderUrl": "/placeholder-hero-contemporary.jpg",
       "sourceCredit": "Tate Modern, London — photograph by Mike Peel, CC BY-SA 4.0",
       "sourceLink": "https://www.tate.org.uk/art/artworks/ai-sunflower-seeds-t13408",
       "factoid": "One hundred million porcelain seeds, each one individually hand-painted by around 1,600 artisans in Jingdezhen, the town that made imperial porcelain for centuries. Visitors were meant to walk across them; the floor closed after six days when the ceramic dust proved hazardous."
