@@ -121,6 +121,27 @@ export function saveDestinations(data: TravelDestination[]): void {
   }
 }
 
+const MONTH_INDEX: Record<string, number> = {
+  january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+  july: 6, august: 7, september: 8, october: 9, november: 10, december: 11,
+}
+
+/**
+ * Sort key from a free-text date. Handles "May 2024", ranges like
+ * "May – June 2023" (sorts by the first month), and vaguer forms like
+ * "Spring 2026" that carry only a year.
+ */
+export function dateSortKey(date: string): number {
+  const year = Number(date.match(/(\d{4})/)?.[1] ?? 0)
+  const month = date.toLowerCase().match(/[a-z]+/)?.[0]
+  return year * 12 + (month && month in MONTH_INDEX ? MONTH_INDEX[month] : 0)
+}
+
+/** Chronological order — the spine has to read top-to-bottom by time. */
+export function sortByDate(data: TravelDestination[]): TravelDestination[] {
+  return [...data].sort((a, b) => dateSortKey(a.date) - dateSortKey(b.date))
+}
+
 export function exportJSON(data: TravelDestination[]): void {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)

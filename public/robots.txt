@@ -1,5 +1,40 @@
 User-agent: *
 Allow: /
-Disallow:
+
+# Social preview crawlers — these fetch raw HTML to build share cards.
+# Listed explicitly so link unfurling keeps working if the rule above
+# is ever tightened.
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Facebot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: Slackbot-LinkExpanding
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+User-agent: Discordbot
+Allow: /
+
+User-agent: redditbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
 
 Sitemap: https://vattitude.ca/sitemap.xml

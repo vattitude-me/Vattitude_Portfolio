@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { useSocialMeta } from '../hooks/useSocialMeta'
 import {
   type TravelDestination,
   loadDestinations,
@@ -9,6 +10,7 @@ import {
   mergeImport,
   landmarkFor,
   realPhotos,
+  sortByDate,
 } from '../data/travelData'
 
 const FLAGS: Record<string, string> = {
@@ -29,19 +31,40 @@ const FLAGS: Record<string, string> = {
 }
 const flag = (c: string) => FLAGS[c] ?? '🌍'
 
-/** Trailing 4-digit year, used for the sticky rail and past/upcoming split. */
+/** Trailing 4-digit year, used for the rail markers and past/upcoming split. */
 function yearOf(date: string): string {
   const m = date.match(/(\d{4})\s*$/) ?? date.match(/(\d{4})/)
   return m ? m[1] : '—'
 }
 
+/** "May 2024" -> "May", "May – June 2023" -> "May – Jun", "Spring 2026" -> "Spring" */
+function monthOf(date: string): string {
+  const withoutYear = date.replace(/\s*\d{4}\s*$/, '').trim()
+  return withoutYear || yearOf(date)
+}
+
 const NOW_YEAR = new Date().getFullYear()
+
+const ADMIN_KEY = 'travel_timeline_admin'
+
+/**
+ * Share text for this route. scripts/prerender-social.mjs writes the same
+ * strings into dist/travel-timeline/index.html, which is what LinkedIn,
+ * WhatsApp and other crawlers actually read — keep the two in sync.
+ */
+export const TRAVEL_META = {
+  title: 'Travel Timeline — 25 Trips Across 14 Countries | Vattitude',
+  description:
+    'A scroll-through map of where I have been and where I am headed — 25 trips across 14 countries, from Las Vegas in 2021 to Iceland in 2026. Photos, dates, and landmarks along one continuous timeline.',
+  url: 'https://vattitude.ca/travel-timeline',
+  image: 'https://vattitude.ca/travel-timeline-preview.jpg',
+}
 
 /* ------------------------------------------------------------------ *
  * Image with landmark fallback. Personal photos win; otherwise the
- * locally hosted city landmark carries the strip.
+ * locally hosted city landmark carries the card.
  * ------------------------------------------------------------------ */
-function StripImage({
+function CardImage({
   src,
   alt,
   eager,
@@ -84,19 +107,26 @@ function StripImage({
 }
 
 /* ------------------------------------------------------------------ *
- * One destination = one full-bleed strip. No gaps, no margins: strips
- * butt directly against each other so the page reads as one ribbon.
+ * One destination = one row on the spine. The rail is drawn by each
+ * row's own left border, so consecutive rows form one unbroken line
+ * with no gaps between entries.
  * ------------------------------------------------------------------ */
-function Strip({
+function TimelineRow({
   dest,
   index,
+  isAdmin,
+  showYear,
   onActive,
   onOpen,
+  onEdit,
 }: {
   dest: TravelDestination
   index: number
+  isAdmin: boolean
+  showYear: boolean
   onActive: (i: number) => void
   onOpen: (d: TravelDestination) => void
+  onEdit: (d: TravelDestination) => void
 }) {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
@@ -119,108 +149,128 @@ function Strip({
   const hero = photos[0] ?? landmark
   const extras = photos.slice(1, 3)
   const usingLandmark = photos.length === 0
-  const flip = index % 2 === 1
   const upcoming = Number(yearOf(dest.date)) > NOW_YEAR
 
   return (
-    <section
-      ref={ref}
-      id={`dest-${dest.id}`}
-      className="relative border-t border-white/[0.07] first:border-t-0"
-    >
-      <button
-        type="button"
-        onClick={() => onOpen(dest)}
-        className="group block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60 focus-visible:-ring-offset-2"
-      >
-        <div
-          className={`relative grid grid-cols-1 md:grid-cols-[1.15fr_1fr] ${
-            flip ? 'md:[direction:rtl]' : ''
-          }`}
-        >
-          {/* Image side — fixed band height, edge to edge */}
-          <div className="relative h-56 sm:h-64 md:h-[19rem] lg:h-[21rem] overflow-hidden md:[direction:ltr]">
-            <motion.div
-              className="absolute inset-0"
-              initial={reduced ? false : { scale: 1.06, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              viewport={{ once: true, amount: 0.25 }}
-              transition={{ duration: reduced ? 0 : 0.8, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <StripImage
-                src={hero}
-                alt={usingLandmark ? `${dest.location} landmark` : `${dest.location} photo`}
-                eager={index < 2}
-                className="transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
-              />
-            </motion.div>
-
-            {/* Legibility wash + seam blend into the text panel */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-            <div
-              className={`hidden md:block absolute inset-y-0 w-24 ${flip ? 'left-0' : 'right-0'}`}
-              style={{
-                background: `linear-gradient(to ${flip ? 'right' : 'left'}, #0b0e13, transparent)`,
-              }}
-            />
-
-            {/* Thumbnails only when the user actually has more photos */}
-            {extras.length > 0 && (
-              <div className="absolute bottom-3 left-3 flex gap-2 md:[direction:ltr]">
-                {extras.map((p, i) => (
-                  <span
-                    key={i}
-                    className="block w-12 h-12 sm:w-14 sm:h-14 rounded-md overflow-hidden ring-1 ring-white/25 shadow-lg"
-                  >
-                    <StripImage src={p} alt={`${dest.location} photo ${i + 2}`} />
-                  </span>
-                ))}
-                {photos.length > 3 && (
-                  <span className="self-end text-[11px] text-white/70 pb-1">
-                    +{photos.length - 3}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {usingLandmark && (
-              <span className="absolute top-3 left-3 text-[10px] uppercase tracking-[0.18em] text-white/55 bg-black/35 backdrop-blur-sm px-2 py-0.5 rounded md:[direction:ltr]">
-                Landmark
-              </span>
-            )}
-          </div>
-
-          {/* Text side */}
-          <div className="relative flex flex-col justify-center px-6 sm:px-8 md:px-10 lg:px-14 py-7 md:py-0 bg-[#0b0e13] md:[direction:ltr]">
-            <div className="flex items-center gap-2.5 mb-3">
-              <span className="text-base leading-none" aria-hidden>
-                {flag(dest.country)}
-              </span>
-              <span className="text-[11px] uppercase tracking-[0.22em] text-white/40">
-                {dest.country}
-              </span>
-              {upcoming && (
-                <span className="text-[10px] uppercase tracking-[0.16em] text-teal-300/90 border border-teal-300/30 bg-teal-300/[0.07] px-1.5 py-0.5 rounded">
-                  Planned
-                </span>
-              )}
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl lg:text-[2.1rem] font-semibold text-white leading-[1.15] tracking-tight">
-              {dest.location}
-            </h2>
-
-            <p className="mt-2.5 text-sm text-white/55 font-light tabular-nums">{dest.date}</p>
-
-            <div className="mt-5 flex items-center gap-3">
-              <span className="h-px w-8 bg-gradient-to-r from-teal-300/60 to-transparent" />
-              <span className="text-[11px] font-mono text-white/25">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-            </div>
+    <section ref={ref} id={`dest-${dest.id}`} className="relative">
+      {/* Year marker straddling the rail, shown when the year changes */}
+      {showYear && (
+        <div className="relative pl-[4.5rem] sm:pl-28 md:pl-36">
+          <div className="absolute left-[3.5rem] sm:left-[5.5rem] md:left-[7.5rem] top-0 bottom-0 w-px bg-white/10" />
+          <div className="relative py-5">
+            <span className="absolute -left-[1.05rem] sm:-left-[1.3rem] top-1/2 -translate-y-1/2 -translate-x-1/2 text-[13px] font-mono tabular-nums text-teal-300/90 bg-[#0b0e13] px-2 py-0.5">
+              {yearOf(dest.date)}
+            </span>
           </div>
         </div>
-      </button>
+      )}
+
+      <div className="relative pl-[4.5rem] sm:pl-28 md:pl-36 pr-4 sm:pr-6 md:pr-10">
+        {/* The rail itself — one segment per row, butted together */}
+        <div className="absolute left-[3.5rem] sm:left-[5.5rem] md:left-[7.5rem] top-0 bottom-0 w-px bg-white/10" />
+
+        {/* Date on the left of the rail */}
+        <div className="absolute left-0 top-6 w-[3rem] sm:w-[4.75rem] md:w-[6.75rem] text-right pr-3">
+          <span className="block text-[11px] sm:text-xs text-white/45 leading-tight">
+            {monthOf(dest.date)}
+          </span>
+          <span className="block text-[10px] sm:text-[11px] font-mono tabular-nums text-white/25 mt-0.5">
+            {yearOf(dest.date)}
+          </span>
+        </div>
+
+        {/* Node on the rail */}
+        <span
+          className={`absolute left-[3.5rem] sm:left-[5.5rem] md:left-[7.5rem] top-[1.9rem] -translate-x-1/2 w-[9px] h-[9px] rounded-full ring-4 ring-[#0b0e13] ${
+            upcoming ? 'bg-teal-300/40' : 'bg-teal-300'
+          }`}
+          aria-hidden
+        />
+
+        {/* Card */}
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: reduced ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="py-3"
+        >
+          <div className="group relative rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.02] hover:border-white/[0.16] transition-colors">
+            <button
+              type="button"
+              onClick={() => onOpen(dest)}
+              className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60"
+            >
+              <div className="flex flex-col sm:flex-row">
+                {/* Image */}
+                <div className="relative w-full sm:w-[46%] md:w-[42%] h-40 sm:h-auto sm:min-h-[10.5rem] shrink-0 overflow-hidden">
+                  <CardImage
+                    src={hero}
+                    alt={usingLandmark ? `${dest.location} landmark` : `${dest.location} photo`}
+                    eager={index < 3}
+                    className="transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent sm:bg-gradient-to-r sm:from-transparent sm:to-[#0b0e13]/60" />
+
+                  {extras.length > 0 && (
+                    <div className="absolute bottom-2 left-2 flex gap-1.5">
+                      {extras.map((p, i) => (
+                        <span
+                          key={i}
+                          className="block w-9 h-9 rounded overflow-hidden ring-1 ring-white/25 shadow-lg"
+                        >
+                          <CardImage src={p} alt={`${dest.location} photo ${i + 2}`} />
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Text */}
+                <div className="flex-1 min-w-0 px-5 py-4 sm:py-5 flex flex-col justify-center">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className="text-sm leading-none" aria-hidden>
+                      {flag(dest.country)}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">
+                      {dest.country}
+                    </span>
+                    {upcoming && (
+                      <span className="text-[9px] uppercase tracking-[0.14em] text-teal-300/90 border border-teal-300/30 bg-teal-300/[0.07] px-1.5 py-0.5 rounded">
+                        Planned
+                      </span>
+                    )}
+                  </div>
+
+                  <h2 className="text-lg sm:text-xl font-semibold text-white leading-snug tracking-tight">
+                    {dest.location}
+                  </h2>
+
+                  <p className="mt-1.5 text-[13px] text-white/50 font-light">{dest.date}</p>
+                </div>
+              </div>
+            </button>
+
+            {isAdmin && (
+              <button
+                onClick={() => onEdit(dest)}
+                className="absolute top-2.5 right-2.5 w-7 h-7 flex items-center justify-center rounded-md bg-black/50 backdrop-blur-sm text-white/60 hover:text-teal-300 border border-white/15 transition-colors"
+                aria-label={`Edit ${dest.location}`}
+                title="Edit this trip"
+              >
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+        </motion.div>
+      </div>
     </section>
   )
 }
@@ -228,13 +278,7 @@ function Strip({
 /* ------------------------------------------------------------------ *
  * Lightbox — full view of a destination's photos
  * ------------------------------------------------------------------ */
-function Lightbox({
-  dest,
-  onClose,
-}: {
-  dest: TravelDestination
-  onClose: () => void
-}) {
+function Lightbox({ dest, onClose }: { dest: TravelDestination; onClose: () => void }) {
   const photos = realPhotos(dest)
   const landmark = landmarkFor(dest)
   const shots = photos.length ? photos : landmark ? [landmark] : []
@@ -290,10 +334,7 @@ function Lightbox({
       </div>
 
       {shots.length > 1 && (
-        <div
-          className="shrink-0 flex justify-center gap-2 pb-6"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="shrink-0 flex justify-center gap-2 pb-6" onClick={(e) => e.stopPropagation()}>
           {shots.map((p, n) => (
             <button
               key={n}
@@ -312,7 +353,8 @@ function Lightbox({
 }
 
 /* ------------------------------------------------------------------ *
- * Editor
+ * Editor — list first, form last. Editing a trip scrolls the form
+ * into view so the click and the fields it fills stay connected.
  * ------------------------------------------------------------------ */
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -340,7 +382,12 @@ function Editor({
   const [editing, setEditing] = useState<TravelDestination | null>(initial)
   const [form, setForm] = useState<Omit<TravelDestination, 'id'>>(
     initial
-      ? { country: initial.country, location: initial.location, date: initial.date, photos: realPhotos(initial) }
+      ? {
+          country: initial.country,
+          location: initial.location,
+          date: initial.date,
+          photos: realPhotos(initial),
+        }
       : EMPTY,
   )
   const [month, setMonth] = useState('')
@@ -348,6 +395,21 @@ function Editor({
   const [err, setErr] = useState('')
   const importRef = useRef<HTMLInputElement>(null)
   const uploadRef = useRef<HTMLInputElement>(null)
+  const formRef = useRef<HTMLDivElement>(null)
+  const locationRef = useRef<HTMLInputElement>(null)
+
+  /** Bring the form to the user rather than making them hunt for it. */
+  const focusForm = useCallback(() => {
+    requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      locationRef.current?.focus({ preventScroll: true })
+    })
+  }, [])
+
+  // Opening the editor straight from a card's pencil should land on the form.
+  useEffect(() => {
+    if (initial) focusForm()
+  }, [initial, focusForm])
 
   const startEdit = (d: TravelDestination) => {
     setEditing(d)
@@ -355,6 +417,7 @@ function Editor({
     setMonth('')
     setYear('')
     setErr('')
+    focusForm()
   }
 
   const reset = () => {
@@ -451,15 +514,26 @@ function Editor({
         exit={{ x: '100%' }}
         transition={{ type: 'spring', stiffness: 320, damping: 34 }}
       >
-        <div className="sticky top-0 z-10 bg-[#0b0e13] flex items-center justify-between px-5 py-4 border-b border-white/10">
+        <div className="sticky top-0 z-20 bg-[#0b0e13] flex items-center justify-between px-5 py-4 border-b border-white/10">
           <h2 className="text-white font-semibold">Trip editor</h2>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-            aria-label="Close editor"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                reset()
+                focusForm()
+              }}
+              className="text-[12px] px-2.5 py-1 rounded-md bg-teal-300/10 hover:bg-teal-300/20 text-teal-200 border border-teal-300/25 transition-colors"
+            >
+              + Add trip
+            </button>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label="Close editor"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* Import / Export */}
@@ -472,7 +546,7 @@ function Editor({
           </button>
           <button
             onClick={() => exportJSON(destinations)}
-            className="flex-1 py-2 rounded-lg text-sm bg-teal-300/10 hover:bg-teal-300/20 text-teal-200 border border-teal-300/25 transition-colors"
+            className="flex-1 py-2 rounded-lg text-sm bg-white/[0.05] hover:bg-white/10 text-white/75 border border-white/10 transition-colors"
           >
             Export
           </button>
@@ -485,15 +559,67 @@ function Editor({
           />
         </div>
 
-        {/* Form */}
-        <div className="px-5 py-5 border-b border-white/10 space-y-3">
-          <h3 className="text-[11px] uppercase tracking-[0.2em] text-teal-300/80">
-            {editing ? 'Edit trip' : 'Add trip'}
+        {/* List first — this is what you scan, so it comes before the form */}
+        <div className="px-5 py-5 border-b border-white/10">
+          <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/35 mb-3">
+            {destinations.length} trips
           </h3>
+          <ul className="space-y-1.5">
+            {destinations.map((d) => (
+              <li
+                key={d.id}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm ${
+                  editing?.id === d.id
+                    ? 'border-teal-300/40 bg-teal-300/[0.08]'
+                    : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05]'
+                }`}
+              >
+                <span className="shrink-0" aria-hidden>
+                  {flag(d.country)}
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-white/90 truncate">{d.location}</span>
+                  <span className="block text-white/35 text-[11px]">{d.date}</span>
+                </span>
+                <button
+                  onClick={() => startEdit(d)}
+                  className="w-7 h-7 rounded text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                  aria-label={`Edit ${d.location}`}
+                >
+                  ✎
+                </button>
+                <button
+                  onClick={() => remove(d.id)}
+                  className="w-7 h-7 rounded text-white/25 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+                  aria-label={`Delete ${d.location}`}
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Form last, scrolled to on edit */}
+        <div ref={formRef} className="px-5 py-5 space-y-3 scroll-mt-16">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[11px] uppercase tracking-[0.2em] text-teal-300/80">
+              {editing ? `Editing · ${editing.location}` : 'Add trip'}
+            </h3>
+            {editing && (
+              <button
+                onClick={reset}
+                className="text-[11px] text-white/40 hover:text-white/80 transition-colors"
+              >
+                New instead
+              </button>
+            )}
+          </div>
 
           <div>
             <label className="block text-[11px] text-white/40 mb-1">Location</label>
             <input
+              ref={locationRef}
               className={field}
               value={form.location}
               onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
@@ -631,45 +757,6 @@ function Editor({
             </button>
           </div>
         </div>
-
-        {/* List */}
-        <div className="px-5 py-5">
-          <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/35 mb-3">
-            {destinations.length} trips
-          </h3>
-          <ul className="space-y-1.5">
-            {destinations.map((d) => (
-              <li
-                key={d.id}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm ${
-                  editing?.id === d.id
-                    ? 'border-teal-300/40 bg-teal-300/[0.08]'
-                    : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05]'
-                }`}
-              >
-                <span className="shrink-0" aria-hidden>{flag(d.country)}</span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-white/90 truncate">{d.location}</span>
-                  <span className="block text-white/35 text-[11px]">{d.date}</span>
-                </span>
-                <button
-                  onClick={() => startEdit(d)}
-                  className="w-7 h-7 rounded text-white/40 hover:text-white hover:bg-white/10 transition-colors"
-                  aria-label={`Edit ${d.location}`}
-                >
-                  ✎
-                </button>
-                <button
-                  onClick={() => remove(d.id)}
-                  className="w-7 h-7 rounded text-white/25 hover:text-red-400 hover:bg-red-400/10 transition-colors"
-                  aria-label={`Delete ${d.location}`}
-                >
-                  ✕
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
       </motion.aside>
     </motion.div>
   )
@@ -681,25 +768,40 @@ function Editor({
 export default function TravelTimeline() {
   const [destinations, setDestinations] = useState<TravelDestination[]>(() => loadDestinations())
   const [active, setActive] = useState(0)
+  const [isAdmin, setIsAdmin] = useState(
+    () => localStorage.getItem(ADMIN_KEY) === '1' || window.location.hash === '#admin',
+  )
   const [editorOpen, setEditorOpen] = useState(false)
   const [editorSeed, setEditorSeed] = useState<TravelDestination | null>(null)
   const [lightbox, setLightbox] = useState<TravelDestination | null>(null)
   const [progress, setProgress] = useState(0)
 
+  useSocialMeta(TRAVEL_META)
+
   useEffect(() => {
     saveDestinations(destinations)
   }, [destinations])
 
+  // Admin is hidden by design: no visible affordance. Unlocked by
+  // Ctrl+Shift+E or the #admin hash, then remembered on this device.
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'e') {
         e.preventDefault()
-        setEditorSeed(null)
-        setEditorOpen((v) => !v)
+        setIsAdmin((wasAdmin) => {
+          const next = !wasAdmin
+          localStorage.setItem(ADMIN_KEY, next ? '1' : '0')
+          if (!next) setEditorOpen(false)
+          return next
+        })
       }
     }
     window.addEventListener('keydown', h)
     return () => window.removeEventListener('keydown', h)
+  }, [])
+
+  useEffect(() => {
+    if (window.location.hash === '#admin') localStorage.setItem(ADMIN_KEY, '1')
   }, [])
 
   useEffect(() => {
@@ -722,20 +824,27 @@ export default function TravelTimeline() {
 
   const handleActive = useCallback((i: number) => setActive(i), [])
 
+  const ordered = useMemo(() => sortByDate(destinations), [destinations])
+
   const stats = useMemo(
     () => ({
-      countries: new Set(destinations.map((d) => d.country)).size,
-      years: Array.from(new Set(destinations.map((d) => yearOf(d.date)))),
+      countries: new Set(ordered.map((d) => d.country)).size,
+      years: Array.from(new Set(ordered.map((d) => yearOf(d.date)))),
     }),
-    [destinations],
+    [ordered],
   )
 
-  const activeYear = destinations[active] ? yearOf(destinations[active].date) : ''
+  const activeYear = ordered[active] ? yearOf(ordered[active].date) : ''
 
   const jumpToYear = (y: string) => {
-    const i = destinations.findIndex((d) => yearOf(d.date) === y)
+    const i = ordered.findIndex((d) => yearOf(d.date) === y)
     if (i >= 0)
-      document.getElementById(`dest-${destinations[i].id}`)?.scrollIntoView({ behavior: 'smooth' })
+      document.getElementById(`dest-${ordered[i].id}`)?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const openEditorFor = (d: TravelDestination) => {
+    setEditorSeed(d)
+    setEditorOpen(true)
   }
 
   return (
@@ -746,7 +855,7 @@ export default function TravelTimeline() {
         style={{ width: `${progress * 100}%` }}
       />
 
-      {/* Compact sticky header — replaces the old full-screen hero */}
+      {/* Compact sticky header — no hero */}
       <header className="sticky top-0 z-30 bg-[#0b0e13]/88 backdrop-blur-md border-b border-white/[0.07]">
         <div className="flex items-center justify-between gap-4 px-5 sm:px-8 h-14">
           <Link
@@ -760,7 +869,7 @@ export default function TravelTimeline() {
           <div className="flex items-baseline gap-2.5 min-w-0">
             <h1 className="text-sm font-semibold tracking-tight truncate">Travel</h1>
             <span className="text-[11px] text-white/35 tabular-nums whitespace-nowrap">
-              {destinations.length} trips · {stats.countries} countries
+              {ordered.length} trips · {stats.countries} countries
             </span>
           </div>
 
@@ -768,24 +877,27 @@ export default function TravelTimeline() {
             <span className="text-xs font-mono text-teal-300/80 tabular-nums w-10 text-right">
               {activeYear}
             </span>
-            <button
-              onClick={() => {
-                setEditorSeed(null)
-                setEditorOpen(true)
-              }}
-              className="w-8 h-8 flex items-center justify-center rounded-full border border-white/10 text-white/45 hover:text-teal-300 hover:border-teal-300/40 transition-colors"
-              title="Edit trips (Ctrl+Shift+E)"
-              aria-label="Edit trips"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.8}
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-            </button>
+            {/* Only rendered once admin is unlocked — no public entry point */}
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  setEditorSeed(null)
+                  setEditorOpen(true)
+                }}
+                className="w-8 h-8 flex items-center justify-center rounded-full border border-teal-300/40 text-teal-300/80 hover:text-teal-200 hover:border-teal-300/70 transition-colors"
+                title="Trip editor (Ctrl+Shift+E toggles admin)"
+                aria-label="Trip editor"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.8}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
 
@@ -809,21 +921,24 @@ export default function TravelTimeline() {
         )}
       </header>
 
-      {/* The ribbon */}
-      <main>
-        {destinations.map((d, i) => (
-          <Strip key={d.id} dest={d} index={i} onActive={handleActive} onOpen={setLightbox} />
+      {/* The spine */}
+      <main className="pb-4">
+        {ordered.map((d, i) => (
+          <TimelineRow
+            key={d.id}
+            dest={d}
+            index={i}
+            isAdmin={isAdmin}
+            showYear={i === 0 || yearOf(d.date) !== yearOf(ordered[i - 1].date)}
+            onActive={handleActive}
+            onOpen={setLightbox}
+            onEdit={openEditorFor}
+          />
         ))}
 
-        {destinations.length === 0 && (
+        {ordered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-32 gap-3">
             <p className="text-white/40 text-sm">No trips yet.</p>
-            <button
-              onClick={() => setEditorOpen(true)}
-              className="text-teal-300 hover:text-teal-200 text-sm underline underline-offset-4"
-            >
-              Add the first one →
-            </button>
           </div>
         )}
       </main>
@@ -840,11 +955,14 @@ export default function TravelTimeline() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {editorOpen && (
+        {editorOpen && isAdmin && (
           <Editor
-            destinations={destinations}
+            destinations={ordered}
             initial={editorSeed}
-            onClose={() => setEditorOpen(false)}
+            onClose={() => {
+              setEditorOpen(false)
+              setEditorSeed(null)
+            }}
             onChange={setDestinations}
           />
         )}

@@ -4,6 +4,20 @@ import { motion, AnimatePresence, useScroll, useSpring, useReducedMotion } from 
 import { eras, type Era, type Artist } from '../data/artEras'
 import GildedFrame from '../components/GildedFrame'
 import ArtImage from '../components/ArtImage'
+import { useSocialMeta } from '../hooks/useSocialMeta'
+
+/**
+ * Share text for this route. scripts/prerender-social.mjs writes the same
+ * strings into dist/art-timeline/index.html, which is what social crawlers
+ * actually read — keep the two in sync.
+ */
+export const ART_META = {
+  title: 'The Art Timeline — 40,000 Years of Art History | Vattitude',
+  description:
+    'Explore 40,000 years of art history in an interactive scroll-driven experience. From Prehistoric cave paintings to Contemporary digital art — 8 eras, key movements, and iconic masterpieces.',
+  url: 'https://vattitude.ca/art-timeline',
+  image: 'https://vattitude.ca/art-timeline-preview.jpg',
+}
 
 /* ------------------------------------------------------------------ *
  * One era scene. The "bulge": scenes fade + recede toward viewport edges.
@@ -563,54 +577,7 @@ export default function ArtTimeline() {
     el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block })
   }
 
-  useEffect(() => {
-    const prevTitle = document.title
-    document.title = 'The Art Timeline — 40,000 Years of Art History | Vattitude'
-
-    const setMeta = (name: string, content: string, prop = false) => {
-      const attr = prop ? 'property' : 'name'
-      let el = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null
-      if (!el) {
-        el = document.createElement('meta')
-        el.setAttribute(attr, name)
-        document.head.appendChild(el)
-      }
-      el.setAttribute('content', content)
-      return el
-    }
-
-    const desc = 'Explore 40,000 years of art history in an interactive scroll-driven experience. From Prehistoric cave paintings to Contemporary digital art — 8 eras, key movements, and iconic masterpieces.'
-    const url = 'https://vattitude.ca/art-timeline'
-    const image = 'https://vattitude.ca/art-timeline-preview.jpg'
-
-    setMeta('description', desc)
-    setMeta('og:title', 'The Art Timeline — 40,000 Years of Art History | Vattitude', true)
-    setMeta('og:description', desc, true)
-    setMeta('og:url', url, true)
-    setMeta('og:image', image, true)
-    setMeta('og:type', 'website', true)
-    setMeta('twitter:title', 'The Art Timeline — 40,000 Years of Art History | Vattitude')
-    setMeta('twitter:description', desc)
-    setMeta('twitter:image', image)
-
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null
-    const prevCanonical = canonical?.getAttribute('href') ?? ''
-    if (canonical) canonical.setAttribute('href', url)
-
-    return () => {
-      document.title = prevTitle
-      if (canonical) canonical.setAttribute('href', prevCanonical)
-      // restore original description/OG tags
-      setMeta('description', 'Toronto-based digital agency building high-performance websites, apps, and brand identities. 19+ years of experience. UI/UX design, SEO, e-commerce, and automation for businesses ready to grow.')
-      setMeta('og:title', 'Vattitude — Web Development, Branding & Digital Growth | Toronto', true)
-      setMeta('og:description', 'Toronto-based digital agency building high-performance websites, apps, and brand identities. UI/UX design, SEO, e-commerce, and automation for businesses ready to grow.', true)
-      setMeta('og:url', 'https://vattitude.ca/', true)
-      setMeta('og:image', 'https://vattitude.ca/logo.png', true)
-      setMeta('twitter:title', 'Vattitude — Web Development, Branding & Digital Growth | Toronto')
-      setMeta('twitter:description', 'Toronto-based digital agency building high-performance websites, apps, and brand identities. UI/UX design, SEO, e-commerce, and automation for businesses ready to grow.')
-      setMeta('twitter:image', 'https://vattitude.ca/logo.png')
-    }
-  }, [])
+  useSocialMeta(ART_META)
 
   const eraList = useMemo(() => eras, [])
 
