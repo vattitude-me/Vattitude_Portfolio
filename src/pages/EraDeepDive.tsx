@@ -197,11 +197,13 @@ function Lightbox({
         initial={{ scale: reduced ? 1 : 0.97, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: reduced ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="relative h-full w-full flex flex-col lg:flex-row items-center gap-6 lg:gap-0 overflow-y-auto lg:overflow-hidden p-5 pt-16 lg:p-0"
+        className="relative h-full w-full flex flex-col lg:flex-row lg:portrait:flex-col items-center lg:items-stretch lg:portrait:items-stretch gap-6 lg:gap-0 lg:portrait:gap-6 overflow-y-auto lg:overflow-hidden lg:portrait:overflow-y-auto p-5 pt-16 lg:p-0 lg:portrait:p-5 lg:portrait:pt-16"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Canvas side - takes all remaining width and the full viewport height. */}
-        <div className="flex-1 min-w-0 w-full flex items-center justify-center lg:h-full lg:p-12 xl:p-16">
+        {/* Canvas side - takes all remaining width and the full viewport height.
+            On tall/portrait screens (e.g. an iPad Pro held upright) a side-by-side
+            split leaves the painting starved for width, so it stacks instead. */}
+        <div className="flex-1 min-w-0 w-full flex items-center justify-center lg:h-full lg:portrait:h-auto lg:portrait:flex-none lg:p-12 xl:p-16 lg:portrait:p-0">
           <figure
             className="relative max-w-full max-h-full"
             style={{ filter: 'drop-shadow(0 45px 90px rgba(0,0,0,0.85))' }}
@@ -211,14 +213,14 @@ function Lightbox({
               alt={`${work.title} — ${artistName}`}
               decoding="async"
               referrerPolicy="no-referrer"
-              className="block max-w-full max-h-[60vh] lg:max-h-[calc(100vh-8rem)] w-auto h-auto object-contain rounded-sm"
+              className="block max-w-full max-h-[60vh] lg:max-h-[calc(100vh-8rem)] lg:portrait:max-h-[55vh] w-auto h-auto object-contain rounded-sm"
               style={{ boxShadow: `0 0 0 1px rgba(0,0,0,0.9), 0 0 0 7px ${accent}33` }}
             />
           </figure>
         </div>
 
         {/* Caption rail - a fixed measure so long factoids never sprawl. */}
-        <aside className="w-full lg:w-[min(30vw,400px)] shrink-0 lg:h-full lg:overflow-y-auto flex flex-col text-left px-1 lg:px-10 xl:px-12 lg:pt-24 xl:pt-28 lg:pb-12 lg:border-l border-white/10 lg:bg-white/[0.02]">
+        <aside className="w-full lg:w-[min(30vw,400px)] lg:portrait:w-full lg:portrait:max-w-[600px] lg:portrait:mx-auto shrink-0 lg:h-full lg:portrait:h-auto lg:overflow-y-auto lg:portrait:overflow-visible flex flex-col text-left px-1 lg:px-10 xl:px-12 lg:portrait:px-1 lg:pt-24 xl:pt-28 lg:portrait:pt-0 lg:pb-12 lg:portrait:pb-0 lg:border-l lg:portrait:border-l-0 lg:portrait:border-t border-white/10 lg:bg-white/[0.02] lg:portrait:bg-transparent">
           <p className="font-mono text-[11px] tracking-[0.2em] mb-2" style={{ color: accent }}>
             {work.year}
           </p>
