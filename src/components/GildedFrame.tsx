@@ -180,7 +180,7 @@ export default function GildedFrame({
       </div>
 
       {/* Content scrolls inside the frame's opening. */}
-      <div style={{ padding: `0 ${inset}px` }} className="max-sm:!p-0">
+      <div style={{ paddingLeft: `${inset}px`, paddingRight: `${inset}px` }} className="max-sm:!p-0 md:!px-0">
         {children}
       </div>
     </div>
