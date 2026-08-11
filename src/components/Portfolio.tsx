@@ -10,6 +10,7 @@ const projects = [
     description: 'Full-service home renovation company website featuring a 4-step process walkthrough, client testimonials, portfolio gallery, and integrated booking.',
     gradient: 'from-amber-600 to-orange-500',
     url: 'https://usereno.ca',
+    image: '/projects/usereno.webp',
     tech: ['WordPress', 'Custom Theme', 'SEO'],
     metric: '160%',
     metricLabel: 'Leads Generated',
@@ -22,6 +23,7 @@ const projects = [
     description: 'Premium barbershop website with online booking via Setmore, service pricing for men/women/kids, staff profiles, and a retro-meets-modern design aesthetic.',
     gradient: 'from-slate-700 to-zinc-900',
     url: 'https://acebarber.ca',
+    image: '/projects/acebarber.webp',
     tech: ['Custom Build', 'Setmore', 'Responsive'],
     metric: '120%',
     metricLabel: 'Brand Visibility',
@@ -34,6 +36,7 @@ const projects = [
     description: 'Junk removal & demolition service site with same-day scheduling, lowest price guarantee messaging, and service area targeting across the GTA.',
     gradient: 'from-green-600 to-emerald-500',
     url: 'https://alljunkdemo.ca',
+    image: '/projects/alljunkdemo.webp',
     tech: ['Static Site', 'Google Maps', 'Lead Gen'],
     metric: '230%',
     metricLabel: 'Sales Increase',
@@ -46,6 +49,7 @@ const projects = [
     description: 'Professional flooring company site showcasing 30+ years of combined experience with service cards and on-site quote booking.',
     gradient: 'from-yellow-700 to-amber-600',
     url: 'https://lppflooring.netlify.app',
+    image: '/projects/lppflooring.webp',
     tech: ['Netlify', 'Modern CSS', 'Contact Forms'],
     metric: '85%',
     metricLabel: 'More Inquiries',
@@ -58,6 +62,7 @@ const projects = [
     description: 'Educational chess platform for children with gamified learning - 12 structured lessons, 50+ puzzles, AI opponents, and an achievement system.',
     gradient: 'from-purple-600 to-indigo-600',
     url: 'https://chess4kids.vattitude.ca',
+    image: '/projects/chess4kids.webp',
     tech: ['Next.js', 'React', 'AI Engine'],
     metric: '95%',
     metricLabel: 'User Engagement',
@@ -71,7 +76,7 @@ const projects = [
     gradient: 'from-amber-500 to-violet-500',
     url: '/art-timeline',
     internal: true,
-    image: '/art-timeline-preview.jpg',
+    image: '/projects/art-timeline.webp',
     tech: ['React', 'Scroll Animation', 'Public Domain Art'],
     metric: '40k',
     metricLabel: 'Years of Art',
@@ -85,6 +90,7 @@ const projects = [
     gradient: 'from-amber-400 to-sky-500',
     url: '/travel-timeline',
     internal: true,
+    image: '/projects/travel-timeline.webp',
     tech: ['React', 'SVG Filters', 'Scroll-driven CSS'],
     metric: '30',
     metricLabel: 'Entries',
@@ -97,6 +103,7 @@ const projects = [
     description: 'Interactive math education platform - gamified arithmetic exercises designed to make learning engaging for kids.',
     gradient: 'from-rose-500 to-pink-600',
     url: 'https://pebblesum.vattitude.ca',
+    image: '/projects/pebblesum.webp',
     tech: ['React', 'TypeScript', 'Gamification'],
     metric: '140%',
     metricLabel: 'Learning Speed',
@@ -189,15 +196,19 @@ export default function Portfolio() {
                     <div className="relative h-full bg-[#0a0f1a] border border-white/[0.08] rounded-2xl group-hover:border-transparent transition-colors overflow-hidden">
                       {/* Screenshot */}
                       <div className="aspect-[16/10] overflow-hidden relative">
+                        {/* Gradient stands in until the screenshot paints, and stays if it fails */}
+                        <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-40`} />
                         <img
-                          src={
-                            project.image
-                              ? project.image
-                              : `https://api.microlink.io/?url=${encodeURIComponent(project.url)}&screenshot=true&meta=false&embed=screenshot.url`
-                          }
-                          alt={project.title}
-                          className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                          src={project.image}
+                          alt={`${project.title} — ${project.categoryLabel}`}
+                          className="relative w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                           loading="lazy"
+                          decoding="async"
+                          width={1200}
+                          height={750}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
                         />
                         <div className={`absolute inset-0 bg-gradient-to-t from-[#0a0f1a] via-transparent to-transparent opacity-60`} />
                       </div>
