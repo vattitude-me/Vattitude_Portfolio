@@ -27,9 +27,9 @@ const ROUTES = [
   },
   {
     dir: 'travel-timeline',
-    title: 'Travel Timeline — 25 Trips Across 14 Countries | Vattitude',
+    title: 'Travel Timeline — A Travelogue in 30 Entries, Run Backwards | Vattitude',
     description:
-      'A scroll-through map of where I have been and where I am headed — 25 trips across 14 countries, from Las Vegas in 2021 to Iceland in 2026. Photos, dates, and landmarks along one continuous timeline.',
+      'Thirty entries across 17 countries and 74 places, newest first — from Washington in 2026 back through Tokyo, Cairo, Rome, Rio, Paris and Dubai to a childhood in India. Dates, places and landmarks, set as newsprint.',
     url: 'https://vattitude.ca/travel-timeline',
     image: 'https://vattitude.ca/travel-timeline-preview.jpg',
   },

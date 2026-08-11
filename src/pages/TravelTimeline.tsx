@@ -1,51 +1,34 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { useSocialMeta } from '../hooks/useSocialMeta'
 import {
-  type TravelDestination,
-  loadDestinations,
-  saveDestinations,
-  exportJSON,
-  mergeImport,
-  landmarkFor,
-  realPhotos,
-  sortByDate,
-} from '../data/travelData'
+  GROUPS,
+  JOURNEYS,
+  RAIL,
+  STATS,
+  entryCountLabel,
+  type Fact,
+  type Journey,
+} from '../data/journeys'
 
-const FLAGS: Record<string, string> = {
-  'United States': '🇺🇸',
-  Canada: '🇨🇦',
-  Peru: '🇵🇪',
-  Mexico: '🇲🇽',
-  'United Arab Emirates': '🇦🇪',
-  France: '🇫🇷',
-  Netherlands: '🇳🇱',
-  Brazil: '🇧🇷',
-  Italy: '🇮🇹',
-  Egypt: '🇪🇬',
-  Philippines: '🇵🇭',
-  Japan: '🇯🇵',
-  'South Korea': '🇰🇷',
-  Iceland: '🇮🇸',
-}
-const flag = (c: string) => FLAGS[c] ?? '🌍'
-
-/** Trailing 4-digit year, used for the rail markers and past/upcoming split. */
-function yearOf(date: string): string {
-  const m = date.match(/(\d{4})\s*$/) ?? date.match(/(\d{4})/)
-  return m ? m[1] : '—'
-}
-
-/** "May 2024" -> "May", "May – June 2023" -> "May – Jun", "Spring 2026" -> "Spring" */
-function monthOf(date: string): string {
-  const withoutYear = date.replace(/\s*\d{4}\s*$/, '').trim()
-  return withoutYear || yearOf(date)
-}
-
-const NOW_YEAR = new Date().getFullYear()
-
-const ADMIN_KEY = 'travel_timeline_admin'
+/**
+ * The travel record, set as newsprint and read backwards.
+ *
+ * The design is the Broadsheet system from
+ * docs/travel_timeline/Cinematic Travel Timeline Website: near-black serif on
+ * paper white, cyan and magenta used as spot colour, no boxes or dividers
+ * anywhere — hierarchy comes from the serif scale and from whitespace. Its two
+ * signature treatments are ported here rather than approximated:
+ *
+ *  - `.cmyk .print` prints each photograph as its four misregistered process
+ *    plates through one compound SVG filter (#tt-sep-all below), and the press
+ *    driver eases the plates into register on hover while purifying their inks,
+ *    so the converged four-plate multiply *is* the photograph.
+ *  - `.cmyk-head` / `.cmyk-num` set display text as three text plates (C, M, Y)
+ *    over the white of the sheet; the dark core is the multiply overlap.
+ *
+ * Everything is scoped under `.bs` so the site's dark global styles stay put.
+ */
 
 /**
  * Share text for this route. scripts/prerender-social.mjs writes the same
@@ -53,712 +36,663 @@ const ADMIN_KEY = 'travel_timeline_admin'
  * WhatsApp and other crawlers actually read — keep the two in sync.
  */
 export const TRAVEL_META = {
-  title: 'Travel Timeline — 25 Trips Across 14 Countries | Vattitude',
+  title: 'Travel Timeline — A Travelogue in 30 Entries, Run Backwards | Vattitude',
   description:
-    'A scroll-through map of where I have been and where I am headed — 25 trips across 14 countries, from Las Vegas in 2021 to Iceland in 2026. Photos, dates, and landmarks along one continuous timeline.',
+    'Thirty entries across 17 countries and 74 places, newest first — from Washington in 2026 back through Tokyo, Cairo, Rome, Rio, Paris and Dubai to a childhood in India. Dates, places and landmarks, set as newsprint.',
   url: 'https://vattitude.ca/travel-timeline',
   image: 'https://vattitude.ca/travel-timeline-preview.jpg',
 }
 
+const FONT_HREF =
+  'https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap'
+
 /* ------------------------------------------------------------------ *
- * Image with landmark fallback. Personal photos win; otherwise the
- * locally hosted city landmark carries the card.
+ * The press: separation filters + the driver that registers them.
+ *
+ * One set of defs serves the document, so the filter ids are page-unique
+ * (`tt-`) and the driver only ever touches nodes inside them.
  * ------------------------------------------------------------------ */
-function CardImage({
-  src,
-  alt,
-  eager,
-  className = '',
-}: {
-  src: string | null
-  alt: string
-  eager?: boolean
-  className?: string
-}) {
-  const [failed, setFailed] = useState(false)
 
-  useEffect(() => {
-    setFailed(false)
-  }, [src])
-
-  if (!src || failed) {
-    return (
-      <div
-        className={`w-full h-full bg-[#12161d] ${className}`}
-        style={{
-          backgroundImage:
-            'radial-gradient(120% 80% at 30% 0%, rgba(94,234,212,0.10), transparent 60%), radial-gradient(100% 90% at 90% 100%, rgba(56,189,248,0.08), transparent 55%)',
-        }}
-        aria-hidden
-      />
-    )
-  }
-
-  return (
-    <img
-      src={src}
-      alt={alt}
-      loading={eager ? 'eager' : 'lazy'}
-      decoding="async"
-      onError={() => setFailed(true)}
-      className={`w-full h-full object-cover ${className}`}
-    />
-  )
+/** Plate inks at rest — the Broadsheet separation (accent, accent-2, yellow, text). */
+const INK: Record<string, number[]> = {
+  c: [1, 0, 0, 0, 0, 0.467, 0, 0, 0, 0.533, 0.31, 0, 0, 0, 0.69, 0, 0, 0, 0, 1],
+  m: [0, 0.161, 0, 0, 0.839, 0, 1, 0, 0, 0, 0, 0.576, 0, 0, 0.424, 0, 0, 0, 0, 1],
+  y: [0, 0, 0.071, 0, 0.929, 0, 0, 0.267, 0, 0.733, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+  k: [
+    0.112, 0.375, 0.038, 0, 0.475, 0.113, 0.379, 0.038, 0, 0.471, 0.113, 0.38, 0.038, 0, 0.468, 0,
+    0, 0, 0, 1,
+  ],
 }
 
-/* ------------------------------------------------------------------ *
- * One destination = one row on the spine. The rail is drawn by each
- * row's own left border, so consecutive rows form one unbroken line
- * with no gaps between entries.
- * ------------------------------------------------------------------ */
-function TimelineRow({
-  dest,
-  index,
-  isAdmin,
-  showYear,
-  onActive,
-  onOpen,
-  onEdit,
-}: {
-  dest: TravelDestination
-  index: number
-  isAdmin: boolean
-  showYear: boolean
-  onActive: (i: number) => void
-  onOpen: (d: TravelDestination) => void
-  onEdit: (d: TravelDestination) => void
-}) {
-  const ref = useRef<HTMLElement>(null)
-  const reduced = useReducedMotion()
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) onActive(index)
-      },
-      { rootMargin: '-45% 0px -45% 0px' },
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [index, onActive])
-
-  const photos = realPhotos(dest)
-  const landmark = landmarkFor(dest)
-  const hero = photos[0] ?? landmark
-  const extras = photos.slice(1, 3)
-  const usingLandmark = photos.length === 0
-  const upcoming = Number(yearOf(dest.date)) > NOW_YEAR
-
-  return (
-    <section ref={ref} id={`dest-${dest.id}`} className="relative">
-      {/* Year marker straddling the rail, shown when the year changes */}
-      {showYear && (
-        <div className="relative pl-[4.5rem] sm:pl-28 md:pl-36">
-          <div className="absolute left-[3.5rem] sm:left-[5.5rem] md:left-[7.5rem] top-0 bottom-0 w-px bg-white/10" />
-          <div className="relative py-5">
-            <span className="absolute -left-[1.05rem] sm:-left-[1.3rem] top-1/2 -translate-y-1/2 -translate-x-1/2 text-[13px] font-mono tabular-nums text-teal-300/90 bg-[#0b0e13] px-2 py-0.5">
-              {yearOf(dest.date)}
-            </span>
-          </div>
-        </div>
-      )}
-
-      <div className="relative pl-[4.5rem] sm:pl-28 md:pl-36 pr-4 sm:pr-6 md:pr-10">
-        {/* The rail itself — one segment per row, butted together */}
-        <div className="absolute left-[3.5rem] sm:left-[5.5rem] md:left-[7.5rem] top-0 bottom-0 w-px bg-white/10" />
-
-        {/* Date on the left of the rail */}
-        <div className="absolute left-0 top-6 w-[3rem] sm:w-[4.75rem] md:w-[6.75rem] text-right pr-3">
-          <span className="block text-[11px] sm:text-xs text-white/45 leading-tight">
-            {monthOf(dest.date)}
-          </span>
-          <span className="block text-[10px] sm:text-[11px] font-mono tabular-nums text-white/25 mt-0.5">
-            {yearOf(dest.date)}
-          </span>
-        </div>
-
-        {/* Node on the rail */}
-        <span
-          className={`absolute left-[3.5rem] sm:left-[5.5rem] md:left-[7.5rem] top-[1.9rem] -translate-x-1/2 w-[9px] h-[9px] rounded-full ring-4 ring-[#0b0e13] ${
-            upcoming ? 'bg-teal-300/40' : 'bg-teal-300'
-          }`}
-          aria-hidden
-        />
-
-        {/* Card */}
-        <motion.div
-          initial={reduced ? false : { opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: reduced ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="py-3"
-        >
-          <div className="group relative rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.02] hover:border-white/[0.16] transition-colors">
-            <button
-              type="button"
-              onClick={() => onOpen(dest)}
-              className="block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60"
-            >
-              <div className="flex flex-col sm:flex-row">
-                {/* Image */}
-                <div className="relative w-full sm:w-[46%] md:w-[42%] h-40 sm:h-auto sm:min-h-[10.5rem] shrink-0 overflow-hidden">
-                  <CardImage
-                    src={hero}
-                    alt={usingLandmark ? `${dest.location} landmark` : `${dest.location} photo`}
-                    eager={index < 3}
-                    className="transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent sm:bg-gradient-to-r sm:from-transparent sm:to-[#0b0e13]/60" />
-
-                  {extras.length > 0 && (
-                    <div className="absolute bottom-2 left-2 flex gap-1.5">
-                      {extras.map((p, i) => (
-                        <span
-                          key={i}
-                          className="block w-9 h-9 rounded overflow-hidden ring-1 ring-white/25 shadow-lg"
-                        >
-                          <CardImage src={p} alt={`${dest.location} photo ${i + 2}`} />
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Text */}
-                <div className="flex-1 min-w-0 px-5 py-4 sm:py-5 flex flex-col justify-center">
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <span className="text-sm leading-none" aria-hidden>
-                      {flag(dest.country)}
-                    </span>
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">
-                      {dest.country}
-                    </span>
-                    {upcoming && (
-                      <span className="text-[9px] uppercase tracking-[0.14em] text-teal-300/90 border border-teal-300/30 bg-teal-300/[0.07] px-1.5 py-0.5 rounded">
-                        Planned
-                      </span>
-                    )}
-                  </div>
-
-                  <h2 className="text-lg sm:text-xl font-semibold text-white leading-snug tracking-tight">
-                    {dest.location}
-                  </h2>
-
-                  <p className="mt-1.5 text-[13px] text-white/50 font-light">{dest.date}</p>
-                </div>
-              </div>
-            </button>
-
-            {isAdmin && (
-              <button
-                onClick={() => onEdit(dest)}
-                className="absolute top-2.5 right-2.5 w-7 h-7 flex items-center justify-center rounded-md bg-black/50 backdrop-blur-sm text-white/60 hover:text-teal-300 border border-white/15 transition-colors"
-                aria-label={`Edit ${dest.location}`}
-                title="Edit this trip"
-              >
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-              </button>
-            )}
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  )
+/**
+ * The pure-process factorisation the plates ease towards in register. Chosen
+ * because these four multiply back to the source exactly — (R,1,1)·(1,G,1)·
+ * (1,1,B)·(1,1,1) = (R,G,B) — so the gathered print lands on the photograph
+ * with nothing swapped in at the end.
+ */
+const TRUE_: Record<string, number[]> = {
+  c: [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  m: [0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  y: [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+  k: [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 }
 
-/* ------------------------------------------------------------------ *
- * Lightbox — full view of a destination's photos
- * ------------------------------------------------------------------ */
-function Lightbox({ dest, onClose }: { dest: TravelDestination; onClose: () => void }) {
-  const photos = realPhotos(dest)
-  const landmark = landmarkFor(dest)
-  const shots = photos.length ? photos : landmark ? [landmark] : []
-  const [i, setI] = useState(0)
+/** Registered misregistration, in px, and the pointer lean applied to it. */
+const BASE: Record<string, [number, number]> = { m: [5, 3], y: [-5, -3], k: [3, 6] }
+const LEAN = [2.5, 2]
+const REGISTER_MS = 450
 
-  useEffect(() => {
-    const h = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      if (e.key === 'ArrowRight') setI((v) => (v + 1) % Math.max(shots.length, 1))
-      if (e.key === 'ArrowLeft') setI((v) => (v - 1 + shots.length) % Math.max(shots.length, 1))
-    }
-    window.addEventListener('keydown', h)
-    return () => window.removeEventListener('keydown', h)
-  }, [onClose, shots.length])
-
+function PressDefs() {
   return (
-    <motion.div
-      className="fixed inset-0 z-50 bg-black/92 backdrop-blur-sm flex flex-col"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-    >
-      <div className="flex items-start justify-between px-5 sm:px-8 py-5 shrink-0">
-        <div>
-          <h3 className="text-white text-lg sm:text-xl font-semibold">{dest.location}</h3>
-          <p className="text-white/50 text-sm mt-0.5">
-            {flag(dest.country)} {dest.country} · {dest.date}
-          </p>
-        </div>
-        <button
-          onClick={onClose}
-          className="w-9 h-9 rounded-full border border-white/15 text-white/60 hover:text-white hover:border-white/40 transition-colors shrink-0"
-          aria-label="Close"
-        >
-          ✕
-        </button>
-      </div>
-
-      <div
-        className="flex-1 min-h-0 flex items-center justify-center px-4 sm:px-8 pb-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {shots.length > 0 ? (
-          <img
-            src={shots[i]}
-            alt={`${dest.location} ${i + 1}`}
-            className="max-w-full max-h-full object-contain rounded-lg"
+    <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+      <defs>
+        <filter id="tt-sep-all" colorInterpolationFilters="sRGB">
+          <feColorMatrix
+            in="SourceGraphic"
+            type="matrix"
+            values={INK.c.join(' ')}
+            data-plate-mat="c"
+            result="c0"
           />
-        ) : (
-          <p className="text-white/40 text-sm">No photos yet for this destination.</p>
+          <feComposite in="c0" in2="SourceAlpha" operator="in" result="c" />
+          <feColorMatrix
+            in="SourceGraphic"
+            type="matrix"
+            values={INK.m.join(' ')}
+            data-plate-mat="m"
+            result="m0"
+          />
+          <feComposite in="m0" in2="SourceAlpha" operator="in" result="m1" />
+          <feOffset in="m1" dx="5" dy="3" data-plate="m" result="m" />
+          <feColorMatrix
+            in="SourceGraphic"
+            type="matrix"
+            values={INK.y.join(' ')}
+            data-plate-mat="y"
+            result="y0"
+          />
+          <feComposite in="y0" in2="SourceAlpha" operator="in" result="y1" />
+          <feOffset in="y1" dx="-5" dy="-3" data-plate="y" result="y" />
+          <feColorMatrix
+            in="SourceGraphic"
+            type="matrix"
+            values={INK.k.join(' ')}
+            data-plate-mat="k"
+            result="k0"
+          />
+          <feComposite in="k0" in2="SourceAlpha" operator="in" result="k1" />
+          <feOffset in="k1" dx="3" dy="6" data-plate="k" result="k" />
+          <feBlend in="m" in2="c" mode="multiply" result="s1" />
+          <feBlend in="y" in2="s1" mode="multiply" result="s2" />
+          <feBlend in="k" in2="s2" mode="multiply" />
+        </filter>
+      </defs>
+    </svg>
+  )
+}
+
+/**
+ * Hover gathers a print's plates into register — the pressman squaring the
+ * films on the light table — and the pointer leans the moving plates a breath
+ * towards the cursor. The driver stands down for reduced motion and for coarse
+ * pointers, where the CSS fallback resolves the print on hover in one cut.
+ */
+function usePress(root: React.RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const host = root.current
+    if (!host) return
+    if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const offs: Record<string, Element> = {}
+    const mats: Record<string, Element> = {}
+    host.querySelectorAll('feOffset[data-plate]').forEach((n) => {
+      offs[(n as HTMLElement).dataset.plate!] = n
+    })
+    host.querySelectorAll('feColorMatrix[data-plate-mat]').forEach((n) => {
+      mats[(n as HTMLElement).dataset.plateMat!] = n
+    })
+    if (!Object.keys(offs).length) return
+
+    const sheet = host.style // captured: the lean is published on the page root
+    let nx = 0,
+      ny = 0,
+      tx = 0,
+      ty = 0
+    let reg = 1,
+      regFrom = 1,
+      regTo = 1,
+      regT0 = 0
+    let raf = 0,
+      lastOffs = '',
+      lastReg = -1,
+      lastLean = ''
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3)
+
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(tick)
+    }
+
+    function tick(now: number) {
+      raf = 0
+      nx += (tx - nx) * 0.22
+      ny += (ty - ny) * 0.22
+      if (regTo !== reg || regT0) {
+        const t = Math.min(1, (now - regT0) / REGISTER_MS)
+        reg = regFrom + (regTo - regFrom) * ease(t)
+        if (t >= 1) {
+          reg = regTo
+          regT0 = 0
+        }
+      }
+
+      // Every write is guarded on its computed output: an equal-value
+      // setAttribute still dirties the filter, and at full register the
+      // offsets are 0 whatever the lean.
+      const lx = LEAN[0] * nx,
+        ly = LEAN[1] * ny
+      const next: Record<string, [string, string]> = {}
+      let key = ''
+      for (const p in BASE) {
+        const dx = ((BASE[p][0] + lx) * reg).toFixed(2)
+        const dy = ((BASE[p][1] + ly) * reg).toFixed(2)
+        next[p] = [dx, dy]
+        key += `${dx},${dy};`
+      }
+      if (key !== lastOffs) {
+        lastOffs = key
+        for (const p in next) {
+          offs[p].setAttribute('dx', next[p][0])
+          offs[p].setAttribute('dy', next[p][1])
+        }
+      }
+
+      // The ink purification rides the same eased value: brand ink at rest,
+      // pure process in register.
+      if (reg !== lastReg) {
+        lastReg = reg
+        for (const p in mats) {
+          const a = INK[p],
+            b = TRUE_[p]
+          const v = new Array<string>(20)
+          for (let i = 0; i < 20; i++) v[i] = (b[i] + (a[i] - b[i]) * reg).toFixed(3)
+          mats[p].setAttribute('values', v.join(' '))
+        }
+      }
+
+      // The text plates lean with the pointer whatever the prints are doing.
+      const lean = `${nx.toFixed(3)},${ny.toFixed(3)}`
+      if (lean !== lastLean) {
+        lastLean = lean
+        sheet.setProperty('--press-nx', nx.toFixed(3))
+        sheet.setProperty('--press-ny', ny.toFixed(3))
+      }
+      if (regT0 || Math.abs(tx - nx) > 0.002 || Math.abs(ty - ny) > 0.002) schedule()
+    }
+
+    const onMove = (e: PointerEvent) => {
+      tx = (2 * e.clientX) / innerWidth - 1
+      ty = (2 * e.clientY) / innerHeight - 1
+      schedule()
+    }
+    const retarget = (to: number) => {
+      regFrom = reg
+      regTo = to
+      regT0 = performance.now()
+      schedule()
+    }
+    const enter = (e: PointerEvent) => {
+      const p = (e.target as HTMLElement)?.closest?.('.print')
+      if (p && !(e.relatedTarget instanceof Node && p.contains(e.relatedTarget))) retarget(0)
+    }
+    const leave = (e: PointerEvent) => {
+      const p = (e.target as HTMLElement)?.closest?.('.print')
+      if (p && !(e.relatedTarget instanceof Node && p.contains(e.relatedTarget))) retarget(1)
+    }
+
+    addEventListener('pointermove', onMove, { passive: true })
+    host.addEventListener('pointerover', enter)
+    host.addEventListener('pointerout', leave)
+    return () => {
+      removeEventListener('pointermove', onMove)
+      host.removeEventListener('pointerover', enter)
+      host.removeEventListener('pointerout', leave)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [root])
+}
+
+/* ------------------------------------------------------------------ *
+ * Text plates. The .paper span carries the real text for assistive
+ * tech; the three .plate spans are aria-hidden repeats that multiply.
+ * ------------------------------------------------------------------ */
+function PlateText({ children, className = '' }: { children: string; className?: string }) {
+  return (
+    <span className={className}>
+      <span className="paper">{children}</span>
+      <span className="plate plate-c" aria-hidden="true">
+        {children}
+      </span>
+      <span className="plate plate-m" aria-hidden="true">
+        {children}
+      </span>
+      <span className="plate plate-y" aria-hidden="true">
+        {children}
+      </span>
+    </span>
+  )
+}
+
+/* ------------------------------------------------------------------ *
+ * The page's own stylesheet. Plain CSS on plain markup, the way the
+ * design system ships — scoped under .bs so nothing leaks into the
+ * site's dark global styles.
+ * ------------------------------------------------------------------ */
+const CSS = `
+.bs{
+  --bg:#f3f2f2; --text:#201e1d;
+  --c:#0088b0; --m:#d6006c; --y:#edbb00;
+  --c700:#006786; --m700:#aa0b56;
+  --n400:#bab6b6; --n700:#605d5d;
+  position:relative; overflow:clip; min-height:100vh;
+  background:var(--bg); color:var(--text);
+  font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+  font-size:15px; line-height:1.55; text-wrap:pretty;
+}
+.bs *,.bs *::before,.bs *::after{box-sizing:border-box}
+.bs a{color:var(--c700);text-decoration:none}
+.bs a:hover{color:var(--m700)}
+.bs :focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.bs ::selection{background:rgba(0,136,176,.18);color:var(--text)}
+.bs img{display:block;max-width:100%}
+.bs figure{margin:0}
+
+/* Kickers, datelines, the uppercase furniture */
+.bs .kicker{font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--n700);
+  font-feature-settings:'tnum' 1;margin:0}
+.bs .measure{font-size:16px;line-height:28px;max-width:44ch;
+  color:color-mix(in srgb,var(--text) 78%,transparent);text-align:justify;hyphens:auto}
+
+/* Photographs as their misregistered process plates */
+.bs .cmyk{position:relative;background:var(--bg)}
+.bs .cmyk .print{position:relative;width:100%;overflow:hidden;filter:url(#tt-sep-all)}
+.bs .cmyk .print img{width:100%;height:100%;object-fit:cover}
+.bs .cmyk::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(0,0,0,0.22) 30%,transparent 32%);
+  background-size:3px 3px;mix-blend-mode:multiply}
+/* Without a mouse there is no way to bring the plates into register, so the
+   separation and the dot screen would simply be permanent damage to the
+   photograph. Touch and reduced-motion get the print resolved from the start —
+   the press treatment is an interaction, and where the interaction cannot
+   happen the treatment does not belong. */
+@media (prefers-reduced-motion:reduce),(hover:none),(pointer:coarse){
+  .bs .cmyk .print{filter:none}
+  .bs .cmyk::after{display:none}
+}
+
+/* Display text as three text plates over the white of the sheet. All four
+   copies share one grid cell, so every plate lays its glyphs out in exactly
+   the box the paper union used — the offsets below are then the only thing
+   separating them, which is what keeps the misregistration honest at any
+   size. (The system's own sheet stacks them with position:absolute and a
+   text-box trim; one grid cell needs neither.) */
+.bs .cmyk-head,.bs .cmyk-num{display:grid}
+.bs .cmyk-head > span,.bs .cmyk-num > span{grid-area:1 / 1}
+.bs .cmyk-head .paper{color:var(--bg);
+  text-shadow:0.027em 0.0185em 0 var(--bg),-0.0245em -0.0175em 0 var(--bg)}
+.bs .cmyk-head .plate{mix-blend-mode:multiply;pointer-events:none;user-select:none}
+.bs .cmyk-head .plate-c{color:var(--c)}
+.bs .cmyk-head .plate-m{color:var(--m);
+  translate:calc(0.018em + 0.009em*var(--press-nx,0)) calc(0.0125em + 0.006em*var(--press-ny,0))}
+.bs .cmyk-head .plate-y{color:var(--y);
+  translate:calc(-0.0155em + 0.009em*var(--press-nx,0)) calc(-0.0115em + 0.006em*var(--press-ny,0))}
+.bs .cmyk-num{width:fit-content;line-height:.9;font-feature-settings:'pnum' 1;
+  background:var(--bg);padding:0.12em;margin:-0.12em}
+.bs .cmyk-num .paper{color:var(--bg);
+  text-shadow:0.036em 0.025em 0 var(--bg),-0.031em -0.023em 0 var(--bg)}
+.bs .cmyk-num .plate{mix-blend-mode:multiply;pointer-events:none;user-select:none}
+.bs .cmyk-num .plate-c{color:var(--c)}
+.bs .cmyk-num .plate-m{color:var(--m);
+  translate:calc(0.036em + 0.018em*var(--press-nx,0)) calc(0.025em + 0.0125em*var(--press-ny,0))}
+.bs .cmyk-num .plate-y{color:var(--y);
+  translate:calc(-0.031em + 0.018em*var(--press-nx,0)) calc(-0.023em + 0.0125em*var(--press-ny,0))}
+
+/* Chrome */
+.bs .progress{position:fixed;top:0;left:0;height:2px;background:var(--c);z-index:40}
+.bs .nav{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:baseline;
+  gap:14px 28px;flex-wrap:wrap;padding:20px clamp(24px,4vw,64px);
+  background:linear-gradient(to bottom,var(--bg) 62%,transparent);pointer-events:none}
+.bs .nav a,.bs .nav button{pointer-events:auto}
+.bs .brand{display:inline-flex;align-items:baseline;gap:8px;font-weight:600;font-size:17px;
+  letter-spacing:-0.005em;color:var(--text)}
+.bs .brand:hover{color:var(--c700)}
+.bs .nav .count{margin-left:auto}
+
+/* Back-to-top. A register target with an arrow through it, parked in the corner
+   the year rail leaves free. Untabbable and inert while hidden, so it is not a
+   focus stop sitting invisibly over the masthead. */
+.bs .totop{position:fixed;right:clamp(18px,2.4vw,40px);bottom:clamp(20px,3.4vh,38px);z-index:31;
+  display:flex;align-items:center;gap:11px;padding:0;background:none;border:0;cursor:pointer;
+  font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--n700);opacity:0;translate:0 10px;pointer-events:none;
+  transition:opacity .35s,translate .35s cubic-bezier(.22,1,.36,1),color .25s}
+.bs .totop[data-shown="true"]{opacity:1;translate:0 0;pointer-events:auto}
+.bs .totop:hover{color:var(--c700)}
+.bs .totop .target{position:relative;display:grid;place-items:center;width:34px;height:34px;
+  flex:none;border:1px solid var(--n400);border-radius:50%;background:var(--bg);
+  transition:border-color .25s}
+.bs .totop:hover .target{border-color:var(--c700)}
+/* The crosshair, clipped to the ring so it reads as a printer's target. */
+.bs .totop .target::before,.bs .totop .target::after{content:"";position:absolute;
+  background:var(--n400);transition:background .25s}
+.bs .totop .target::before{left:50%;top:-1px;bottom:-1px;width:1px;transform:translateX(-50%)}
+.bs .totop .target::after{top:50%;left:-1px;right:-1px;height:1px;transform:translateY(-50%)}
+.bs .totop:hover .target::before,.bs .totop:hover .target::after{background:var(--c)}
+.bs .totop .target i{position:relative;z-index:1;display:block;padding:0 3px;font-style:normal;
+  font-size:15px;line-height:1;background:var(--bg);
+  transition:transform .35s cubic-bezier(.22,1,.36,1)}
+.bs .totop:hover .target i{transform:translateY(-3px)}
+
+.bs .rail{position:fixed;right:clamp(18px,2.4vw,40px);top:50%;transform:translateY(-50%);z-index:30;
+  display:flex;flex-direction:column;gap:18px;align-items:flex-end}
+.bs .rail button{display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;
+  cursor:pointer;font-family:inherit;font-weight:600;font-size:13px;letter-spacing:.06em;
+  font-feature-settings:'tnum' 1;color:var(--n400);transition:color .25s}
+.bs .rail button .tick{display:block;height:1px;width:16px;background:currentColor;transition:width .25s}
+.bs .rail button:hover{color:var(--n700)}
+.bs .rail button[aria-current="true"]{color:var(--c700)}
+.bs .rail button[aria-current="true"] .tick{width:34px}
+
+/* Sheet */
+.bs .sheet{max-width:1560px;margin:0 auto;padding:0 clamp(24px,4vw,64px)}
+/* The masthead. A three-part grid — dateline, headline, lower band — with the
+   headline given the whole middle row so it always sits optically centred on
+   the sheet no matter how tall the viewport is. */
+.bs .hero{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;
+  align-content:stretch;padding-top:clamp(96px,14vh,180px);padding-bottom:clamp(48px,8vh,96px)}
+/* Headline and collage share the middle row. The headline keeps its own
+   measure so the type size is never driven by the pictures beside it. */
+.bs .masthead{align-self:center;display:grid;
+  grid-template-columns:minmax(0,1fr) clamp(280px,31vw,470px);
+  gap:clamp(28px,4vw,72px);align-items:center;padding:clamp(24px,4vh,56px) 0}
+.bs h1{font-weight:600;font-size:clamp(44px,6.6vw,116px);line-height:1.02;
+  letter-spacing:-0.025em;margin:0 0 0 -0.035em}
+/* A third line costs a whole line-height; the step down keeps the standfirst
+   and the scroll cue on the fold at laptop heights. */
+.bs h1.h1-3{font-size:clamp(38px,5.4vw,94px);line-height:1.0}
+
+/* The collage. Overlapping slips at deliberately unequal scales, each one
+   rotated a little as though laid on a light table — the drift and the
+   separation filter are the entries' own, so the masthead is a preview of the
+   press rather than a decoration with different rules. */
+.bs .collage{position:relative;display:grid;
+  grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(6,1fr);
+  aspect-ratio:1 / 1}
+.bs .slip{position:relative;margin:0;
+  filter:drop-shadow(0 1px 0 var(--n400)) drop-shadow(0 8px 22px rgba(32,30,29,.14));
+  transition:transform .45s cubic-bezier(.22,1,.36,1),z-index 0s}
+.bs .slip .print{height:100%}
+.bs .slip img{height:100%}
+.bs .slip figcaption{position:absolute;left:0;right:0;bottom:-19px;font-size:10.5px;
+  letter-spacing:.1em;color:var(--n700);opacity:0;transition:opacity .3s}
+/* Lift-on-hover and the caption it reveals are for mice only. On touch a tap
+   would latch the slip straight and leave it there, and a caption that only
+   appears on hover is a caption a phone can never read. */
+@media (hover:hover) and (pointer:fine){
+  .bs .slip:hover{z-index:6;transform:rotate(0deg) scale(1.035)}
+  .bs .slip:hover figcaption{opacity:1}
+}
+
+/* Grid areas, largest first so the stack reads front-to-back. */
+.bs .slip.s1{grid-area:1 / 1 / 5 / 5;z-index:3;rotate:-1.6deg}
+.bs .slip.s2{grid-area:3 / 4 / 7 / 7;z-index:4;rotate:2.1deg}
+.bs .slip.s3{grid-area:1 / 4 / 3 / 6;z-index:2;rotate:1.2deg}
+.bs .slip.s4{grid-area:5 / 1 / 7 / 4;z-index:5;rotate:-2.4deg}
+.bs .slip.s5{grid-area:4 / 2 / 6 / 5;z-index:1;rotate:3deg}
+.bs .slip.s1 .print{aspect-ratio:auto}
+@media (prefers-reduced-motion:reduce){
+  .bs .slip{transition:none}
+}
+
+/* The dateline spaces its own parts rather than relying on typed separators,
+   so it can wrap on a phone without leaving a dangling middot. */
+.bs .dateline{display:flex;flex-wrap:wrap;column-gap:26px;row-gap:4px;align-items:baseline}
+.bs .dateline span{display:inline-flex;align-items:baseline;gap:26px}
+.bs .dateline span:not(:last-child)::after{content:"·";color:var(--n400)}
+
+.bs .standfirst{display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:clamp(32px,5vw,88px);align-items:start}
+.bs .lede{font-size:18px;line-height:30px;max-width:56ch;margin:0;
+  color:color-mix(in srgb,var(--text) 80%,transparent);text-align:justify;hyphens:auto}
+
+/* The record's figures, set as a small ledger. Tabular numerals and the serif
+   at display size — the only place the hero states a number. */
+.bs .figures{display:grid;grid-template-columns:repeat(2,auto);gap:22px clamp(28px,3.4vw,52px);
+  margin:0;justify-content:start}
+.bs .figures dt{font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--n700)}
+.bs .figures dd{margin:2px 0 0;font-weight:600;font-size:clamp(30px,3.4vw,44px);line-height:1;
+  letter-spacing:-0.02em;font-feature-settings:'tnum' 1;white-space:nowrap}
+.bs .figures div:last-child dd{font-size:clamp(20px,2.1vw,27px);color:var(--c700)}
+
+/* The scroll cue is a button now, so it has to shed the UA button styling. The
+   trailing hairline is the one bit of press furniture the masthead carries. */
+.bs .cue{display:flex;align-items:center;gap:14px;width:100%;margin:clamp(36px,6vh,64px) 0 0;
+  padding:0;background:none;border:0;cursor:pointer;text-align:left;
+  font-family:inherit;font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--n700);transition:color .25s}
+.bs .cue:hover{color:var(--c700)}
+.bs .cue .arrow{transition:transform .35s cubic-bezier(.22,1,.36,1)}
+.bs .cue:hover .arrow{transform:translateY(4px)}
+.bs .cue .cue-lead{flex:1;height:1px;min-width:24px;
+  background-image:repeating-linear-gradient(to right,var(--n400) 0 1px,transparent 1px 5px)}
+
+.bs .year{display:grid;grid-template-columns:clamp(180px,17vw,280px) minmax(0,1fr);
+  gap:0 clamp(32px,4vw,72px)}
+.bs .year > .stick{position:sticky;top:110px;align-self:start;padding-top:22vh}
+.bs .year .numeral{font-weight:600;font-size:clamp(56px,8vw,124px);letter-spacing:-0.02em}
+.bs .year .roster{margin:26px 0 0;line-height:22px}
+
+.bs article{min-height:100vh;display:grid;align-items:center;padding:12vh 0;
+  grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(28px,3.4vw,64px)}
+.bs article.flip{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.bs article.flip .body{order:2}
+.bs article.flip figure{order:1}
+.bs article h2{font-weight:600;font-size:clamp(38px,5.4vw,88px);line-height:.98;
+  letter-spacing:-0.022em;margin:0 0 0 -0.035em}
+.bs .where{font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--c700);margin:16px 0 0}
+.bs .ledger{display:grid;gap:6px;margin-top:34px;max-width:34ch}
+.bs .ledger p{display:flex;align-items:baseline;gap:8px;margin:0;font-size:15px;line-height:26px}
+.bs .ledger .dots{flex:1;border-bottom:1px dotted var(--n400);margin-bottom:.34em}
+.bs .ledger .val{font-weight:600;font-feature-settings:'tnum' 1}
+.bs .ledger .val.spot{color:var(--m700)}
+/* City lists. A flex row rather than a run of text: the separator rides along
+   with the name it follows, and every item is its own wrap opportunity — a run
+   of nowrap spans with the dots inside them has none at all, which sent the
+   fifteen Indian cities off the side of the screen. */
+.bs .cities{display:flex;flex-wrap:wrap;column-gap:9px;row-gap:2px;
+  margin:28px 0 0;font-size:14px;line-height:24px;color:var(--n700)}
+.bs .cities span{white-space:nowrap}
+.bs .cities span:not(:last-child)::after{content:" ·";color:var(--n400)}
+
+/* Press furniture between entries: the control strip a printer pulls off the
+   edge of a sheet — a dotted hairline, the four process patches in plate order,
+   and a register target. It is the one place the page draws a line. */
+.bs .furniture{display:flex;align-items:center;gap:16px;margin:0;padding:0}
+.bs .furniture .lead{flex:1;height:1px;
+  background-image:repeating-linear-gradient(to right,var(--n400) 0 1px,transparent 1px 5px)}
+.bs .furniture .bar{display:flex;gap:3px}
+.bs .furniture .bar i{display:block;width:17px;height:7px}
+.bs .furniture .bar .c{background:var(--c)}
+.bs .furniture .bar .m{background:var(--m)}
+.bs .furniture .bar .y{background:var(--y)}
+.bs .furniture .bar .k{background:var(--text)}
+.bs .furniture .target{position:relative;width:13px;height:13px;flex:none;
+  border:1px solid var(--n400);border-radius:50%}
+.bs .furniture .target::before,.bs .furniture .target::after{content:"";position:absolute;
+  background:var(--n400)}
+.bs .furniture .target::before{left:50%;top:-5px;bottom:-5px;width:1px;transform:translateX(-50%)}
+.bs .furniture .target::after{top:50%;left:-5px;right:-5px;height:1px;transform:translateY(-50%)}
+
+.bs footer{max-width:1560px;margin:0 auto;padding:14vh clamp(24px,4vw,64px) 10vh;
+  display:flex;flex-wrap:wrap;gap:18px 40px;align-items:baseline}
+.bs footer .colophon{max-width:52ch;font-size:14px;line-height:24px;color:var(--n700)}
+
+/* Entrances. Reveals are class-toggled from one observer; the drift is
+   scroll-driven where the browser supports it. */
+.bs [data-reveal]{opacity:0}
+.bs [data-reveal].in{animation:ttRev .85s cubic-bezier(.22,1,.36,1) both}
+.bs [data-reveal="plate"].in{animation:ttPlate .95s cubic-bezier(.22,1,.36,1) both}
+@keyframes ttRev{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:none}}
+@keyframes ttPlate{from{opacity:0;clip-path:inset(0 0 100% 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+@supports (animation-timeline:view()){
+  .bs .drift{animation:ttDrift linear both;animation-timeline:view();animation-range:cover 0% cover 100%}
+  @keyframes ttDrift{from{transform:translateY(3.5%)}to{transform:translateY(-3.5%)}}
+}
+
+@media (max-width:1180px){ .bs .rail{display:none} }
+@media (max-width:760px){
+  .bs .nav{gap:10px 18px;padding:16px clamp(20px,5vw,32px)}
+  .bs .nav .tagline{display:none}
+  .bs .nav .count{font-size:11.5px}
+}
+@media (max-width:900px){
+  .bs .year{grid-template-columns:minmax(0,1fr)}
+  .bs .year > .stick{position:static;padding:14vh 0 0}
+  .bs .year .numeral{font-size:clamp(56px,16vw,96px)}
+  .bs .year .roster{margin-top:16px}
+  .bs article,.bs article.flip{grid-template-columns:minmax(0,1fr);min-height:0;padding:8vh 0;
+    gap:32px}
+  .bs article.flip .body{order:2}
+  .bs article.flip figure{order:1}
+  .bs .measure,.bs .lede{text-align:left}
+  .bs .hero{min-height:92vh}
+  /* Collage above the headline and wider than tall — a square block of slips
+     between the dateline and the type would push the headline off the fold. */
+  .bs .masthead{grid-template-columns:minmax(0,1fr);gap:clamp(30px,5vh,52px)}
+  .bs .collage{order:-1;aspect-ratio:16 / 9;max-width:560px}
+  .bs h1{font-size:clamp(44px,9.6vw,104px)}
+  .bs h1.h1-3{font-size:clamp(38px,8.4vw,88px)}
+  /* Below the two-column standfirst, the figures go under the lede and spread
+     to four across before they start wrapping again on a phone. */
+  .bs .standfirst{grid-template-columns:minmax(0,1fr);gap:38px}
+  .bs .figures{grid-template-columns:repeat(4,auto);gap:18px clamp(20px,4vw,40px)}
+}
+@media (max-width:560px){
+  .bs .figures{grid-template-columns:repeat(2,auto);gap:20px 34px}
+  .bs .totop .totop-label{display:none}
+  .bs .dateline{column-gap:18px}
+  .bs .dateline span{gap:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  .bs [data-reveal]{opacity:1;animation:none !important}
+  .bs .totop{transition:opacity .2s}
+  .bs .cue .arrow,.bs .totop .target i{transition:none}
+}
+`
+
+/* ------------------------------------------------------------------ *
+ * The masthead collage: five plates pinned up like a picture desk's
+ * selects, printed through the same separation as the entries below.
+ *
+ * Sourced by entry id rather than by literal path, so a re-shot or
+ * re-slugged image follows the record instead of going missing here.
+ * ------------------------------------------------------------------ */
+const COLLAGE_IDS = ['egypt', 'brazil', 'france', 'japan-korea', 'peru'] as const
+
+function Collage() {
+  const picks = COLLAGE_IDS.map((id) => JOURNEYS.find((j) => j.id === id)).filter(
+    (j): j is Journey => Boolean(j),
+  )
+
+  return (
+    <div className="collage" data-reveal="text">
+      {picks.map((j, i) => (
+        <figure key={j.id} className={`cmyk slip s${i + 1}`}>
+          <div className="print">
+            <img
+              src={j.image}
+              alt={`${j.headline}, ${j.country}`}
+              loading={i < 2 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          </div>
+          <figcaption className="kicker">{j.headline}</figcaption>
+        </figure>
+      ))}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ *
+ * What separates two entries: a printer's control strip.
+ * ------------------------------------------------------------------ */
+function Furniture() {
+  return (
+    <div className="furniture" aria-hidden="true" data-reveal="text">
+      <span className="lead" />
+      <span className="bar">
+        <i className="c" />
+        <i className="m" />
+        <i className="y" />
+        <i className="k" />
+      </span>
+      <span className="target" />
+      <span className="lead" />
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ *
+ * One entry — a plate on one side, the record on the other.
+ * ------------------------------------------------------------------ */
+function Entry({ j, flip, eager }: { j: Journey; flip: boolean; eager: boolean }) {
+  return (
+    <article id={j.id} className={flip ? 'flip' : undefined} data-year={j.year}>
+      <div className="body" data-reveal="text">
+        <p className="kicker">
+          No. {String(j.no).padStart(2, '0')} · {j.period}
+        </p>
+        <h2>
+          <PlateText className="cmyk-head">{j.headline}</PlateText>
+        </h2>
+        <p className="where">{j.country}</p>
+        <p className="measure">{j.note}</p>
+
+        <div className="ledger">
+          <p>
+            <span>Dates</span>
+            <span className="dots" />
+            <span className="val">{j.dates}</span>
+          </p>
+          {j.facts.map((f: Fact) => (
+            <p key={f.label}>
+              <span>{f.label}</span>
+              <span className="dots" />
+              <span className={f.accent ? 'val spot' : 'val'}>{f.value}</span>
+            </p>
+          ))}
+        </div>
+
+        {j.cities.length > 1 && (
+          <p className="cities">
+            {j.cities.map((c) => (
+              <span key={c}>{c}</span>
+            ))}
+          </p>
         )}
       </div>
 
-      {shots.length > 1 && (
-        <div className="shrink-0 flex justify-center gap-2 pb-6" onClick={(e) => e.stopPropagation()}>
-          {shots.map((p, n) => (
-            <button
-              key={n}
-              onClick={() => setI(n)}
-              className={`w-14 h-14 rounded overflow-hidden ring-1 transition-all ${
-                n === i ? 'ring-teal-300' : 'ring-white/15 opacity-55 hover:opacity-100'
-              }`}
-            >
-              <img src={p} alt="" className="w-full h-full object-cover" />
-            </button>
-          ))}
-        </div>
-      )}
-    </motion.div>
-  )
-}
-
-/* ------------------------------------------------------------------ *
- * Editor — list first, form last. Editing a trip scrolls the form
- * into view so the click and the fields it fills stay connected.
- * ------------------------------------------------------------------ */
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-]
-
-const EMPTY: Omit<TravelDestination, 'id'> = {
-  country: '',
-  location: '',
-  date: '',
-  photos: [],
-}
-
-function Editor({
-  destinations,
-  onClose,
-  onChange,
-  initial,
-}: {
-  destinations: TravelDestination[]
-  onClose: () => void
-  onChange: (d: TravelDestination[]) => void
-  initial: TravelDestination | null
-}) {
-  const [editing, setEditing] = useState<TravelDestination | null>(initial)
-  const [form, setForm] = useState<Omit<TravelDestination, 'id'>>(
-    initial
-      ? {
-          country: initial.country,
-          location: initial.location,
-          date: initial.date,
-          photos: realPhotos(initial),
-        }
-      : EMPTY,
-  )
-  const [month, setMonth] = useState('')
-  const [year, setYear] = useState('')
-  const [err, setErr] = useState('')
-  const importRef = useRef<HTMLInputElement>(null)
-  const uploadRef = useRef<HTMLInputElement>(null)
-  const formRef = useRef<HTMLDivElement>(null)
-  const locationRef = useRef<HTMLInputElement>(null)
-
-  /** Bring the form to the user rather than making them hunt for it. */
-  const focusForm = useCallback(() => {
-    requestAnimationFrame(() => {
-      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      locationRef.current?.focus({ preventScroll: true })
-    })
-  }, [])
-
-  // Opening the editor straight from a card's pencil should land on the form.
-  useEffect(() => {
-    if (initial) focusForm()
-  }, [initial, focusForm])
-
-  const startEdit = (d: TravelDestination) => {
-    setEditing(d)
-    setForm({ country: d.country, location: d.location, date: d.date, photos: realPhotos(d) })
-    setMonth('')
-    setYear('')
-    setErr('')
-    focusForm()
-  }
-
-  const reset = () => {
-    setEditing(null)
-    setForm(EMPTY)
-    setMonth('')
-    setYear('')
-    setErr('')
-  }
-
-  // Month + year pickers are a convenience writer into the free-text date
-  // field, which still has to accept ranges like "May – June 2023".
-  const applyMonthYear = (m: string, y: string) => {
-    if (m && y) setForm((f) => ({ ...f, date: `${m} ${y}` }))
-    else if (y) setForm((f) => ({ ...f, date: y }))
-  }
-
-  const setPhoto = (i: number, val: string) =>
-    setForm((f) => {
-      const p = [...f.photos]
-      p[i] = val
-      return { ...f, photos: p }
-    })
-
-  const removePhoto = (i: number) =>
-    setForm((f) => ({ ...f, photos: f.photos.filter((_, n) => n !== i) }))
-
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []).slice(0, 3 - form.photos.length)
-    files.forEach((file) => {
-      const r = new FileReader()
-      r.onload = (ev) =>
-        setForm((f) =>
-          f.photos.length >= 3 ? f : { ...f, photos: [...f.photos, ev.target?.result as string] },
-        )
-      r.readAsDataURL(file)
-    })
-    e.target.value = ''
-  }
-
-  const save = () => {
-    if (!form.location.trim()) return setErr('Location is required.')
-    if (!form.date.trim()) return setErr('Date is required.')
-    const clean = { ...form, photos: form.photos.filter((p) => p && p.trim()) }
-    onChange(
-      editing
-        ? destinations.map((d) => (d.id === editing.id ? { ...d, ...clean } : d))
-        : [...destinations, { id: String(Date.now()), ...clean }],
-    )
-    reset()
-  }
-
-  const remove = (id: string) => {
-    if (!confirm('Delete this destination?')) return
-    onChange(destinations.filter((d) => d.id !== id))
-    if (editing?.id === id) reset()
-  }
-
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const r = new FileReader()
-    r.onload = (ev) => {
-      try {
-        const parsed = JSON.parse(ev.target?.result as string)
-        if (!Array.isArray(parsed)) throw new Error()
-        const merged = mergeImport(destinations, parsed as TravelDestination[])
-        onChange(merged)
-        setErr(`Imported ${merged.length - destinations.length} new (duplicates skipped).`)
-      } catch {
-        setErr('Invalid JSON file.')
-      }
-    }
-    r.readAsText(file)
-    e.target.value = ''
-  }
-
-  const field =
-    'w-full bg-white/[0.04] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/25 focus:outline-none focus:border-teal-300/50'
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 flex justify-end"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={onClose} />
-
-      <motion.aside
-        className="relative z-10 h-full w-full max-w-md bg-[#0b0e13] border-l border-white/10 overflow-y-auto"
-        initial={{ x: '100%' }}
-        animate={{ x: 0 }}
-        exit={{ x: '100%' }}
-        transition={{ type: 'spring', stiffness: 320, damping: 34 }}
-      >
-        <div className="sticky top-0 z-20 bg-[#0b0e13] flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <h2 className="text-white font-semibold">Trip editor</h2>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                reset()
-                focusForm()
-              }}
-              className="text-[12px] px-2.5 py-1 rounded-md bg-teal-300/10 hover:bg-teal-300/20 text-teal-200 border border-teal-300/25 transition-colors"
-            >
-              + Add trip
-            </button>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-              aria-label="Close editor"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-
-        {/* Import / Export */}
-        <div className="px-5 py-4 border-b border-white/10 flex gap-2.5">
-          <button
-            onClick={() => importRef.current?.click()}
-            className="flex-1 py-2 rounded-lg text-sm bg-white/[0.05] hover:bg-white/10 text-white/75 border border-white/10 transition-colors"
-          >
-            Import
-          </button>
-          <button
-            onClick={() => exportJSON(destinations)}
-            className="flex-1 py-2 rounded-lg text-sm bg-white/[0.05] hover:bg-white/10 text-white/75 border border-white/10 transition-colors"
-          >
-            Export
-          </button>
-          <input
-            ref={importRef}
-            type="file"
-            accept=".json,application/json"
-            className="hidden"
-            onChange={handleImport}
+      <figure className="cmyk" data-reveal="plate">
+        <div className="print drift" style={{ aspectRatio: j.ratio }}>
+          <img
+            src={j.image}
+            alt={`${j.headline}, ${j.country.split('—')[0].trim()}`}
+            loading={eager ? 'eager' : 'lazy'}
+            decoding="async"
           />
         </div>
-
-        {/* List first — this is what you scan, so it comes before the form */}
-        <div className="px-5 py-5 border-b border-white/10">
-          <h3 className="text-[11px] uppercase tracking-[0.2em] text-white/35 mb-3">
-            {destinations.length} trips
-          </h3>
-          <ul className="space-y-1.5">
-            {destinations.map((d) => (
-              <li
-                key={d.id}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm ${
-                  editing?.id === d.id
-                    ? 'border-teal-300/40 bg-teal-300/[0.08]'
-                    : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05]'
-                }`}
-              >
-                <span className="shrink-0" aria-hidden>
-                  {flag(d.country)}
-                </span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-white/90 truncate">{d.location}</span>
-                  <span className="block text-white/35 text-[11px]">{d.date}</span>
-                </span>
-                <button
-                  onClick={() => startEdit(d)}
-                  className="w-7 h-7 rounded text-white/40 hover:text-white hover:bg-white/10 transition-colors"
-                  aria-label={`Edit ${d.location}`}
-                >
-                  ✎
-                </button>
-                <button
-                  onClick={() => remove(d.id)}
-                  className="w-7 h-7 rounded text-white/25 hover:text-red-400 hover:bg-red-400/10 transition-colors"
-                  aria-label={`Delete ${d.location}`}
-                >
-                  ✕
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Form last, scrolled to on edit */}
-        <div ref={formRef} className="px-5 py-5 space-y-3 scroll-mt-16">
-          <div className="flex items-center justify-between">
-            <h3 className="text-[11px] uppercase tracking-[0.2em] text-teal-300/80">
-              {editing ? `Editing · ${editing.location}` : 'Add trip'}
-            </h3>
-            {editing && (
-              <button
-                onClick={reset}
-                className="text-[11px] text-white/40 hover:text-white/80 transition-colors"
-              >
-                New instead
-              </button>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-[11px] text-white/40 mb-1">Location</label>
-            <input
-              ref={locationRef}
-              className={field}
-              value={form.location}
-              onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
-              placeholder="Paris"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] text-white/40 mb-1">Country</label>
-            <input
-              className={field}
-              value={form.country}
-              onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
-              placeholder="France"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] text-white/40 mb-1">Month & year</label>
-            <div className="flex gap-2">
-              <select
-                className={field}
-                value={month}
-                onChange={(e) => {
-                  setMonth(e.target.value)
-                  applyMonthYear(e.target.value, year)
-                }}
-              >
-                <option value="">Month</option>
-                {MONTHS.map((m) => (
-                  <option key={m} value={m} className="bg-[#0b0e13]">
-                    {m}
-                  </option>
-                ))}
-              </select>
-              <select
-                className={field}
-                value={year}
-                onChange={(e) => {
-                  setYear(e.target.value)
-                  applyMonthYear(month, e.target.value)
-                }}
-              >
-                <option value="">Year</option>
-                {Array.from({ length: 16 }, (_, n) => String(NOW_YEAR + 3 - n)).map((y) => (
-                  <option key={y} value={y} className="bg-[#0b0e13]">
-                    {y}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <input
-              className={`${field} mt-2`}
-              value={form.date}
-              onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-              placeholder="May 2024  ·  or a range like May – June 2023"
-            />
-          </div>
-
-          {/* Photos */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-[11px] text-white/40">Photos (optional · up to 3)</label>
-              <button
-                onClick={() => uploadRef.current?.click()}
-                disabled={form.photos.length >= 3}
-                className="text-[11px] text-teal-300 hover:text-teal-200 disabled:text-white/20 disabled:cursor-not-allowed"
-              >
-                + Upload
-              </button>
-              <input
-                ref={uploadRef}
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={handleUpload}
-              />
-            </div>
-
-            <div className="space-y-2">
-              {form.photos.map((p, i) => (
-                <div key={i} className="flex gap-2 items-center">
-                  <span className="w-9 h-9 rounded overflow-hidden bg-white/5 shrink-0 ring-1 ring-white/10">
-                    {p && <img src={p} alt="" className="w-full h-full object-cover" />}
-                  </span>
-                  <input
-                    className={field}
-                    value={p.startsWith('data:') ? '' : p}
-                    placeholder={p.startsWith('data:') ? 'Uploaded image' : 'https://…'}
-                    disabled={p.startsWith('data:')}
-                    onChange={(e) => setPhoto(i, e.target.value)}
-                  />
-                  <button
-                    onClick={() => removePhoto(i)}
-                    className="text-white/30 hover:text-red-400 px-1 shrink-0"
-                    aria-label="Remove photo"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-
-              {form.photos.length < 3 && (
-                <button
-                  onClick={() => setForm((f) => ({ ...f, photos: [...f.photos, ''] }))}
-                  className="w-full py-2 rounded-lg border border-dashed border-white/15 text-[12px] text-white/40 hover:text-white/70 hover:border-white/30 transition-colors"
-                >
-                  + Add image URL
-                </button>
-              )}
-            </div>
-
-            {form.photos.length === 0 && (
-              <p className="text-[11px] text-white/30 mt-2 leading-relaxed">
-                No photos? A landmark shot for this location is used automatically.
-              </p>
-            )}
-          </div>
-
-          {err && <p className="text-[12px] text-amber-300/90">{err}</p>}
-
-          <div className="flex gap-2 pt-1">
-            <button
-              onClick={save}
-              className="flex-1 py-2 rounded-lg text-sm font-medium bg-teal-300 hover:bg-teal-200 text-[#06131a] transition-colors"
-            >
-              {editing ? 'Save changes' : 'Add trip'}
-            </button>
-            <button
-              onClick={reset}
-              className="px-4 py-2 rounded-lg text-sm text-white/50 hover:text-white bg-white/[0.05] hover:bg-white/10 transition-colors"
-            >
-              {editing ? 'Cancel' : 'Clear'}
-            </button>
-          </div>
-        </div>
-      </motion.aside>
-    </motion.div>
+      </figure>
+    </article>
   )
 }
 
@@ -766,42 +700,40 @@ function Editor({
  * Page
  * ------------------------------------------------------------------ */
 export default function TravelTimeline() {
-  const [destinations, setDestinations] = useState<TravelDestination[]>(() => loadDestinations())
-  const [active, setActive] = useState(0)
-  const [isAdmin, setIsAdmin] = useState(
-    () => localStorage.getItem(ADMIN_KEY) === '1' || window.location.hash === '#admin',
-  )
-  const [editorOpen, setEditorOpen] = useState(false)
-  const [editorSeed, setEditorSeed] = useState<TravelDestination | null>(null)
-  const [lightbox, setLightbox] = useState<TravelDestination | null>(null)
+  const root = useRef<HTMLDivElement>(null)
   const [progress, setProgress] = useState(0)
+  const [activeYear, setActiveYear] = useState(GROUPS[0].year)
 
   useSocialMeta(TRAVEL_META)
+  usePress(root)
 
-  useEffect(() => {
-    saveDestinations(destinations)
-  }, [destinations])
+  const newest = JOURNEYS[0]
+  // The oldest entry carrying a real year — the India group is deliberately
+  // undated, so the record's span is bounded by the last numbered one.
+  const oldestDated = useMemo(
+    () => [...JOURNEYS].reverse().find((j) => /^\d{4}$/.test(j.year)),
+    [],
+  )
+  const span = oldestDated ? `${oldestDated.year}–${newest.year}` : newest.year
 
-  // Admin is hidden by design: no visible affordance. Unlocked by
-  // Ctrl+Shift+E or the #admin hash, then remembered on this device.
+  // Source Serif 4 is this page's alone — the rest of the site is set in Inter,
+  // so the face is fetched on mount rather than from the global shell.
   useEffect(() => {
-    const h = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'e') {
-        e.preventDefault()
-        setIsAdmin((wasAdmin) => {
-          const next = !wasAdmin
-          localStorage.setItem(ADMIN_KEY, next ? '1' : '0')
-          if (!next) setEditorOpen(false)
-          return next
-        })
-      }
-    }
-    window.addEventListener('keydown', h)
-    return () => window.removeEventListener('keydown', h)
+    if (document.querySelector(`link[href="${FONT_HREF}"]`)) return
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = FONT_HREF
+    document.head.appendChild(link)
   }, [])
 
+  // The sheet is paper white; the site's body is near-black, which would show
+  // through on overscroll and behind the fixed chrome.
   useEffect(() => {
-    if (window.location.hash === '#admin') localStorage.setItem(ADMIN_KEY, '1')
+    const prev = document.body.style.backgroundColor
+    document.body.style.backgroundColor = '#f3f2f2'
+    return () => {
+      document.body.style.backgroundColor = prev
+    }
   }, [])
 
   useEffect(() => {
@@ -822,151 +754,211 @@ export default function TravelTimeline() {
     }
   }, [])
 
-  const handleActive = useCallback((i: number) => setActive(i), [])
+  // One observer runs both the entrance reveals (once each) and the year rail's
+  // current mark, keyed off whichever entry holds the middle of the viewport.
+  useEffect(() => {
+    const host = root.current
+    if (!host) return
 
-  const ordered = useMemo(() => sortByDate(destinations), [destinations])
+    const reveals = new IntersectionObserver(
+      (list) => {
+        for (const e of list) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in')
+            reveals.unobserve(e.target)
+          }
+        }
+      },
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.12 },
+    )
+    host.querySelectorAll('[data-reveal]').forEach((el) => reveals.observe(el))
 
-  const stats = useMemo(
-    () => ({
-      countries: new Set(ordered.map((d) => d.country)).size,
-      years: Array.from(new Set(ordered.map((d) => yearOf(d.date)))),
-    }),
-    [ordered],
+    const years = new IntersectionObserver(
+      (list) => {
+        for (const e of list) {
+          if (e.isIntersecting) setActiveYear((e.target as HTMLElement).dataset.year!)
+        }
+      },
+      { rootMargin: '-45% 0px -45% 0px' },
+    )
+    host.querySelectorAll('article[data-year]').forEach((el) => years.observe(el))
+
+    return () => {
+      reveals.disconnect()
+      years.disconnect()
+    }
+  }, [])
+
+  // Smooth where it is wanted, instant where motion is not.
+  const behavior: ScrollBehavior = useMemo(
+    () =>
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true ? 'auto' : 'smooth',
+    [],
   )
 
-  const activeYear = ordered[active] ? yearOf(ordered[active].date) : ''
-
-  const jumpToYear = (y: string) => {
-    const i = ordered.findIndex((d) => yearOf(d.date) === y)
-    if (i >= 0)
-      document.getElementById(`dest-${ordered[i].id}`)?.scrollIntoView({ behavior: 'smooth' })
+  const jump = (year: string) => {
+    document.getElementById(`y${year}`)?.scrollIntoView({ behavior, block: 'start' })
   }
 
-  const openEditorFor = (d: TravelDestination) => {
-    setEditorSeed(d)
-    setEditorOpen(true)
-  }
+  const atTop = progress <= 0.06
 
   return (
-    <div className="min-h-screen bg-[#0b0e13] text-white">
-      {/* Scroll progress hairline */}
-      <div
-        className="fixed top-0 left-0 h-[2px] bg-gradient-to-r from-teal-300 to-sky-400 z-40 origin-left"
-        style={{ width: `${progress * 100}%` }}
-      />
+    <div className="bs" ref={root}>
+      <style>{CSS}</style>
+      <PressDefs />
 
-      {/* Compact sticky header — no hero */}
-      <header className="sticky top-0 z-30 bg-[#0b0e13]/88 backdrop-blur-md border-b border-white/[0.07]">
-        <div className="flex items-center justify-between gap-4 px-5 sm:px-8 h-14">
-          <Link
-            to="/"
-            className="group flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors shrink-0"
+      <div className="progress" style={{ width: `${progress * 100}%` }} />
+
+      <nav className="nav">
+        <Link to="/#portfolio" className="brand" title="Back to the Vattitude portfolio">
+          <span aria-hidden>←</span> Back to portfolio
+        </Link>
+        <span className="kicker tagline">A travelogue, run backwards</span>
+        <span className="kicker count">
+          {STATS.entries} entries · {STATS.countries} countries · {STATS.cities} places
+        </span>
+      </nav>
+
+      <aside className="rail" aria-label="Jump to a year">
+        {RAIL.map((r) => (
+          <button
+            key={r.year}
+            type="button"
+            onClick={() => jump(r.year)}
+            aria-current={activeYear === r.year}
           >
-            <span className="inline-block transition-transform group-hover:-translate-x-0.5">←</span>
-            <span className="hidden sm:inline">Back</span>
-          </Link>
+            <span>{r.label}</span>
+            <span className="tick" />
+          </button>
+        ))}
+      </aside>
 
-          <div className="flex items-baseline gap-2.5 min-w-0">
-            <h1 className="text-sm font-semibold tracking-tight truncate">Travel</h1>
-            <span className="text-[11px] text-white/35 tabular-nums whitespace-nowrap">
-              {ordered.length} trips · {stats.countries} countries
-            </span>
-          </div>
+      <section className="sheet hero">
+        <p className="kicker dateline">
+          <span>Edition one</span>
+          <span>Filed August 2026</span>
+          <span>Newest first</span>
+        </p>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-mono text-teal-300/80 tabular-nums w-10 text-right">
-              {activeYear}
-            </span>
-            {/* Only rendered once admin is unlocked — no public entry point */}
-            {isAdmin && (
-              <button
-                onClick={() => {
-                  setEditorSeed(null)
-                  setEditorOpen(true)
-                }}
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-teal-300/40 text-teal-300/80 hover:text-teal-200 hover:border-teal-300/70 transition-colors"
-                title="Trip editor (Ctrl+Shift+E toggles admin)"
-                aria-label="Trip editor"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.8}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-              </button>
-            )}
-          </div>
+        <div className="masthead">
+          {/* Three lines rather than two, so the type steps down a size — the
+              nav tagline and the lede already carry the reverse-order trick,
+              which leaves the headline free to name the subject instead. */}
+          <h1 className="h1-3">
+            <PlateText className="cmyk-head">Everywhere</PlateText>
+            <PlateText className="cmyk-head">I’ve been,</PlateText>
+            <PlateText className="cmyk-head">newest first.</PlateText>
+          </h1>
+          <Collage />
         </div>
 
-        {/* Year rail — horizontal, doubles as navigation */}
-        {stats.years.length > 1 && (
-          <div className="flex gap-1 px-5 sm:px-8 pb-2 overflow-x-auto scrollbar-none">
-            {stats.years.map((y) => (
-              <button
-                key={y}
-                onClick={() => jumpToYear(y)}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono tabular-nums transition-colors shrink-0 ${
-                  y === activeYear
-                    ? 'bg-teal-300/15 text-teal-200'
-                    : 'text-white/30 hover:text-white/70'
-                }`}
-              >
-                {y}
-              </button>
-            ))}
-          </div>
-        )}
-      </header>
+        {/* The masthead's lower band. The system has no rules to divide it, so
+            the split is done with type: the standfirst keeps the serif measure
+            and the figures beside it are the only tabular numerals on the
+            sheet, which is what reads as a masthead rather than a paragraph. */}
+        <div className="standfirst">
+          <p className="lede">
+            Scroll and the years run the wrong way — from five days on the National Mall this
+            summer, back through Seoul and Kyoto, Cairo and Rome, Rio and Paris and Dubai, to a
+            week in Langkawi in 2011 and finally to fifteen cities in India with no dates worth
+            keeping. Each entry holds what a passport holds: a month, a country, a city, and how
+            long it lasted.
+          </p>
 
-      {/* The spine */}
-      <main className="pb-4">
-        {ordered.map((d, i) => (
-          <TimelineRow
-            key={d.id}
-            dest={d}
-            index={i}
-            isAdmin={isAdmin}
-            showYear={i === 0 || yearOf(d.date) !== yearOf(ordered[i - 1].date)}
-            onActive={handleActive}
-            onOpen={setLightbox}
-            onEdit={openEditorFor}
-          />
+          <dl className="figures">
+            <div>
+              <dt>Entries</dt>
+              <dd>{STATS.entries}</dd>
+            </div>
+            <div>
+              <dt>Countries</dt>
+              <dd>{STATS.countries}</dd>
+            </div>
+            <div>
+              <dt>Places</dt>
+              <dd>{STATS.cities}</dd>
+            </div>
+            <div>
+              <dt>Spanning</dt>
+              <dd>{span}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <button type="button" className="cue" onClick={() => jump(GROUPS[0].year)}>
+          <span className="arrow" aria-hidden>
+            ↓
+          </span>
+          <span>
+            Begin at {newest.headline}, {newest.period}
+          </span>
+          <span className="cue-lead" aria-hidden />
+        </button>
+      </section>
+
+      <div className="sheet">
+        {GROUPS.map((g) => (
+          <section id={`y${g.year}`} className="year" key={g.year}>
+            <div className="stick">
+              {/* The plate class has to sit on the element PlateText itself
+                  renders — it is the grid that stacks the four copies in one
+                  cell. Wrapping it in a styled div leaves the plates as inline
+                  grandchildren, and they lay out side by side instead. */}
+              <PlateText className="cmyk-num numeral">{g.label}</PlateText>
+              <p className="kicker roster">
+                {entryCountLabel(g.entries.length)}
+                <br />
+                {g.countries.join(' · ')}
+              </p>
+            </div>
+
+            <div>
+              {g.entries.map((j, i) => (
+                // Sides alternate across the whole record, not per section, so
+                // the column never marches two plates down one edge.
+                <Fragment key={j.id}>
+                  {i > 0 && <Furniture />}
+                  <Entry j={j} flip={JOURNEYS.indexOf(j) % 2 === 1} eager={j.no === newest.no} />
+                </Fragment>
+              ))}
+            </div>
+          </section>
         ))}
+      </div>
 
-        {ordered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-32 gap-3">
-            <p className="text-white/40 text-sm">No trips yet.</p>
-          </div>
-        )}
-      </main>
+      {/* Back to the masthead. Held out of the flow until there is somewhere to
+          go back to, and set as a register target so it reads as part of the
+          press furniture rather than a bolted-on widget. */}
+      <button
+        type="button"
+        className="totop"
+        data-shown={!atTop}
+        tabIndex={atTop ? -1 : 0}
+        aria-hidden={atTop}
+        onClick={() => window.scrollTo({ top: 0, behavior })}
+        aria-label="Back to the top of the record"
+        title="Back to the top"
+      >
+        <span className="target" aria-hidden>
+          <i aria-hidden>↑</i>
+        </span>
+        <span className="totop-label" aria-hidden>
+          Top
+        </span>
+      </button>
 
-      <footer className="border-t border-white/[0.07] px-5 sm:px-8 py-8 flex flex-wrap items-center justify-between gap-3 text-[12px] text-white/30">
-        <Link to="/" className="hover:text-white/60 transition-colors">
-          ← Back to Vattitude
-        </Link>
-        <span>Landmark imagery via Wikimedia Commons</span>
+      <footer>
+        <p className="kicker">
+          End of the record
+          {oldestDated ? ` · Dated entries begin ${oldestDated.period}` : ''}
+        </p>
+        <p className="colophon">
+          Set in Source Serif 4 after the Broadsheet press treatments: on a mouse, every photograph
+          prints as its four misregistered process plates and hover squares them up. Landmark imagery from
+          Wikimedia Commons, hosted locally and credited per file in the repository.{' '}
+          <Link to="/">Back to Vattitude</Link>
+        </p>
       </footer>
-
-      <AnimatePresence>
-        {lightbox && <Lightbox dest={lightbox} onClose={() => setLightbox(null)} />}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {editorOpen && isAdmin && (
-          <Editor
-            destinations={ordered}
-            initial={editorSeed}
-            onClose={() => {
-              setEditorOpen(false)
-              setEditorSeed(null)
-            }}
-            onChange={setDestinations}
-          />
-        )}
-      </AnimatePresence>
     </div>
   )
 }
