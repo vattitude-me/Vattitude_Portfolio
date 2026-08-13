@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useSocialMeta } from '../hooks/useSocialMeta'
+import TravelGlobe, { GLOBE_CSS } from '../components/TravelGlobe'
 import {
   GROUPS,
   JOURNEYS,
@@ -645,9 +646,20 @@ function Furniture() {
 /* ------------------------------------------------------------------ *
  * One entry — a plate on one side, the record on the other.
  * ------------------------------------------------------------------ */
-function Entry({ j, flip, eager }: { j: Journey; flip: boolean; eager: boolean }) {
+function Entry({
+  j,
+  index,
+  flip,
+  eager,
+}: {
+  j: Journey
+  /** Position in JOURNEYS — what the globe is told to turn to. */
+  index: number
+  flip: boolean
+  eager: boolean
+}) {
   return (
-    <article id={j.id} className={flip ? 'flip' : undefined} data-year={j.year}>
+    <article id={j.id} className={flip ? 'flip' : undefined} data-year={j.year} data-index={index}>
       <div className="body" data-reveal="text">
         <p className="kicker">
           No. {String(j.no).padStart(2, '0')} · {j.period}
@@ -703,6 +715,10 @@ export default function TravelTimeline() {
   const root = useRef<HTMLDivElement>(null)
   const [progress, setProgress] = useState(0)
   const [activeYear, setActiveYear] = useState(GROUPS[0].year)
+  // Which entry the globe is turned to, and whether it has a subject at all.
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const [inRecord, setInRecord] = useState(false)
+  const [atEnd, setAtEnd] = useState(false)
 
   useSocialMeta(TRAVEL_META)
   usePress(root)
@@ -773,19 +789,60 @@ export default function TravelTimeline() {
     )
     host.querySelectorAll('[data-reveal]').forEach((el) => reveals.observe(el))
 
-    const years = new IntersectionObserver(
+    /**
+     * Which entry the reader is in front of, taken as whichever one covers the
+     * most of a band across the middle of the viewport. The band has height on
+     * purpose — a zero-height line falls into the gap between two entries at
+     * the handover and leaves the rail and the globe with no subject — and the
+     * widest overlap is the one nearest the centre.
+     */
+    const covered = new Map<Element, number>()
+    const current = new IntersectionObserver(
       (list) => {
         for (const e of list) {
-          if (e.isIntersecting) setActiveYear((e.target as HTMLElement).dataset.year!)
+          if (e.isIntersecting) covered.set(e.target, e.intersectionRatio)
+          else covered.delete(e.target)
         }
+
+        let best: HTMLElement | null = null
+        let bestRatio = -1
+        for (const [el, ratio] of covered) {
+          if (ratio > bestRatio) {
+            bestRatio = ratio
+            best = el as HTMLElement
+          }
+        }
+
+        // Above the first entry the band is empty and the globe has no subject
+        // to hold, so it stands down.
+        setInRecord(best !== null)
+        if (!best) return
+        setActiveYear(best.dataset.year!)
+        setActiveIndex(Number(best.dataset.index))
       },
-      { rootMargin: '-45% 0px -45% 0px' },
+      // Stepped thresholds so the ratios keep updating as an entry crosses the
+      // band, not just as it enters and leaves it.
+      { rootMargin: '-40% 0px -40% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
     )
-    host.querySelectorAll('article[data-year]').forEach((el) => years.observe(el))
+    host.querySelectorAll('article[data-year]').forEach((el) => current.observe(el))
+
+    /**
+     * The colophon shares the foot of the viewport with the globe, and the last
+     * entry is still the one in the band while it does — so the end of the
+     * record is watched on its own terms: the moment the colophon reaches up
+     * into the bottom of the screen, the globe gets out of its way.
+     */
+    const end = new IntersectionObserver(
+      (list) => setAtEnd(list.some((e) => e.isIntersecting)),
+      { rootMargin: '-58% 0px 0px 0px' },
+    )
+    const colophon = host.querySelector('footer')
+    if (colophon) end.observe(colophon)
 
     return () => {
       reveals.disconnect()
-      years.disconnect()
+      current.disconnect()
+      end.disconnect()
     }
   }, [])
 
@@ -804,10 +861,12 @@ export default function TravelTimeline() {
 
   return (
     <div className="bs" ref={root}>
-      <style>{CSS}</style>
+      <style>{CSS + GLOBE_CSS}</style>
       <PressDefs />
 
       <div className="progress" style={{ width: `${progress * 100}%` }} />
+
+      <TravelGlobe entries={JOURNEYS} activeIndex={activeIndex} shown={inRecord && !atEnd} />
 
       <nav className="nav">
         <Link to="/#portfolio" className="brand" title="Back to the Vattitude portfolio">
@@ -918,7 +977,12 @@ export default function TravelTimeline() {
                 // the column never marches two plates down one edge.
                 <Fragment key={j.id}>
                   {i > 0 && <Furniture />}
-                  <Entry j={j} flip={JOURNEYS.indexOf(j) % 2 === 1} eager={j.no === newest.no} />
+                  <Entry
+                    j={j}
+                    index={JOURNEYS.indexOf(j)}
+                    flip={JOURNEYS.indexOf(j) % 2 === 1}
+                    eager={j.no === newest.no}
+                  />
                 </Fragment>
               ))}
             </div>
@@ -954,8 +1018,10 @@ export default function TravelTimeline() {
         </p>
         <p className="colophon">
           Set in Source Serif 4 after the Broadsheet press treatments: on a mouse, every photograph
-          prints as its four misregistered process plates and hover squares them up. Landmark imagery from
-          Wikimedia Commons, hosted locally and credited per file in the repository.{' '}
+          prints as its four misregistered process plates and hover squares them up. The globe turns
+          to each entry as you scroll — a halftone of Natural Earth's coastlines, drawn from one bit
+          per dot. Landmark imagery from Wikimedia Commons, hosted locally and credited per file in
+          the repository.{' '}
           <Link to="/">Back to Vattitude</Link>
         </p>
       </footer>

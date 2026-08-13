@@ -33,6 +33,15 @@ export interface Journey {
   /** Country line under the headline — two countries are joined with an ampersand. */
   country: string
   cities: string[]
+  /**
+   * Where the globe puts this entry: [latitude, longitude] of the city named in
+   * `headline`, in decimal degrees, north and east positive. Multi-city entries
+   * are pinned to their headline city rather than a centroid — the globe is a
+   * record of where each entry begins, not the shape of its itinerary. `india`
+   * is the exception and takes the country's own centroid, because the entry is
+   * fifteen cities and no itinerary.
+   */
+  coords: [number, number]
   /** Exact span as recorded, e.g. "Jul 31 – Aug 4, 2026". */
   dates: string
   note: string
@@ -51,6 +60,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Washington',
     country: 'United States',
     cities: ['Washington, DC'],
+    coords: [38.9072, -77.0369],
     dates: 'Jul 31 – Aug 4, 2026',
     note: "Five days on the National Mall in high summer — the Smithsonian museums along the greensward, the Lincoln and Jefferson memorials at either end of the water, and the Capitol closing the axis. The city runs on L'Enfant's 1791 plan, which is why the monuments line up on sightlines you can walk in an afternoon.",
     facts: [
@@ -69,6 +79,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Seoul',
     country: 'South Korea',
     cities: ['Seoul'],
+    coords: [37.5665, 126.978],
     dates: 'May 20 – 24, 2026',
     note: 'Four days in Seoul on the back half of the same May itinerary — Gyeongbokgung and the tiled lanes of Bukchon north of the Han, Myeongdong and Hongdae after dark. The changing of the guard runs on the hour at Gwanghwamun, the palace’s front gate.',
     facts: [
@@ -87,6 +98,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Tokyo',
     country: 'Japan & South Korea',
     cities: ['Tokyo', 'Osaka', 'Kyoto', 'Nara', 'Seoul'],
+    coords: [35.6762, 139.6503],
     dates: 'May 10 – 20, 2026',
     note: "Eleven days across Kantō and Kansai and then over to Korea — Shibuya and Asakusa in Tokyo, Dōtonbori in Osaka, the temple circuits of Kyoto, the deer park at Nara, all of it strung together on the Tōkaidō and Sanyō Shinkansen. Nara's Tōdai-ji still holds the Great Buddha cast there in the 8th century.",
     facts: [
@@ -105,6 +117,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Elmira',
     country: 'Canada',
     cities: ['Elmira, ON'],
+    coords: [43.599, -80.5595],
     dates: 'Apr 2 – 4, 2026',
     note: "Three spring days in Waterloo Region's Mennonite country, an hour and a bit west of Toronto. Elmira gives the first Saturday of April over to its maple syrup festival, which bills itself as the largest single-day maple festival anywhere.",
     facts: [
@@ -124,6 +137,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Cairo',
     country: 'Egypt',
     cities: ['Cairo', 'Luxor'],
+    coords: [30.0444, 31.2357],
     dates: 'Nov 21 – 25, 2025',
     note: 'Five days between the delta and Upper Egypt — Giza and the Egyptian Museum in Cairo, then Karnak, Luxor Temple and the Valley of the Kings upriver. The Great Pyramid of Khufu is the last of the seven ancient wonders still standing.',
     facts: [
@@ -142,6 +156,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Rome',
     country: 'Italy & Vatican City',
     cities: ['Rome', 'Vatican City', 'Florence', 'Venice'],
+    coords: [41.9028, 12.4964],
     dates: 'Aug 16 – 23, 2025',
     note: "Eight days working north: the Colosseum and the Forum in Rome, St Peter's across the border in Vatican City, the Duomo and the Uffizi in Florence, and the canals at the end of it in Venice. Vatican City is the smallest sovereign state on earth, about half a square kilometre inside one city.",
     facts: [
@@ -160,6 +175,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Darlington',
     country: 'Canada',
     cities: ['Bowmanville, ON'],
+    coords: [43.877, -78.77],
     dates: 'Jul 11 – 12, 2025',
     note: 'An overnight under canvas at Darlington Provincial Park, on the Lake Ontario shore just south of Bowmanville. The park sits on the Waterfront Trail with a long strip of beach and the lake doing the horizon.',
     facts: [
@@ -178,6 +194,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'New York',
     country: 'United States',
     cities: ['New York, NY'],
+    coords: [40.7128, -74.006],
     dates: 'May 17 – 20, 2025',
     note: 'Four days on Manhattan — Midtown, the High Line on the west side, and the museum stretch up Fifth Avenue. Central Park keeps 341 hectares in the middle of the island, which is the only reason the grid is bearable in May.',
     facts: [
@@ -197,6 +214,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Rio de Janeiro',
     country: 'Brazil',
     cities: ['Rio de Janeiro', 'São Paulo'],
+    coords: [-22.9068, -43.1729],
     dates: 'Oct 13 – 20, 2024',
     note: "Eight days between Brazil's two largest cities — Copacabana, Sugarloaf and the cog railway up Corcovado in Rio, then Avenida Paulista and Ibirapuera in São Paulo. Christ the Redeemer stands 30 m tall on a peak 710 m above Guanabara Bay, with the whole city laid out under its arms.",
     facts: [
@@ -215,6 +233,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Gatineau',
     country: 'Canada',
     cities: ['Gatineau, QC'],
+    coords: [45.4765, -75.7013],
     dates: 'Sep 1 – 2, 2024',
     note: 'A Labour Day weekend across the Ottawa River, where the language and the architecture both change at the bridge. Gatineau Park runs northwest out of the city over 361 square kilometres of the Gatineau Hills.',
     facts: [
@@ -233,6 +252,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Brussels',
     country: 'Belgium',
     cities: ['Brussels'],
+    coords: [50.8476, 4.3572],
     dates: 'Jun 28, 2024',
     note: 'One day in Brussels, taken as a rail hop out of the Netherlands and back — the Grand-Place, the Royal Galleries, the Manneken Pis and a great deal of walking in between. The square has been a UNESCO World Heritage site since 1998.',
     facts: [
@@ -251,6 +271,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Amsterdam',
     country: 'Netherlands',
     cities: ['Amsterdam', 'Rotterdam'],
+    coords: [52.3676, 4.9041],
     dates: 'Jun 27 – Jul 1, 2024',
     note: "Four days in the Randstad — Amsterdam's canal ring and the Rijksmuseum, then Rotterdam, rebuilt after the war and looking nothing like its neighbour. The 17th-century ring is itself a World Heritage site.",
     facts: [
@@ -269,6 +290,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Paris',
     country: 'France',
     cities: ['Paris', 'Versailles'],
+    coords: [48.8566, 2.3522],
     dates: 'May 16 – 20, 2024',
     note: 'Five days in Paris with a day sent out west to Versailles — the Louvre, Montmartre, the bridges, then the palace gardens on their absurd axis. The Eiffel Tower stands 330 m over the Champ de Mars.',
     facts: [
@@ -287,6 +309,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Dubai',
     country: 'United Arab Emirates',
     cities: ['Dubai'],
+    coords: [25.2048, 55.2708],
     dates: 'Jan 25 – Feb 10, 2024',
     note: 'Seventeen days across the turn of February, long enough to stop reading the city as a skyline — Downtown and the Marina, the old souks at Deira, the creek abras, the dunes inland. The Burj Khalifa is still the tallest building in the world at 828 m.',
     facts: [
@@ -306,6 +329,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Cancún',
     country: 'Mexico',
     cities: ['Cancún', 'Playa del Carmen', 'Chichén Itzá'],
+    coords: [21.1619, -86.8515],
     dates: 'Nov 10 – 17, 2023',
     note: "Eight days on the Yucatán's Caribbean edge with an inland run to Chichén Itzá. El Castillo, the step pyramid at the centre of the site, carries 365 steps across its four staircases — one for each day of the year.",
     facts: [
@@ -324,6 +348,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Cusco',
     country: 'Peru',
     cities: ['Cusco', 'Lima'],
+    coords: [-13.532, -71.9675],
     dates: 'Aug 13 – 15, 2023',
     note: 'Three days between the coast and the Andes — Lima first, then up to the old Inca capital for the Plaza de Armas and the stonework at Qorikancha. Cusco sits around 3,400 m, high enough that the coca tea is a practical measure rather than a souvenir.',
     facts: [
@@ -342,6 +367,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Miami',
     country: 'United States',
     cities: ['Miami, FL'],
+    coords: [25.7617, -80.1918],
     dates: 'Aug 11 – 12, 2023',
     note: 'Two days in Miami on the way south — South Beach, the Art Deco frontages along Ocean Drive, and Little Havana. The Miami Beach Architectural District preserves roughly 800 of those buildings in about one square mile.',
     facts: [
@@ -360,6 +386,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Las Vegas',
     country: 'United States',
     cities: ['Las Vegas, NV', 'Grand Canyon'],
+    coords: [36.1699, -115.1398],
     dates: 'May 23 – Jun 6, 2023',
     note: 'Just over two weeks based in the Mojave, with the long drive east to the Grand Canyon in the middle of it. The canyon runs some 446 km and drops about a mile below the South Rim.',
     facts: [
@@ -378,6 +405,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Ottawa',
     country: 'Canada',
     cities: ['Ottawa, ON'],
+    coords: [45.4215, -75.6972],
     dates: 'May 12 – 14, 2023',
     note: 'Three days in the capital in tulip season — Parliament Hill, the Rideau Canal, the National Gallery. The Canadian Tulip Festival grows out of a wartime gift of bulbs from the Dutch royal family, and it still shows in the numbers.',
     facts: [
@@ -396,6 +424,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Niagara Falls',
     country: 'Canada',
     cities: ['Niagara Falls, ON'],
+    coords: [43.0896, -79.0849],
     dates: 'Feb 18 – 20, 2023',
     note: 'A Family Day weekend at the falls in deep winter, with the spray frozen onto every railing and the crowds down to nothing. The Horseshoe Falls drop about 57 m and carry the bulk of the river.',
     facts: [
@@ -414,6 +443,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Denver',
     country: 'United States',
     cities: ['Denver, CO'],
+    coords: [39.7392, -104.9903],
     dates: 'Feb 10 – 13, 2023',
     note: 'Four days in Denver with the Front Range parked on the western horizon — LoDo, Union Station, the capitol. The fifteenth step of that capitol sits exactly one mile above sea level, and the city has never let anyone forget it.',
     facts: [
@@ -433,6 +463,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Jasper',
     country: 'Canada',
     cities: ['Jasper, AB'],
+    coords: [52.8737, -118.0814],
     dates: 'May 21 – 24, 2022',
     note: 'A long May weekend in the north end of the Rockies — Maligne Lake, Athabasca Falls, and the top of the Icefields Parkway with the snow still on it. Jasper is the largest of the mountain parks at roughly 11,000 square kilometres.',
     facts: [
@@ -452,6 +483,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Los Angeles',
     country: 'United States',
     cities: ['Los Angeles, CA', 'Pasadena', 'Universal City'],
+    coords: [34.0522, -118.2437],
     dates: 'Nov 24 – 26, 2021',
     note: 'American Thanksgiving spent across greater LA — downtown, Old Town Pasadena, and the backlots at Universal City. The Hollywood sign on the ridge above Griffith Park has been up since 1923, when it was an advertisement for real estate.',
     facts: [
@@ -470,6 +502,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Philadelphia',
     country: 'United States',
     cities: ['Philadelphia, PA', 'St. Louis, MO'],
+    coords: [39.9526, -75.1652],
     dates: 'Nov 20 – 23, 2021',
     note: 'Four days split between two river cities — Independence Hall and the Liberty Bell in one, the Gateway Arch in the other. The arch stands 192 m over the Mississippi, the tallest monument in the country.',
     facts: [
@@ -489,6 +522,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Québec City',
     country: 'Canada',
     cities: ['Québec City', 'Montréal, QC'],
+    coords: [46.8139, -71.208],
     dates: 'Dec 21 – 24, 2018',
     note: 'Four days in Québec over the solstice — Vieux-Montréal and the Mount Royal lookout first, then the ramparts of the upper town under snow, with the Château Frontenac standing over the Dufferin Terrace and the river below it. Québec is the only walled city north of Mexico with its fortifications still standing.',
     facts: [
@@ -507,6 +541,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Banff',
     country: 'Canada',
     cities: ['Calgary, AB', 'Banff'],
+    coords: [51.1784, -115.5708],
     dates: 'Aug 31 – Sep 4, 2018',
     note: 'Five days out of Calgary and into the Bow Valley — Lake Louise, Moraine Lake, and the drive between them at the end of the summer. Banff was the first national park in Canada, set aside in 1885.',
     facts: [
@@ -525,6 +560,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Punta Cana',
     country: 'Dominican Republic',
     cities: ['Punta Cana'],
+    coords: [18.5601, -68.3725],
     dates: 'Mar 25 – 29, 2018',
     note: "Five days on the eastern tip of Hispaniola, where the Bávaro beaches run for kilometres of palm and white sand. Punta Cana's coastline faces two seas at once — the Atlantic to the north, the Caribbean to the south.",
     facts: [
@@ -557,6 +593,7 @@ export const JOURNEYS: Journey[] = [
       'Elora',
       'Ottawa',
     ],
+    coords: [43.6532, -79.3832],
     note: "Home base since July 2017, and the weekend map that grew out of it — Algonquin's west gate at Whitney, the Bruce Peninsula at Tobermory, the gorge at Elora, the Escarpment at Collingwood, and a dozen towns in between. Ontario is about a million square kilometres, which is why the road trips have never finished.",
     dates: 'July 2017 – present',
     facts: [
@@ -575,6 +612,7 @@ export const JOURNEYS: Journey[] = [
     headline: 'Kuala Lumpur',
     country: 'Malaysia',
     cities: ['Kuala Lumpur', 'Langkawi'],
+    coords: [3.139, 101.6869],
     dates: 'Sep 23 – 29, 2011',
     note: 'A week between the capital and the Andaman Sea — KLCC and Batu Caves in Kuala Lumpur, then the beaches and mangroves of Langkawi. The Petronas Towers held the title of tallest buildings in the world from 1998 to 2004, at 452 m.',
     facts: [
@@ -609,6 +647,7 @@ export const JOURNEYS: Journey[] = [
       'Jaisalmer',
       'Bhubaneswar',
     ],
+    coords: [20.5937, 78.9629],
     dates: 'Birth – June 2017',
     note: 'Where the timeline starts, and the one entry with no dates worth keeping: the years before the move, from Chennai and Bangalore in the south up through Delhi and Agra to the desert forts of Rajasthan, with the shore temples at Mahabalipuram and Rameswaram somewhere in every school holiday. Fifteen cities and no itineraries — the dates blur because none of it was a trip.',
     facts: [
@@ -665,6 +704,21 @@ export const GROUPS: YearGroup[] = (() => {
 
 /** Rail marks: one per section, in page order. */
 export const RAIL = GROUPS.map((g) => ({ year: g.year, label: g.label }))
+
+/**
+ * Formats a coordinate the way the globe's readout wants it: whole degrees and
+ * minutes with a hemisphere letter, which is short enough to sit under a 260px
+ * globe and reads as a position rather than as a float.
+ */
+export function formatCoord(value: number, axis: 'lat' | 'lon'): string {
+  const hemi = (axis === 'lat' ? ['N', 'S'] : ['E', 'W'])[value < 0 ? 1 : 0]
+  const abs = Math.abs(value)
+  const deg = Math.floor(abs)
+  const min = Math.round((abs - deg) * 60)
+  // 59.6′ rounds to 60 — carry it rather than printing an impossible minute.
+  const carry = min === 60
+  return `${deg + (carry ? 1 : 0)}°${String(carry ? 0 : min).padStart(2, '0')}′${hemi}`
+}
 
 export const STATS = {
   entries: JOURNEYS.length,
