@@ -528,14 +528,21 @@ export const GLOBE_CSS = `
    locator in the corner and the readout drops to the place and its position.
    Below this width the year column stops being sticky, so there is no travelling
    numeral to hide from and the paper band would only be a block sitting on the
-   article; a wash tight around the sphere is enough to keep body text from
-   running up through the halftone. */
+   article. Nothing sits behind the sphere here: it prints straight onto whatever
+   it passes over, photographs included. */
 @media (max-width:900px){
   .bs .globe-rig{padding:0 clamp(14px,3vw,24px)}
   .bs .globe-unit{width:clamp(88px,26vw,124px);margin-left:0;
     padding:0 0 clamp(14px,2.4vh,24px);background:none}
-  .bs .globe-face{background:radial-gradient(circle at 50% 50%,
-    var(--bg) 62%,color-mix(in srgb,var(--bg) 55%,transparent) 76%,transparent 86%)}
+  /* With no paper behind it the halftone would vanish into a dark photograph, so
+     the ink carries its own paper with it — the same trick as the readout below
+     and the masthead's plates, applied per dot rather than per panel. It follows
+     the alpha of whatever it shadows, so the limb and the far hemisphere stay as
+     faint as they are drawn. The same tight radius twice rather than one wide
+     one: doubling it up thickens the halo without spreading it, so the land
+     holds its shape and the oceans stay as clear as the glass they are. */
+  .bs .globe-face canvas{
+    filter:drop-shadow(0 0 1px var(--bg)) drop-shadow(0 0 1px var(--bg))}
   .bs .globe-read{margin-top:6px}
   /* The readout can come to rest over a photograph here, and there is no band
      to sit it on. Paper-coloured shadow rather than a panel — the same trick
