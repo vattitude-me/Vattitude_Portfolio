@@ -465,89 +465,50 @@ export default function TravelGlobe({ entries, activeIndex, shown }: TravelGlobe
 }
 
 /**
- * Scoped to `.bs` like the rest of the sheet. The globe is parked against the
- * left edge of the same 1560px measure the sheet uses, which on a wide screen
- * drops it into the empty foot of the sticky year column — it shares that
- * column's width rather than being positioned near it.
+ * Scoped to `.bs` like the rest of the sheet. The globe is parked in the top
+ * right corner, under the nav, at every viewport size — a fixed locator badge
+ * rather than something sharing layout with the sticky year column.
  */
 export const GLOBE_CSS = `
-.bs .globe{position:fixed;left:0;right:0;bottom:0;z-index:22;
-  display:flex;justify-content:center;pointer-events:none;
-  opacity:0;translate:0 14px;
+.bs .globe{position:fixed;right:clamp(18px,2.4vw,40px);top:clamp(78px,10vh,110px);
+  z-index:22;pointer-events:none;
+  opacity:0;translate:0 -14px;
   transition:opacity .6s ease,translate .6s cubic-bezier(.22,1,.36,1)}
 .bs .globe[data-shown="true"]{opacity:1;translate:0 0}
-.bs .globe-rig{width:100%;max-width:1560px;padding:0 clamp(24px,4vw,64px)}
-/* The globe shares the year column with a sticky numeral, and that numeral
-   sweeps the full height of the column every time a new year arrives — there is
-   no fixed spot in this column it does not cross. So the foot of the column
-   gets the same treatment the masthead already gives the head of the page: a
-   band of paper the type slides out from under. The numeral rises into view
-   exactly as it does past the nav, and the globe never has to flinch. */
-/* Sized off the year grid rather than by eye. The globe takes the year column's
-   own width; the band around it runs out to the sheet's left edge and on across
-   the gutter, because the numeral is set to fit its text and bleeds past the
-   column on both sides — a hair to the left from its own negative margin, and
-   further to the right when the label is a word rather than four digits. */
-.bs .globe-unit{
-  width:calc(clamp(180px,17vw,280px) + clamp(32px,4vw,72px) + clamp(24px,4vw,64px));
-  margin-left:calc(-1 * clamp(24px,4vw,64px));
-  padding:60px clamp(32px,4vw,72px) clamp(20px,4vh,48px) clamp(24px,4vw,64px);
-  background:linear-gradient(to top,var(--bg) 85%,transparent)}
-/* The sphere is capped by height as well as width. Above it in this column sits
-   the sticky year block — 22vh of lead, the numeral, then the roster — and that
-   block grows with the viewport more slowly than the viewport does, so on a
-   short screen there is very little column left underneath. Taking the column's
-   full width there would push the paper band up over the roster and wash it
-   out. The linear term is fitted to where the roster actually ends, measured
-   across viewport heights, with a margin left under it. */
-.bs .globe-face{position:relative;width:min(100%,calc(74vh - 479px));aspect-ratio:1/1}
-.bs .globe-face canvas{display:block;width:100%;height:100%}
-.bs .globe-read{display:grid;gap:1px;margin:14px 0 0}
-.bs .globe-place{font-weight:600;font-size:15px;line-height:1.2;letter-spacing:-0.01em}
-.bs .globe-coord{font-size:11.5px;letter-spacing:.1em;color:var(--n700);
+.bs .globe-rig{width:100%}
+.bs .globe-unit{width:clamp(148px,15vw,220px);padding:0}
+/* Nothing behind the sphere in this layout, so the ink carries its own paper
+   backing: a solid disc that reads the same over a photograph as over the
+   page, whatever section of the record it happens to be parked above. */
+.bs .globe-face{position:relative;width:100%;aspect-ratio:1/1;border-radius:50%;
+  background:radial-gradient(circle,var(--bg) 62%,color-mix(in srgb,var(--bg) 55%,transparent) 82%,transparent 100%)}
+.bs .globe-face canvas{display:block;width:100%;height:100%;
+  filter:drop-shadow(0 0 1px var(--bg)) drop-shadow(0 0 1px var(--bg))}
+.bs .globe-read{display:grid;gap:1px;margin:10px 0 0;text-align:right}
+.bs .globe-place{font-weight:600;font-size:13.5px;line-height:1.2;letter-spacing:-0.01em}
+.bs .globe-coord{font-size:10.5px;letter-spacing:.1em;color:var(--n700);
   font-feature-settings:'tnum' 1}
-.bs .globe-leg{font-size:11.5px;letter-spacing:.06em;color:var(--c700);
+.bs .globe-leg{font-size:10.5px;letter-spacing:.06em;color:var(--c700);
   font-feature-settings:'tnum' 1}
+/* The readout can come to rest over a photograph, and there is no panel under
+   it here — paper-coloured shadow instead, the same trick the masthead uses
+   to hold its plates apart on the sheet. */
+.bs .globe-read span{text-shadow:0 0 7px var(--bg),0 0 3px var(--bg),0 1px 0 var(--bg)}
 
-/* Shorter desktop viewports: the year block takes most of the column, so the
-   readout drops its leg line and the band's dissolve tightens. That buys back
-   about fifty pixels, which is the difference between a legible sphere and a
-   token one on a 720p laptop. */
-@media (min-width:901px) and (max-height:899px){
-  .bs .globe-unit{padding-top:30px}
-  .bs .globe-leg{display:none}
-  .bs .globe-face{width:min(100%,calc(74vh - 432px))}
-}
-/* Below this the year block reaches the foot of the screen on its own and there
-   is no column left to put a globe in. */
-@media (min-width:901px) and (max-height:719px){
-  .bs .globe{display:none}
+/* The year rail shares this corner from 1181px up, centred vertically down the
+   page. There is only the strip between the nav and the rail's first tick to
+   work with, so above that width the globe drops its readout and shrinks to a
+   plain locator — small enough to sit inside that strip instead of reaching
+   down into the rail. */
+@media (min-width:1181px){
+  .bs .globe-unit{width:clamp(120px,9vw,150px)}
+  .bs .globe-read{display:none}
 }
 
-/* Narrow screens have no empty column to lend it, so the globe becomes a small
-   locator in the corner and the readout drops to the place and its position.
-   Below this width the year column stops being sticky, so there is no travelling
-   numeral to hide from and the paper band would only be a block sitting on the
-   article. Nothing sits behind the sphere here: it prints straight onto whatever
-   it passes over, photographs included. */
 @media (max-width:900px){
-  .bs .globe-rig{padding:0 clamp(14px,3vw,24px)}
-  .bs .globe-unit{width:clamp(88px,26vw,124px);margin-left:0;
-    padding:0 0 clamp(14px,2.4vh,24px);background:none}
-  /* With no paper behind it the halftone would vanish into a dark photograph, so
-     the ink carries its own paper with it — the same trick as the readout below
-     and the masthead's plates, applied per dot rather than per panel. It follows
-     the alpha of whatever it shadows, so the limb and the far hemisphere stay as
-     faint as they are drawn. The same tight radius twice rather than one wide
-     one: doubling it up thickens the halo without spreading it, so the land
-     holds its shape and the oceans stay as clear as the glass they are. */
-  .bs .globe-face canvas{
-    filter:drop-shadow(0 0 1px var(--bg)) drop-shadow(0 0 1px var(--bg))}
+  .bs .globe{right:clamp(14px,3vw,24px);top:clamp(64px,9vh,90px)}
+  .bs .globe-unit{width:clamp(88px,22vw,124px)}
   .bs .globe-read{margin-top:6px}
-  /* The readout can come to rest over a photograph here, and there is no band
-     to sit it on. Paper-coloured shadow rather than a panel — the same trick
-     the masthead uses to hold its plates apart on the sheet. */
-  .bs .globe-read span{text-shadow:0 0 7px var(--bg),0 0 3px var(--bg),0 1px 0 var(--bg)}
   .bs .globe-place{font-size:12px}
   .bs .globe-coord{font-size:10px;letter-spacing:.06em}
   .bs .globe-leg{display:none}

@@ -78,186 +78,180 @@ const TRUE_: Record<string, number[]> = {
   k: [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 }
 
-/** Registered misregistration, in px, and the pointer lean applied to it. */
+/** Registered misregistration, in px. */
 const BASE: Record<string, [number, number]> = { m: [5, 3], y: [-5, -3], k: [3, 6] }
-const LEAN = [2.5, 2]
-const REGISTER_MS = 450
 
-function PressDefs() {
+/**
+ * Every plate needs its own filter instance now: register is driven per
+ * photograph by its own distance from the viewport edge, so two prints can
+ * legitimately be at different points in the press at once — one arriving
+ * at the top of the screen while another sits clear in the middle. A single
+ * shared filter (the hover-driven original) could only ever hold one state.
+ */
+function pressFilterId(key: string) {
+  return `tt-sep-${key}`
+}
+
+function PressDefs({ ids }: { ids: string[] }) {
   return (
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
       <defs>
-        <filter id="tt-sep-all" colorInterpolationFilters="sRGB">
-          <feColorMatrix
-            in="SourceGraphic"
-            type="matrix"
-            values={INK.c.join(' ')}
-            data-plate-mat="c"
-            result="c0"
-          />
-          <feComposite in="c0" in2="SourceAlpha" operator="in" result="c" />
-          <feColorMatrix
-            in="SourceGraphic"
-            type="matrix"
-            values={INK.m.join(' ')}
-            data-plate-mat="m"
-            result="m0"
-          />
-          <feComposite in="m0" in2="SourceAlpha" operator="in" result="m1" />
-          <feOffset in="m1" dx="5" dy="3" data-plate="m" result="m" />
-          <feColorMatrix
-            in="SourceGraphic"
-            type="matrix"
-            values={INK.y.join(' ')}
-            data-plate-mat="y"
-            result="y0"
-          />
-          <feComposite in="y0" in2="SourceAlpha" operator="in" result="y1" />
-          <feOffset in="y1" dx="-5" dy="-3" data-plate="y" result="y" />
-          <feColorMatrix
-            in="SourceGraphic"
-            type="matrix"
-            values={INK.k.join(' ')}
-            data-plate-mat="k"
-            result="k0"
-          />
-          <feComposite in="k0" in2="SourceAlpha" operator="in" result="k1" />
-          <feOffset in="k1" dx="3" dy="6" data-plate="k" result="k" />
-          <feBlend in="m" in2="c" mode="multiply" result="s1" />
-          <feBlend in="y" in2="s1" mode="multiply" result="s2" />
-          <feBlend in="k" in2="s2" mode="multiply" />
-        </filter>
+        {ids.map((id) => (
+          <filter key={id} id={pressFilterId(id)} colorInterpolationFilters="sRGB">
+            <feColorMatrix
+              in="SourceGraphic"
+              type="matrix"
+              values={INK.c.join(' ')}
+              data-plate-mat="c"
+              result="c0"
+            />
+            <feComposite in="c0" in2="SourceAlpha" operator="in" result="c" />
+            <feColorMatrix
+              in="SourceGraphic"
+              type="matrix"
+              values={INK.m.join(' ')}
+              data-plate-mat="m"
+              result="m0"
+            />
+            <feComposite in="m0" in2="SourceAlpha" operator="in" result="m1" />
+            <feOffset in="m1" dx="5" dy="3" data-plate="m" result="m" />
+            <feColorMatrix
+              in="SourceGraphic"
+              type="matrix"
+              values={INK.y.join(' ')}
+              data-plate-mat="y"
+              result="y0"
+            />
+            <feComposite in="y0" in2="SourceAlpha" operator="in" result="y1" />
+            <feOffset in="y1" dx="-5" dy="-3" data-plate="y" result="y" />
+            <feColorMatrix
+              in="SourceGraphic"
+              type="matrix"
+              values={INK.k.join(' ')}
+              data-plate-mat="k"
+              result="k0"
+            />
+            <feComposite in="k0" in2="SourceAlpha" operator="in" result="k1" />
+            <feOffset in="k1" dx="3" dy="6" data-plate="k" result="k" />
+            <feBlend in="m" in2="c" mode="multiply" result="s1" />
+            <feBlend in="y" in2="s1" mode="multiply" result="s2" />
+            <feBlend in="k" in2="s2" mode="multiply" />
+          </filter>
+        ))}
       </defs>
     </svg>
   )
 }
 
+/** How close to a viewport edge, as a fraction of viewport height, before a
+ * print starts pulling apart into its plates. Inside this band register
+ * ramps from 1 (clear) at the band's inner edge to 0 (fully separated) right
+ * at the edge itself. */
+const EDGE_BAND = 0.32
+
 /**
- * Hover gathers a print's plates into register — the pressman squaring the
- * films on the light table — and the pointer leans the moving plates a breath
- * towards the cursor. The driver stands down for reduced motion and for coarse
- * pointers, where the CSS fallback resolves the print on hover in one cut.
+ * Register per print now tracks the scroll, not the pointer: a photograph
+ * arriving at the top or bottom edge of the viewport pulls apart into its
+ * four separation plates, exactly as the hover version used to on mouse
+ * entry, and it gathers back into register as it clears the edge and settles
+ * toward the middle of the screen. Every print carries its own state, so
+ * several can be mid-press at once — one arriving as another departs.
  */
 function usePress(root: React.RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     const host = root.current
     if (!host) return
-    if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    const offs: Record<string, Element> = {}
-    const mats: Record<string, Element> = {}
-    host.querySelectorAll('feOffset[data-plate]').forEach((n) => {
-      offs[(n as HTMLElement).dataset.plate!] = n
-    })
-    host.querySelectorAll('feColorMatrix[data-plate-mat]').forEach((n) => {
-      mats[(n as HTMLElement).dataset.plateMat!] = n
-    })
-    if (!Object.keys(offs).length) return
+    type Plate = {
+      el: HTMLElement
+      offs: Record<string, Element>
+      mats: Record<string, Element>
+      reg: number
+      target: number
+      lastOffs: string
+      lastReg: number
+    }
 
-    const sheet = host.style // captured: the lean is published on the page root
-    let nx = 0,
-      ny = 0,
-      tx = 0,
-      ty = 0
-    let reg = 1,
-      regFrom = 1,
-      regTo = 1,
-      regT0 = 0
-    let raf = 0,
-      lastOffs = '',
-      lastReg = -1,
-      lastLean = ''
+    const plates: Plate[] = []
+    host.querySelectorAll<HTMLElement>('.cmyk .print[data-filter-id]').forEach((el) => {
+      const offs: Record<string, Element> = {}
+      const mats: Record<string, Element> = {}
+      const svgFilter = document.getElementById(el.dataset.filterId!)
+      if (!svgFilter) return
+      svgFilter.querySelectorAll('feOffset[data-plate]').forEach((n) => {
+        offs[(n as HTMLElement).dataset.plate!] = n
+      })
+      svgFilter.querySelectorAll('feColorMatrix[data-plate-mat]').forEach((n) => {
+        mats[(n as HTMLElement).dataset.plateMat!] = n
+      })
+      if (!Object.keys(offs).length) return
+      plates.push({ el, offs, mats, reg: 0, target: 0, lastOffs: '', lastReg: -1 })
+    })
+    if (!plates.length) return
+
     const ease = (t: number) => 1 - Math.pow(1 - t, 3)
 
+    /** How close el's edge is to a viewport edge, 0 (at the edge) to 1
+     * (clear of the band), as the smaller of the top and bottom readings. */
+    const edgeClearance = (el: HTMLElement, vh: number) => {
+      const r = el.getBoundingClientRect()
+      const band = vh * EDGE_BAND
+      const fromTop = r.bottom / band
+      const fromBottom = (vh - r.top) / band
+      return Math.max(0, Math.min(1, Math.min(fromTop, fromBottom)))
+    }
+
+    let raf = 0
+    // register: 0 = plates converged (clear photograph), 1 = fully separated
+    // (red misprint) — so the target is the inverse of edge clearance.
+    const retarget = () => {
+      const vh = innerHeight
+      for (const p of plates) p.target = 1 - ease(edgeClearance(p.el, vh))
+      schedule()
+    }
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(tick)
     }
 
-    function tick(now: number) {
+    function tick() {
       raf = 0
-      nx += (tx - nx) * 0.22
-      ny += (ty - ny) * 0.22
-      if (regTo !== reg || regT0) {
-        const t = Math.min(1, (now - regT0) / REGISTER_MS)
-        reg = regFrom + (regTo - regFrom) * ease(t)
-        if (t >= 1) {
-          reg = regTo
-          regT0 = 0
+      let settled = true
+      for (const p of plates) {
+        p.reg += (p.target - p.reg) * 0.16
+        if (Math.abs(p.target - p.reg) > 0.002) settled = false
+        else p.reg = p.target
+
+        const reg = p.reg
+        let key = ''
+        for (const k in BASE) key += `${((BASE[k][0]) * reg).toFixed(2)},${((BASE[k][1]) * reg).toFixed(2)};`
+        if (key !== p.lastOffs) {
+          p.lastOffs = key
+          for (const k in p.offs) {
+            p.offs[k].setAttribute('dx', (BASE[k][0] * reg).toFixed(2))
+            p.offs[k].setAttribute('dy', (BASE[k][1] * reg).toFixed(2))
+          }
+        }
+        if (reg !== p.lastReg) {
+          p.lastReg = reg
+          for (const k in p.mats) {
+            const a = INK[k],
+              b = TRUE_[k]
+            const v = new Array<string>(20)
+            for (let i = 0; i < 20; i++) v[i] = (b[i] + (a[i] - b[i]) * reg).toFixed(3)
+            p.mats[k].setAttribute('values', v.join(' '))
+          }
         }
       }
-
-      // Every write is guarded on its computed output: an equal-value
-      // setAttribute still dirties the filter, and at full register the
-      // offsets are 0 whatever the lean.
-      const lx = LEAN[0] * nx,
-        ly = LEAN[1] * ny
-      const next: Record<string, [string, string]> = {}
-      let key = ''
-      for (const p in BASE) {
-        const dx = ((BASE[p][0] + lx) * reg).toFixed(2)
-        const dy = ((BASE[p][1] + ly) * reg).toFixed(2)
-        next[p] = [dx, dy]
-        key += `${dx},${dy};`
-      }
-      if (key !== lastOffs) {
-        lastOffs = key
-        for (const p in next) {
-          offs[p].setAttribute('dx', next[p][0])
-          offs[p].setAttribute('dy', next[p][1])
-        }
-      }
-
-      // The ink purification rides the same eased value: brand ink at rest,
-      // pure process in register.
-      if (reg !== lastReg) {
-        lastReg = reg
-        for (const p in mats) {
-          const a = INK[p],
-            b = TRUE_[p]
-          const v = new Array<string>(20)
-          for (let i = 0; i < 20; i++) v[i] = (b[i] + (a[i] - b[i]) * reg).toFixed(3)
-          mats[p].setAttribute('values', v.join(' '))
-        }
-      }
-
-      // The text plates lean with the pointer whatever the prints are doing.
-      const lean = `${nx.toFixed(3)},${ny.toFixed(3)}`
-      if (lean !== lastLean) {
-        lastLean = lean
-        sheet.setProperty('--press-nx', nx.toFixed(3))
-        sheet.setProperty('--press-ny', ny.toFixed(3))
-      }
-      if (regT0 || Math.abs(tx - nx) > 0.002 || Math.abs(ty - ny) > 0.002) schedule()
+      if (!settled) schedule()
     }
 
-    const onMove = (e: PointerEvent) => {
-      tx = (2 * e.clientX) / innerWidth - 1
-      ty = (2 * e.clientY) / innerHeight - 1
-      schedule()
-    }
-    const retarget = (to: number) => {
-      regFrom = reg
-      regTo = to
-      regT0 = performance.now()
-      schedule()
-    }
-    const enter = (e: PointerEvent) => {
-      const p = (e.target as HTMLElement)?.closest?.('.print')
-      if (p && !(e.relatedTarget instanceof Node && p.contains(e.relatedTarget))) retarget(0)
-    }
-    const leave = (e: PointerEvent) => {
-      const p = (e.target as HTMLElement)?.closest?.('.print')
-      if (p && !(e.relatedTarget instanceof Node && p.contains(e.relatedTarget))) retarget(1)
-    }
-
-    addEventListener('pointermove', onMove, { passive: true })
-    host.addEventListener('pointerover', enter)
-    host.addEventListener('pointerout', leave)
+    retarget()
+    addEventListener('scroll', retarget, { passive: true })
+    addEventListener('resize', retarget)
     return () => {
-      removeEventListener('pointermove', onMove)
-      host.removeEventListener('pointerover', enter)
-      host.removeEventListener('pointerout', leave)
+      removeEventListener('scroll', retarget)
+      removeEventListener('resize', retarget)
       if (raf) cancelAnimationFrame(raf)
     }
   }, [root])
@@ -316,18 +310,16 @@ const CSS = `
 
 /* Photographs as their misregistered process plates */
 .bs .cmyk{position:relative;background:var(--bg)}
-.bs .cmyk .print{position:relative;width:100%;overflow:hidden;filter:url(#tt-sep-all)}
+.bs .cmyk .print{position:relative;width:100%;overflow:hidden}
 .bs .cmyk .print img{width:100%;height:100%;object-fit:cover}
 .bs .cmyk::after{content:"";position:absolute;inset:0;pointer-events:none;
   background-image:radial-gradient(circle,rgba(0,0,0,0.22) 30%,transparent 32%);
   background-size:3px 3px;mix-blend-mode:multiply}
-/* Without a mouse there is no way to bring the plates into register, so the
-   separation and the dot screen would simply be permanent damage to the
-   photograph. Touch and reduced-motion get the print resolved from the start —
-   the press treatment is an interaction, and where the interaction cannot
-   happen the treatment does not belong. */
-@media (prefers-reduced-motion:reduce),(hover:none),(pointer:coarse){
-  .bs .cmyk .print{filter:none}
+/* Reduced motion gets the print resolved from the start and the dot screen
+   dropped — the press treatment is a scroll-driven animation, and where
+   motion is not wanted the treatment does not belong. */
+@media (prefers-reduced-motion:reduce){
+  .bs .cmyk .print{filter:none !important}
   .bs .cmyk::after{display:none}
 }
 
@@ -565,7 +557,6 @@ const CSS = `
     gap:32px}
   .bs article.flip .body{order:2}
   .bs article.flip figure{order:1}
-  .bs .measure,.bs .lede{text-align:left}
   .bs .hero{min-height:92vh}
   /* Collage above the headline and wider than tall — a square block of slips
      between the dateline and the type would push the headline off the fold. */
@@ -609,7 +600,11 @@ function Collage() {
     <div className="collage" data-reveal="text">
       {picks.map((j, i) => (
         <figure key={j.id} className={`cmyk slip s${i + 1}`}>
-          <div className="print">
+          <div
+            className="print"
+            data-filter-id={pressFilterId(`collage-${j.id}`)}
+            style={{ filter: `url(#${pressFilterId(`collage-${j.id}`)})` }}
+          >
             <img
               src={j.image}
               alt={`${j.headline}, ${j.country}`}
@@ -695,7 +690,11 @@ function Entry({
       </div>
 
       <figure className="cmyk" data-reveal="plate">
-        <div className="print drift" style={{ aspectRatio: j.ratio }}>
+        <div
+          className="print drift"
+          data-filter-id={pressFilterId(j.id)}
+          style={{ aspectRatio: j.ratio, filter: `url(#${pressFilterId(j.id)})` }}
+        >
           <img
             src={j.image}
             alt={`${j.headline}, ${j.country.split('—')[0].trim()}`}
@@ -859,10 +858,15 @@ export default function TravelTimeline() {
 
   const atTop = progress <= 0.06
 
+  const filterIds = useMemo(
+    () => [...JOURNEYS.map((j) => j.id), ...COLLAGE_IDS.map((id) => `collage-${id}`)],
+    [],
+  )
+
   return (
     <div className="bs" ref={root}>
       <style>{CSS + GLOBE_CSS}</style>
-      <PressDefs />
+      <PressDefs ids={filterIds} />
 
       <div className="progress" style={{ width: `${progress * 100}%` }} />
 
