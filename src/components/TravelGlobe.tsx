@@ -465,9 +465,11 @@ export default function TravelGlobe({ entries, activeIndex, shown }: TravelGlobe
 }
 
 /**
- * Scoped to `.bs` like the rest of the sheet. The globe is parked in the top
- * right corner, under the nav, at every viewport size — a fixed locator badge
- * rather than something sharing layout with the sticky year column.
+ * Scoped to `.bs` like the rest of the sheet. Below 1181px — phone and
+ * tablet, where the year rail is hidden — the globe is a small locator badge
+ * parked top-right, under the nav. From 1181px up (laptop/1440 and XL/4K),
+ * it reclaims its original bottom-left placement at full size, clear of the
+ * rail entirely since that column runs down the right edge.
  */
 export const GLOBE_CSS = `
 .bs .globe{position:fixed;right:clamp(18px,2.4vw,40px);top:clamp(78px,10vh,110px);
@@ -495,14 +497,12 @@ export const GLOBE_CSS = `
    to hold its plates apart on the sheet. */
 .bs .globe-read span{text-shadow:0 0 7px var(--bg),0 0 3px var(--bg),0 1px 0 var(--bg)}
 
-/* The year rail shares this corner from 1181px up, centred vertically down the
-   page. There is only the strip between the nav and the rail's first tick to
-   work with, so above that width the globe drops its readout and shrinks to a
-   plain locator — small enough to sit inside that strip instead of reaching
-   down into the rail. */
+/* Laptop (1440) and XL/4K: back to the big bottom-left placement, well clear
+   of the year rail which runs down the right edge at this width. */
 @media (min-width:1181px){
-  .bs .globe-unit{width:clamp(120px,9vw,150px)}
-  .bs .globe-read{display:none}
+  .bs .globe{right:auto;left:clamp(24px,3vw,56px);top:auto;bottom:clamp(32px,6vh,72px)}
+  .bs .globe-unit{width:clamp(220px,17vw,320px)}
+  .bs .globe-read{text-align:left}
 }
 
 @media (max-width:900px){
