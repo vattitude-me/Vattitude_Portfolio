@@ -139,13 +139,13 @@ const projects = [
     title: 'Breather',
     category: 'apps',
     categoryLabel: 'Wellness App',
-    description: 'Gentle nudges to stretch, hydrate and rest your eyes through the workday, with a virtual plant that grows a new leaf every time you take a break. Free, private, no sign-up.',
+    description: 'A daily breathing break with a personality: name your plant, build a streak, and watch it grow with every session. One clear "Breathe again" CTA, no clutter. Free, private, no sign-up.',
     gradient: 'from-orange-500 to-red-500',
     url: 'https://breather.vattitude.ca',
     image: '/projects/breather.webp',
     tech: ['React', 'PWA', 'Chrome Extension'],
     metric: '1',
-    metricLabel: 'Leaf per Break',
+    metricLabel: 'Day Streak',
   },
 ]
 
