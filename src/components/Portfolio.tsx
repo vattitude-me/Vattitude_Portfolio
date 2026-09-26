@@ -108,6 +108,45 @@ const projects = [
     metric: '140%',
     metricLabel: 'Learning Speed',
   },
+  {
+    id: 9,
+    title: 'Rungs',
+    category: 'apps',
+    categoryLabel: 'Fitness App',
+    description: 'A hundred reps a day, one rung at a time - push-ups, pull-ups and squats split to your strength, climbing from 100 to 300 a day with voice cues and rest timers. No gym, no equipment.',
+    gradient: 'from-violet-600 to-indigo-700',
+    url: 'https://rungs.vattitude.ca',
+    image: '/projects/rungs.webp',
+    tech: ['React', 'PWA', 'Works Offline'],
+    metric: '300',
+    metricLabel: 'Reps a Day',
+  },
+  {
+    id: 10,
+    title: 'WhatTheLabel',
+    category: 'apps',
+    categoryLabel: 'Health App',
+    description: 'Snap a food or cosmetics ingredients label and get an instant safety read - open-weight vision models extract the list, and each ingredient is matched against a curated risk database.',
+    gradient: 'from-emerald-700 to-green-900',
+    url: 'https://whatthelabel.vattitude.ca',
+    image: '/projects/whatthelabel.webp',
+    tech: ['Svelte 5', 'Vision AI', 'PWA'],
+    metric: '1,000+',
+    metricLabel: 'Ingredients Rated',
+  },
+  {
+    id: 11,
+    title: 'Breather',
+    category: 'apps',
+    categoryLabel: 'Wellness App',
+    description: 'Gentle nudges to stretch, hydrate and rest your eyes through the workday, with a virtual plant that grows a new leaf every time you take a break. Free, private, no sign-up.',
+    gradient: 'from-orange-500 to-red-500',
+    url: 'https://breather.vattitude.ca',
+    image: '/projects/breather.webp',
+    tech: ['React', 'PWA', 'Chrome Extension'],
+    metric: '1',
+    metricLabel: 'Leaf per Break',
+  },
 ]
 
 const filters = [
@@ -219,7 +258,7 @@ export default function Portfolio() {
                         <div className="flex items-start justify-between gap-2 mb-1.5">
                           <h3 className="font-bold text-white text-base">{project.title}</h3>
                           <span className="text-cyan-400 font-bold text-sm whitespace-nowrap">
-                            {project.internal ? '' : '↑ '}{project.metric}
+                            {project.metric.endsWith('%') ? '↑ ' : ''}{project.metric}
                           </span>
                         </div>
 
