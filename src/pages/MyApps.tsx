@@ -21,8 +21,6 @@ interface App {
   url: string
   icon: string
   preview: string
-  /** How the live app is framed: a phone for mobile-first apps, a browser window for desktop sites */
-  frame: 'phone' | 'desktop'
   accent: string
   glow: string
   tags: string[]
@@ -37,7 +35,6 @@ const apps: App[] = [
     url: 'https://pebblesum.vattitude.ca',
     icon: '/apps/pebblesum-icon.webp',
     preview: '/projects/pebblesum.webp',
-    frame: 'phone',
     accent: 'from-amber-300 via-lime-300 to-teal-300',
     glow: 'rgba(163,230,53,0.35)',
     tags: ['Kids', 'Math', 'React'],
@@ -50,7 +47,6 @@ const apps: App[] = [
     url: 'https://breather.vattitude.ca',
     icon: '/apps/breather-icon.webp',
     preview: '/projects/breather.webp',
-    frame: 'phone',
     accent: 'from-teal-300 via-cyan-300 to-lime-300',
     glow: 'rgba(45,212,191,0.35)',
     tags: ['Wellness', 'PWA', 'Chrome Extension'],
@@ -63,7 +59,6 @@ const apps: App[] = [
     url: 'https://chess4kids.vattitude.ca',
     icon: '/apps/chess4kids-icon.webp',
     preview: '/projects/chess4kids.webp',
-    frame: 'desktop',
     accent: 'from-yellow-200 via-amber-300 to-orange-400',
     glow: 'rgba(250,204,21,0.35)',
     tags: ['Kids', 'Chess', 'AI Opponents'],
@@ -76,24 +71,19 @@ const apps: App[] = [
     url: 'https://rungs.vattitude.ca',
     icon: '/apps/rungs-icon.webp',
     preview: '/projects/rungs.webp',
-    frame: 'phone',
     accent: 'from-cyan-300 via-sky-400 to-violet-400',
     glow: 'rgba(56,189,248,0.35)',
     tags: ['Fitness', 'PWA', 'Works Offline'],
   },
 ]
 
-// Viewport the embedded app thinks it has, before being scaled to fit the card
-const VIEWPORTS = {
-  phone: { width: 390, height: 844 },
-  desktop: { width: 1280, height: 800 },
-}
+// Phone viewport the embedded app thinks it has, before being scaled to fit the card
+const PHONE = { width: 390, height: 844 }
 
 function LivePreview({ app, eager }: { app: App; eager: boolean }) {
   const boxRef = useRef<HTMLDivElement>(null)
   const [boxWidth, setBoxWidth] = useState(0)
   const [loaded, setLoaded] = useState(false)
-  const vp = VIEWPORTS[app.frame]
 
   useEffect(() => {
     const el = boxRef.current
@@ -103,9 +93,9 @@ function LivePreview({ app, eager }: { app: App; eager: boolean }) {
     return () => ro.disconnect()
   }, [])
 
-  // Phone mockups take ~44% of the card width; desktop sites fill it edge to edge
-  const frameWidth = app.frame === 'phone' ? Math.min(boxWidth * 0.44, 240) : boxWidth
-  const scale = frameWidth / vp.width
+  // The phone mockup takes ~44% of the card width
+  const frameWidth = Math.min(boxWidth * 0.44, 240)
+  const scale = frameWidth / PHONE.width
 
   const iframe = (
     <iframe
@@ -117,7 +107,7 @@ function LivePreview({ app, eager }: { app: App; eager: boolean }) {
       sandbox="allow-scripts allow-same-origin"
       onLoad={() => setLoaded(true)}
       className="absolute top-0 left-0 border-0 origin-top-left pointer-events-none bg-white"
-      style={{ width: vp.width, height: vp.height, transform: `scale(${scale})` }}
+      style={{ width: PHONE.width, height: PHONE.height, transform: `scale(${scale})` }}
     />
   )
 
@@ -126,22 +116,19 @@ function LivePreview({ app, eager }: { app: App; eager: boolean }) {
       ref={boxRef}
       className={`absolute inset-0 bg-[#0a0f1a] transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
     >
-      {boxWidth > 0 &&
-        (app.frame === 'phone' ? (
+      {boxWidth > 0 && (
+        <div
+          className="absolute left-1/2 top-5 -translate-x-1/2 rounded-[28px] p-[6px] bg-[#1c2230] ring-1 ring-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.6)] transition-transform duration-700 group-hover:-translate-y-1"
+          style={{ width: frameWidth + 12 }}
+        >
           <div
-            className="absolute left-1/2 top-5 -translate-x-1/2 rounded-[28px] p-[6px] bg-[#1c2230] ring-1 ring-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.6)] transition-transform duration-700 group-hover:-translate-y-1"
-            style={{ width: frameWidth + 12 }}
+            className="relative overflow-hidden rounded-[22px]"
+            style={{ width: frameWidth, height: PHONE.height * scale }}
           >
-            <div
-              className="relative overflow-hidden rounded-[22px]"
-              style={{ width: frameWidth, height: vp.height * scale }}
-            >
-              {iframe}
-            </div>
+            {iframe}
           </div>
-        ) : (
-          <div className="absolute inset-0 overflow-hidden">{iframe}</div>
-        ))}
+        </div>
+      )}
     </div>
   )
 }
