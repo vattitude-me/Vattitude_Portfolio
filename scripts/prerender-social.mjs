@@ -33,6 +33,14 @@ const ROUTES = [
     url: 'https://vattitude.ca/travel-timeline',
     image: 'https://vattitude.ca/travel-timeline-preview.jpg',
   },
+  {
+    dir: 'apps',
+    title: 'My Apps — PebbleSum, Breather, Chess 4 Kids & Rungs | Vattitude',
+    description:
+      'Four apps built by Vattitude: PebbleSum for kids’ math, Breather for daily breathing breaks, Chess 4 Kids for learning chess, and Rungs for 100-to-300 daily reps.',
+    url: 'https://vattitude.ca/apps',
+    image: 'https://vattitude.ca/apps-preview.jpg',
+  },
 ]
 
 const shell = readFileSync(join(distDir, 'index.html'), 'utf8')

@@ -15,6 +15,7 @@
     "@types/three": "^0.185.0",
     "firebase": "^12.15.0",
     "framer-motion": "^12.42.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.0",

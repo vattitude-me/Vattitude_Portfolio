@@ -25,6 +25,14 @@
     <priority>0.9</priority>
   </url>
 
+  <!-- My Apps -->
+  <url>
+    <loc>https://vattitude.ca/apps</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Art Timeline era deep-dives -->
   <url>
     <loc>https://vattitude.ca/art-timeline/prehistoric</loc>
