@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
 import { useSocialMeta } from '../hooks/useSocialMeta'
@@ -8,6 +8,9 @@ import { useSocialMeta } from '../hooks/useSocialMeta'
  * folder, built to be pulled up mid-conversation at networking events.
  * Each card opens the live app, or flips to a full-screen QR code so the
  * other person can scan it straight onto their own phone.
+ *
+ * Previews are the real apps running live in a scaled-down iframe; the saved
+ * screenshot sits underneath so there's something to see while they load.
  */
 
 interface App {
@@ -18,6 +21,8 @@ interface App {
   url: string
   icon: string
   preview: string
+  /** How the live app is framed: a phone for mobile-first apps, a browser window for desktop sites */
+  frame: 'phone' | 'desktop'
   accent: string
   glow: string
   tags: string[]
@@ -32,6 +37,7 @@ const apps: App[] = [
     url: 'https://pebblesum.vattitude.ca',
     icon: '/apps/pebblesum-icon.webp',
     preview: '/projects/pebblesum.webp',
+    frame: 'phone',
     accent: 'from-amber-300 via-lime-300 to-teal-300',
     glow: 'rgba(163,230,53,0.35)',
     tags: ['Kids', 'Math', 'React'],
@@ -44,6 +50,7 @@ const apps: App[] = [
     url: 'https://breather.vattitude.ca',
     icon: '/apps/breather-icon.webp',
     preview: '/projects/breather.webp',
+    frame: 'phone',
     accent: 'from-teal-300 via-cyan-300 to-lime-300',
     glow: 'rgba(45,212,191,0.35)',
     tags: ['Wellness', 'PWA', 'Chrome Extension'],
@@ -56,6 +63,7 @@ const apps: App[] = [
     url: 'https://chess4kids.vattitude.ca',
     icon: '/apps/chess4kids-icon.webp',
     preview: '/projects/chess4kids.webp',
+    frame: 'desktop',
     accent: 'from-yellow-200 via-amber-300 to-orange-400',
     glow: 'rgba(250,204,21,0.35)',
     tags: ['Kids', 'Chess', 'AI Opponents'],
@@ -68,11 +76,75 @@ const apps: App[] = [
     url: 'https://rungs.vattitude.ca',
     icon: '/apps/rungs-icon.webp',
     preview: '/projects/rungs.webp',
+    frame: 'phone',
     accent: 'from-cyan-300 via-sky-400 to-violet-400',
     glow: 'rgba(56,189,248,0.35)',
     tags: ['Fitness', 'PWA', 'Works Offline'],
   },
 ]
+
+// Viewport the embedded app thinks it has, before being scaled to fit the card
+const VIEWPORTS = {
+  phone: { width: 390, height: 844 },
+  desktop: { width: 1280, height: 800 },
+}
+
+function LivePreview({ app, eager }: { app: App; eager: boolean }) {
+  const boxRef = useRef<HTMLDivElement>(null)
+  const [boxWidth, setBoxWidth] = useState(0)
+  const [loaded, setLoaded] = useState(false)
+  const vp = VIEWPORTS[app.frame]
+
+  useEffect(() => {
+    const el = boxRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => setBoxWidth(entry.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  // Phone mockups take ~44% of the card width; desktop sites fill it edge to edge
+  const frameWidth = app.frame === 'phone' ? Math.min(boxWidth * 0.44, 240) : boxWidth
+  const scale = frameWidth / vp.width
+
+  const iframe = (
+    <iframe
+      src={app.url}
+      title={`${app.name} live preview`}
+      loading={eager ? 'eager' : 'lazy'}
+      tabIndex={-1}
+      aria-hidden="true"
+      sandbox="allow-scripts allow-same-origin"
+      onLoad={() => setLoaded(true)}
+      className="absolute top-0 left-0 border-0 origin-top-left pointer-events-none bg-white"
+      style={{ width: vp.width, height: vp.height, transform: `scale(${scale})` }}
+    />
+  )
+
+  return (
+    <div
+      ref={boxRef}
+      className={`absolute inset-0 bg-[#0a0f1a] transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+    >
+      {boxWidth > 0 &&
+        (app.frame === 'phone' ? (
+          <div
+            className="absolute left-1/2 top-5 -translate-x-1/2 rounded-[28px] p-[6px] bg-[#1c2230] ring-1 ring-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.6)] transition-transform duration-700 group-hover:-translate-y-1"
+            style={{ width: frameWidth + 12 }}
+          >
+            <div
+              className="relative overflow-hidden rounded-[22px]"
+              style={{ width: frameWidth, height: vp.height * scale }}
+            >
+              {iframe}
+            </div>
+          </div>
+        ) : (
+          <div className="absolute inset-0 overflow-hidden">{iframe}</div>
+        ))}
+    </div>
+  )
+}
 
 const displayHost = (url: string) => url.replace(/^https?:\/\//, '')
 
@@ -96,19 +168,19 @@ function AppCard({ app, index, onShowQr }: { app: App; index: number; onShowQr: 
           href={app.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block relative aspect-[16/10] overflow-hidden"
+          className="block relative aspect-[4/3] overflow-hidden"
           aria-label={`Open ${app.name}`}
         >
           <div className={`absolute inset-0 bg-gradient-to-br ${app.accent} opacity-30`} />
           <img
             src={app.preview}
-            alt={`${app.name} preview`}
-            className="relative w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-            loading={index < 2 ? 'eager' : 'lazy'}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover object-top"
             decoding="async"
             width={1200}
             height={750}
           />
+          <LivePreview app={app} eager={index < 2} />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1a] via-[#0a0f1a]/10 to-transparent" />
         </a>
 
