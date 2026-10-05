@@ -4,7 +4,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useSocialMeta } from '../hooks/useSocialMeta'
 
 /**
- * /apps — "Built, not pitched." A cinematic, ad-style showcase of the six
+ * /apps - "Built, not pitched." A cinematic, ad-style showcase of the six
  * shipped apps. Ember particles trail the cursor (tinted by whichever app
  * is on screen), each app gets a full-bleed billboard with a live phone
  * mockup running the real app, and everything is magnetic, tilting and
@@ -30,7 +30,7 @@ const apps: App[] = [
     name: 'PebbleSum',
     tagline: 'Small steps. Daily practice. Big math success.',
     description:
-      'Gamified arithmetic for kids — a friendly pebble guide turns daily practice into a little adventure. Streaks, rewards, zero boredom.',
+      'Math practice kids actually open. A pebble buddy guides daily arithmetic, with streaks and rewards for showing up.',
     url: 'https://pebblesum.vattitude.ca',
     icon: '/apps/pebblesum-icon.webp',
     preview: '/projects/pebblesum.webp',
@@ -43,9 +43,9 @@ const apps: App[] = [
     name: 'Breather',
     tagline: 'A daily breathing break that grows with you.',
     description:
-      'Name your plant, build a streak, and watch it grow with every session. Guided breathing, free forever, private by design — no sign-up.',
+      'A two-minute breathing break. Name a plant, keep your streak, watch it grow. Free, no account, nothing leaves your device.',
     url: 'https://breather.vattitude.ca',
-    icon: '/apps/breather-icon.webp',
+    icon: '/apps/breather-icon.png',
     preview: '/projects/breather.webp',
     accent: [45, 212, 191],
     gradient: 'from-teal-300 via-cyan-300 to-lime-300',
@@ -56,9 +56,9 @@ const apps: App[] = [
     name: 'Chess 4 Kids',
     tagline: 'Learn chess. Unlock your magic.',
     description:
-      'Epic quests, magical puzzles and step-by-step lessons — 12 lessons, 50+ puzzles and friendly AI opponents that grow with your child.',
+      'Chess lessons that feel like quests. Twelve lessons, 50+ puzzles, and AI opponents that adjust to your kid.',
     url: 'https://chess4kids.vattitude.ca',
-    icon: '/apps/chess4kids-icon.webp',
+    icon: '/apps/chess4kids-icon.png',
     preview: '/projects/chess4kids.webp',
     accent: [250, 204, 21],
     gradient: 'from-yellow-200 via-amber-300 to-orange-400',
@@ -69,9 +69,9 @@ const apps: App[] = [
     name: 'Rungs',
     tagline: 'Start at a hundred. Finish at three.',
     description:
-      'Push-ups, pull-ups and squats split to your strength, climbing from 100 to 300 reps a day. No gym, no equipment — just the ladder.',
+      'Bodyweight training as a ladder. Push-ups, pull-ups, squats, scaled to your level, climbing from 100 to 300 reps a day.',
     url: 'https://rungs.vattitude.ca',
-    icon: '/apps/rungs-icon.webp',
+    icon: '/apps/rungs-icon.png',
     preview: '/projects/rungs.webp',
     accent: [251, 146, 60],
     gradient: 'from-orange-300 via-amber-400 to-red-400',
@@ -82,7 +82,7 @@ const apps: App[] = [
     name: 'Evalu8',
     tagline: 'Think like a programmer.',
     description:
-      'Short robot puzzles that teach kids 6–9 to plan, test and debug like real engineers. Privacy-first, with a parent dashboard watching the wins.',
+      'Robot puzzles that teach kids 6-9 how programmers think: plan it, test it, fix it. Parents get a dashboard.',
     url: 'https://evalu8.vattitude.ca/',
     icon: '/apps/evalu8-icon.png',
     preview: null,
@@ -93,9 +93,9 @@ const apps: App[] = [
   {
     id: 'morningbrief',
     name: 'Morning Brief',
-    tagline: 'Your day, briefed — in your own voice.',
+    tagline: 'Your day, briefed. In your own voice.',
     description:
-      'A daily news briefing built for busy mornings: your sources, summarized by AI and read aloud in a voice you pick. Android app + web, new every morning.',
+      'The news, read to you. Pick your sources, AI writes the summary, you pick the voice. Fresh every morning on Android and web.',
     url: 'https://mbv.vattitude.ca/',
     icon: '/apps/morningbrief-icon.png',
     preview: null,
@@ -109,7 +109,7 @@ const rgb = (c: [number, number, number], a = 1) => `rgba(${c[0]},${c[1]},${c[2]
 const displayHost = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/$/, '')
 
 /* ------------------------------------------------------------------ */
-/* EmberTrail — fire particles that chase the cursor, tinted by the     */
+/* EmberTrail - fire particles that chase the cursor, tinted by the     */
 /* app currently on screen. Clicks burst. Ambient embers drift up.     */
 /* ------------------------------------------------------------------ */
 function EmberTrail({ accent }: { accent: [number, number, number] }) {
@@ -249,7 +249,7 @@ function EmberTrail({ accent }: { accent: [number, number, number] }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Magnetic — wrapper that pulls its child toward the cursor            */
+/* Magnetic - wrapper that pulls its child toward the cursor            */
 /* ------------------------------------------------------------------ */
 function Magnetic({ children, strength = 0.35 }: { children: React.ReactNode; strength?: number }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -278,7 +278,7 @@ function Magnetic({ children, strength = 0.35 }: { children: React.ReactNode; st
 }
 
 /* ------------------------------------------------------------------ */
-/* Phone — tilting live mockup running the real app                    */
+/* Phone - tilting live mockup running the real app                    */
 /* ------------------------------------------------------------------ */
 const PHONE = { width: 390, height: 844 }
 
@@ -376,7 +376,7 @@ function Phone({ app, eager }: { app: App; eager: boolean }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Billboard — one full-bleed cinematic section per app                */
+/* Billboard - one full-bleed cinematic section per app                */
 /* ------------------------------------------------------------------ */
 function Billboard({ app, index, flip, onActive, onQr }: {
   app: App; index: number; flip: boolean
@@ -521,7 +521,7 @@ export default function MyApps() {
   const onActive = useCallback((a: [number, number, number]) => setAccent(a), [])
 
   useSocialMeta({
-    title: 'My Apps — Six products shipped | Vattitude',
+    title: 'My Apps - Six products shipped | Vattitude',
     description:
       'Six apps designed and shipped end to end by Vattitude: PebbleSum, Breather, Chess 4 Kids, Rungs, Evalu8 and Morning Brief. Try them live.',
     url: 'https://vattitude.ca/apps',
@@ -573,9 +573,8 @@ export default function MyApps() {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.7 }}
           className="text-slate-400 text-xl sm:text-2xl leading-relaxed max-w-2xl mb-10"
         >
-          Six live products — designed, coded and shipped by one person.
-          No pitch decks. <span className="text-white font-semibold">Touch them, they're real.</span> Move
-          your cursor and watch the sparks fly.
+          Six products, live right now. Each one designed, coded and shipped by a single person.
+          No slides, no pitch decks. <span className="text-white font-semibold">They're the real thing, go poke one.</span>
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75, duration: 0.7 }}
@@ -664,7 +663,7 @@ export default function MyApps() {
           </Magnetic>
         </motion.div>
         <p className="mt-10 text-slate-600 text-sm">
-          © {new Date().getFullYear()} Vattitude — designed & built by hand.
+          © {new Date().getFullYear()} Vattitude. Designed and built by hand.
         </p>
       </footer>
 
