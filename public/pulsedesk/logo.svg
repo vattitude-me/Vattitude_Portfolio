@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="pdg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="55%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+    <radialGradient id="pdglow" cx="50%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#pdg)"/>
+  <rect width="512" height="512" rx="120" fill="url(#pdglow)"/>
+  <circle cx="256" cy="252" r="140" fill="none" stroke="#ffffff" stroke-width="34"/>
+  <path d="M256 168v88l64 40" fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="256" cy="252" r="16" fill="#ffffff"/>
+  <path d="M96 428c40-26 84-40 128-40" fill="none" stroke="#ffffff" stroke-width="22" stroke-linecap="round" opacity="0.85"/>
+  <path d="M416 428c-22-14-46-24-72-30" fill="none" stroke="#ffffff" stroke-width="22" stroke-linecap="round" opacity="0.45"/>
+</svg>

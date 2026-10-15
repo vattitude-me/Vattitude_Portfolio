@@ -91,6 +91,19 @@ const apps: App[] = [
     tags: ['Kids', 'Coding', 'Next.js'],
   },
   {
+    id: 'pulsedesk',
+    name: 'PulseDesk',
+    tagline: 'Your workday, gently on track.',
+    description:
+      'Desktop reminders that keep long desk days feeling good: stand-and-stretch nudges, hydration pings, eye breaks, and your own custom alerts. Free, no account, nothing leaves your device.',
+    url: 'https://vattitude.ca/pulsedesk/',
+    icon: '/apps/pulsedesk-icon.png',
+    preview: null,
+    accent: [129, 140, 248],
+    gradient: 'from-indigo-300 via-violet-300 to-purple-300',
+    tags: ['Wellness', 'PWA', 'Reminders'],
+  },
+  {
     id: 'morningbrief',
     name: 'Morning Brief',
     tagline: 'Your day, briefed. In your own voice.',

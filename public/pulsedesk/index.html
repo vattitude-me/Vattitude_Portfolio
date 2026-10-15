@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PulseDesk — Desktop Reminder & Office Wellness PWA</title>
-    <meta name="description" content="Background-reliable desktop reminders and recurring office window timers for Mac & Windows.">
+    <title>PulseDesk — Gentle reminders for a healthier workday</title>
+    <meta name="description" content="PulseDesk nudges you to stand, stretch, hydrate, and rest your eyes. Friendly desktop reminders with calming chimes. Free, no account needed.">
     <meta name="theme-color" content="#0f172a">
+    <link rel="icon" type="image/svg+xml" href="./logo.svg">
+    <link rel="apple-touch-icon" href="./logo.svg">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
@@ -88,21 +90,17 @@
 
     <header class="sticky top-0 z-30 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 glass-card">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-            <!-- Brand Logo & Worker Status -->
+            <!-- Brand Logo & Status -->
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-lg shadow-brand-500/25 text-white shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
+                <img src="./logo.svg" alt="PulseDesk logo" class="w-10 h-10 rounded-xl shadow-lg shadow-brand-500/25 shrink-0">
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="font-bold text-lg tracking-tight text-slate-900 dark:text-white">PulseDesk</h1>
-                        <span class="px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider font-semibold rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">PWA v1.2</span>
+                        <span class="px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider font-semibold rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">v1.2</span>
                     </div>
                     <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                         <span id="workerStatusDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="workerStatusText">Worker Thread Active</span>
+                        <span id="workerStatusText">Reminders running</span>
                     </div>
                 </div>
             </div>
@@ -121,16 +119,10 @@
                     <span class="hidden sm:inline">Test Alert</span>
                 </button>
 
-                <!-- Git & PWA Guide Modal Button -->
-                <button onclick="openModal('gitGuideModal')" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-                    <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                    <span class="hidden md:inline">PWA & Git Setup</span>
-                </button>
-
-                <!-- Download Self-Contained index.html Button -->
-                <button onclick="downloadSelfContainedHTML()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-md shadow-brand-600/20 transition active:scale-95">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    <span>Download index.html</span>
+                <!-- How it works -->
+                <button onclick="openModal('welcomeModal')" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+                    <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="hidden md:inline">How it works</span>
                 </button>
 
                 <!-- Theme Toggle -->
@@ -146,7 +138,7 @@
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
             <div class="flex items-center gap-2 text-amber-700 dark:text-amber-300">
                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span id="notificationBannerText">Enable native Mac/Windows desktop notifications so alerts pop up over other apps even when PulseDesk is minimized.</span>
+                <span id="notificationBannerText">Allow pop-up alerts so reminders reach you even when this tab is in the background.</span>
             </div>
             <div class="flex items-center gap-2 shrink-0">
                 <button onclick="requestNotificationPermission()" class="px-3 py-1 rounded-lg font-semibold bg-amber-500 text-slate-950 hover:bg-amber-400 transition">
@@ -160,6 +152,33 @@
     </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+        <!-- Welcome Hero -->
+        <section class="relative overflow-hidden rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-br from-brand-500/10 via-purple-500/10 to-transparent p-6 sm:p-10">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-10 -bottom-20 w-56 h-56 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative max-w-2xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-4">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Free &middot; No account &middot; Nothing leaves your device
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                    Your workday,<br>gently on track.
+                </h2>
+                <p class="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                    PulseDesk nudges you to stand, stretch, drink water, and rest your eyes &mdash; the little habits
+                    that keep long desk days feeling good. Set it once, then let the gentle chimes do the remembering.
+                </p>
+                <div class="mt-5 flex flex-wrap gap-2.5">
+                    <button onclick="openReminderModal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition active:scale-95">
+                        Add your first reminder
+                    </button>
+                    <button onclick="openModal('welcomeModal')" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 text-slate-700 dark:text-slate-200 transition">
+                        How it works
+                    </button>
+                </div>
+            </div>
+        </section>
         
         <!-- Top Status Row: Live Clock, Next Up Countdown, Audio & DND Controls -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -168,7 +187,7 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between relative overflow-hidden">
                 <div class="absolute -right-8 -top-8 w-28 h-28 bg-brand-500/5 rounded-full blur-2xl pointer-events-none"></div>
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">System Time</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Right now</span>
                     <span id="officeStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                         Office Window Active
@@ -193,7 +212,7 @@
             <!-- Card 2: Next Upcoming Reminder Countdown -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between relative overflow-hidden">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Next Upcoming Alert</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Up next</span>
                     <span id="nextReminderModeBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-600 dark:text-brand-400">
                         Interval
                     </span>
@@ -220,7 +239,7 @@
             <!-- Card 3: Focus / Do Not Disturb & Sound Synthesizer -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Audio & Do Not Disturb</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Sounds &amp; quiet time</span>
                     <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="muteToggleInput" onchange="toggleMute(this.checked)" class="sr-only peer">
                         <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500 relative"></div>
@@ -269,8 +288,8 @@
                         <!-- Filter Buttons -->
                         <div class="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-slate-800 text-xs font-medium">
                             <button onclick="setFilter('all')" id="filter-all" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm transition">All</button>
-                            <button onclick="setFilter('interval')" id="filter-interval" class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">Office Window</button>
-                            <button onclick="setFilter('fixed')" id="filter-fixed" class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">Specific Time</button>
+                            <button onclick="setFilter('interval')" id="filter-interval" class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">Repeating</button>
+                            <button onclick="setFilter('fixed')" id="filter-fixed" class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">Set time</button>
                         </div>
 
                         <!-- Add Reminder CTA -->
@@ -283,7 +302,7 @@
 
                 <!-- Quick Preset Templates Bar -->
                 <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                    <span class="text-xs font-medium text-slate-400 dark:text-slate-500 shrink-0">Quick Add:</span>
+                    <span class="text-xs font-medium text-slate-400 dark:text-slate-500 shrink-0">Try a one-tap starter:</span>
                     <button onclick="quickAddPreset('stretch')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 text-slate-700 dark:text-slate-300 transition">
                         <span>🧘</span> <span>Stand & Stretch (Every 45m, 9-5)</span>
                     </button>
@@ -328,11 +347,10 @@
                 <!-- Configuration Backup & Restore Card -->
                 <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Config Backup & Restore</h3>
-                        <span class="text-[11px] font-mono text-slate-400">localStorage</span>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Back up your reminders</h3>
                     </div>
                     <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                        Export your reminders to a JSON file to transfer across Mac and Windows machines, or reset to factory defaults.
+                        Save your reminders to a file so you can move them to another computer, or start fresh anytime.
                     </p>
                     <div class="grid grid-cols-2 gap-2 pt-1">
                         <button onclick="exportConfigJSON()" class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
@@ -346,7 +364,7 @@
                         </label>
                     </div>
                     <button onclick="resetToDefaultReminders()" class="w-full py-1.5 text-[11px] font-medium text-slate-400 hover:text-rose-500 transition text-center">
-                        Reset to Default Office Templates
+                        Start over with the suggested reminders
                     </button>
                 </div>
 
@@ -400,10 +418,10 @@
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Reminder Schedule Mode</label>
                     <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
                         <button type="button" id="modeBtn-interval" onclick="switchFormMode('interval')" class="py-2 px-3 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 text-brand-600 dark:text-brand-400 shadow-sm transition">
-                            🔄 Recurring Office Window
+                            🔄 Every few minutes
                         </button>
                         <button type="button" id="modeBtn-fixed" onclick="switchFormMode('fixed')" class="py-2 px-3 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 transition">
-                            ⏰ Specific Time of Day
+                            ⏰ At a set time
                         </button>
                     </div>
                 </div>
@@ -431,7 +449,7 @@
                         </div>
                     </div>
                     <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                        Triggers aligned to the start of your window (e.g., 9:00 AM → 9:45 AM → 10:30 AM ... until 5:00 PM).
+                        Nudges you on a steady rhythm inside your chosen hours (e.g., 9:00 AM → 9:45 AM → 10:30 AM … until 5:00 PM).
                     </p>
                 </div>
 
@@ -503,66 +521,72 @@
         </div>
     </div>
 
-    <div id="gitGuideModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+    <div id="welcomeModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div class="flex items-center gap-2.5">
-                    <span class="p-2 rounded-xl bg-purple-500/10 text-purple-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </span>
+                    <img src="./logo.svg" alt="" class="w-10 h-10 rounded-xl shadow-md">
                     <div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">PWA Installation & Git Deployment Guide</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Install PulseDesk as a native-like app on macOS & Windows PC</p>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">How PulseDesk works</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Set it once, then let the gentle chimes do the remembering</p>
                     </div>
                 </div>
-                <button onclick="closeModal('gitGuideModal')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <button onclick="closeModal('welcomeModal')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
 
-            <div class="space-y-4 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-                <div class="p-3.5 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-700 dark:text-brand-300">
-                    <strong>Why a single-file PWA?</strong> PulseDesk embeds its own Web Worker timer, Web Audio synthesizer, and Web App Manifest inside a single <code>index.html</code> file—zero build steps or external dependencies required.
+            <div class="space-y-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                <div class="flex gap-3.5">
+                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold shrink-0">1</div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 dark:text-white">Add a reminder, or tap a starter</h4>
+                        <p class="text-xs mt-1">Pick a one-tap starter like <em>Stand &amp; stretch</em>, or create your own: a gentle nudge every 45 minutes, or at an exact time each day, on the days you choose.</p>
+                    </div>
                 </div>
-
-                <div class="space-y-2">
-                    <h4 class="font-bold text-slate-900 dark:text-white text-sm">Step 1: Push to your Git Repository & Enable GitHub Pages</h4>
-                    <p>Click the <strong>"Download index.html"</strong> button in the top bar, then run these commands in your terminal:</p>
-                    <div class="relative bg-slate-950 text-slate-200 font-mono p-3.5 rounded-xl text-[11px] overflow-x-auto">
-                        <button onclick="copyGitCommands()" class="absolute top-2.5 right-2.5 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]">Copy</button>
-<pre id="gitCommandsBlock">mkdir pulsedek-pwa && cd pulsedek-pwa
-mv ~/Downloads/index.html ./index.html
-git init
-git add index.html
-git commit -m "Initial commit: PulseDesk Reminder PWA"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/pulsedesk-pwa.git
-git push -u origin main</pre>
+                <div class="flex gap-3.5">
+                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold shrink-0">2</div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 dark:text-white">Keep this tab open, or install the app</h4>
+                        <p class="text-xs mt-1">PulseDesk keeps perfect time even when the tab is in the background. For the full experience, tap <strong>Install App</strong> (Chrome, Edge, Brave) or use <strong>Add to Dock / Add to Home Screen</strong> (Safari) to run it like a native app.</p>
+                    </div>
+                </div>
+                <div class="flex gap-3.5">
+                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold shrink-0">3</div>
+                    <div>
+                        <h4 class="font-bold text-slate-900 dark:text-white">Get a gentle nudge when it&rsquo;s time</h4>
+                        <p class="text-xs mt-1">A calming chime plays and a friendly pop-up appears &mdash; on screen and in your system notifications if you allow them. Snooze it, or tap Done and carry on.</p>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <h4 class="font-bold text-slate-900 dark:text-white text-sm">Step 2: Install on Mac or Windows PC</h4>
-                    <ul class="list-disc pl-5 space-y-1.5">
-                        <li><strong>Via GitHub Pages / Vercel / Netlify (Recommended):</strong> Enable GitHub Pages in your repository settings (Settings → Pages → Deploy from <code>main</code> branch). Open your live HTTPS URL in <strong>Chrome, Edge, Brave, or Safari (macOS Sonoma+)</strong> and click the <strong>Install App</strong> icon in the address bar (or File → Add to Dock on Safari).</li>
-                        <li><strong>Via Localhost:</strong> Run <code>npx serve .</code> or <code>python3 -m http.server 8080</code> in the folder and open <code>http://localhost:8080</code> to install immediately without hosting online.</li>
-                    </ul>
-                </div>
-
-                <div class="space-y-1.5">
-                    <h4 class="font-bold text-slate-900 dark:text-white text-sm">Step 3: Background Reliability Tips</h4>
-                    <p>PulseDesk uses a dedicated <strong>Blob Web Worker thread</strong> so Chrome/Edge/Safari tab throttling won't freeze your countdown when minimized. Make sure your OS "Do Not Disturb / Focus Mode" allows notifications from your browser.</p>
+                <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-300">
+                    <strong>Private by design.</strong> Everything lives in your browser &mdash; no account, no sign-up, no data sent anywhere. Your reminders are yours.
                 </div>
             </div>
 
-            <div class="flex justify-end pt-2 border-t border-slate-200 dark:border-slate-800">
-                <button onclick="closeModal('gitGuideModal')" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 text-white hover:bg-brand-500 transition">Got it</button>
+            <div class="flex flex-col sm:flex-row gap-2 justify-end pt-2 border-t border-slate-200 dark:border-slate-800">
+                <button onclick="closeModal('welcomeModal'); openReminderModal();" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 text-white hover:bg-brand-500 transition">Add my first reminder</button>
+                <button onclick="closeModal('welcomeModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Got it</button>
             </div>
         </div>
     </div>
 
     <!-- Non-intrusive Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <footer class="border-t border-slate-200/80 dark:border-slate-800/80 mt-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+            <div class="flex items-center gap-2">
+                <img src="./logo.svg" alt="" class="w-5 h-5 rounded-md">
+                <span><strong class="text-slate-700 dark:text-slate-200">PulseDesk</strong> &mdash; small nudges, healthier days.</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="openModal('welcomeModal')" class="hover:text-brand-500 transition">How it works</button>
+                <button onclick="openReminderModal()" class="hover:text-brand-500 transition">Add a reminder</button>
+                <span>Private by design: everything stays in your browser.</span>
+            </div>
+        </div>
+    </footer>
 
     <script>
         /********************************************************************
@@ -640,41 +664,27 @@ git push -u origin main</pre>
          * 2. DYNAMIC PWA MANIFEST & SVG ICON GENERATOR
          ********************************************************************/
         function setupDynamicPWAManifest() {
-            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                <defs>
-                    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#6366f1"/>
-                        <stop offset="100%" stop-color="#9333ea"/>
-                    </linearGradient>
-                </defs>
-                <rect width="512" height="512" rx="115" fill="url(#g)"/>
-                <circle cx="256" cy="256" r="150" fill="none" stroke="#ffffff" stroke-width="32"/>
-                <path d="M256 160v104l72 44" fill="none" stroke="#ffffff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>`;
-
-            const encodedIcon = 'data:image/svg+xml;utf8,' + encodeURIComponent(svgIcon);
-
-            // Set favicon dynamically
+            // Favicon is set statically in <head> via logo.svg; keep it in sync here too
             let linkIcon = document.querySelector("link[rel~='icon']");
             if (!linkIcon) {
                 linkIcon = document.createElement('link');
                 linkIcon.rel = 'icon';
                 document.head.appendChild(linkIcon);
             }
-            linkIcon.href = encodedIcon;
+            linkIcon.href = './logo.svg';
 
             // Create Web App Manifest JSON
             const manifest = {
-                name: "PulseDesk — Desktop Reminder & Office Wellness",
+                name: "PulseDesk — Gentle reminders for a healthier workday",
                 short_name: "PulseDesk",
-                description: "Background-reliable desktop reminders and recurring office window timers.",
+                description: "Friendly desktop reminders to stand, stretch, hydrate, and rest your eyes.",
                 start_url: window.location.href,
                 display: "standalone",
                 background_color: "#0f172a",
                 theme_color: "#4f46e5",
                 icons: [
                     {
-                        src: encodedIcon,
+                        src: "./logo.svg",
                         sizes: "192x192 512x512",
                         type: "image/svg+xml",
                         purpose: "any maskable"
@@ -703,7 +713,7 @@ git push -u origin main</pre>
 
         async function installPWA() {
             if (!deferredInstallPrompt) {
-                openModal('gitGuideModal');
+                openModal('welcomeModal');
                 return;
             }
             deferredInstallPrompt.prompt();
@@ -837,7 +847,7 @@ git push -u origin main</pre>
                 worker.postMessage('start');
             } catch (err) {
                 // Fallback if security policy restricts Blob workers
-                document.getElementById('workerStatusText').textContent = 'Main Thread Timer Active';
+                document.getElementById('workerStatusText').textContent = 'Reminders running (basic mode)';
                 setInterval(() => onSecondTick(new Date()), 1000);
             }
         }
@@ -987,8 +997,8 @@ git push -u origin main</pre>
             currentActiveAlertReminderId = reminder.id;
             document.getElementById('alertModalIcon').textContent = reminder.icon || '🔔';
             document.getElementById('alertModalBadge').textContent = isSnoozeWakeup
-                ? 'Snoozed Reminder'
-                : (reminder.mode === 'interval' ? `Every ${reminder.intervalMinutes}m Office Window` : 'Scheduled Daily Time');
+                ? 'Snoozed reminder'
+                : 'PulseDesk reminder';
             document.getElementById('alertModalTitle').textContent = reminder.title;
             document.getElementById('alertModalNote').textContent = reminder.note || 'Time for your scheduled wellness check-in!';
             document.getElementById('alertModalTimeStamp').textContent = `Triggered at ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
@@ -1039,7 +1049,7 @@ git push -u origin main</pre>
             const sampleReminder = {
                 id: 'test-alert',
                 title: 'Stand up & stretch (Test Alert)',
-                note: 'Your desktop notification, Web Worker timer, and synthesized audio chime are working!',
+                note: 'Your reminders, pop-up alerts, and chimes are all working!',
                 icon: '🧘',
                 mode: 'interval',
                 intervalMinutes: 45
@@ -1069,10 +1079,10 @@ git push -u origin main</pre>
             const badge = document.getElementById('officeStatusBadge');
             if (inOfficeWindow) {
                 badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Office Window Active`;
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Reminders on right now`;
             } else {
                 badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-500/10 text-slate-500 dark:text-slate-400 border border-slate-500/20';
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Outside Office Window`;
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Outside your hours`;
             }
         }
 
@@ -1173,7 +1183,7 @@ git push -u origin main</pre>
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">${escapeHTML(rem.title)}</h3>
                                     <span class="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md ${isInterval ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'}">
-                                        ${isInterval ? 'Office Window' : 'Specific Time'}
+                                        ${isInterval ? 'Repeating' : 'Set time'}
                                     </span>
                                     <span class="text-[11px] font-mono text-brand-600 dark:text-brand-400">${nextTriggerLabel}</span>
                                 </div>
@@ -1586,22 +1596,8 @@ git push -u origin main</pre>
         }
 
         /**
-         * Exports the complete, self-contained HTML source code as `index.html` for Git repos
+         * Exports reminders + settings as a JSON backup file
          */
-        function downloadSelfContainedHTML() {
-            const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-            const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'index.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast('Downloaded index.html! Ready to commit and push to your Git repository.', 'success');
-        }
-
         function exportConfigJSON() {
             const payload = {
                 exportedAt: new Date().toISOString(),
@@ -1648,18 +1644,7 @@ git push -u origin main</pre>
             saveReminders();
             renderRemindersList();
             updateNextUpcomingCountdown(new Date());
-            showToast('Reset to default office templates.', 'info');
-        }
-
-        function copyGitCommands() {
-            const text = document.getElementById('gitCommandsBlock').innerText;
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            showToast('Git commands copied to clipboard!', 'success');
+            showToast('Back to the suggested starter reminders.', 'info');
         }
 
         /********************************************************************
