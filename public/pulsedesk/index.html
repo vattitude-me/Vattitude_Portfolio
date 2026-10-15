@@ -212,16 +212,16 @@
             </button>
         </div>
 
-        <!-- Right: Download HTML Pill + Theme Switch -->
+        <!-- Right: Install App Pill + Theme Switch -->
         <div class="flex items-center gap-2">
-            <button onclick="downloadAppHTML()" class="h-9 px-3.5 rounded-full bg-[#1C1B18] dark:bg-[#F4F3EF] text-[#F6F5F0] dark:text-[#141416] text-xs font-semibold flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-[0.98] transition" title="Download self-contained index.html for your Git repo or desktop">
+            <button id="installAppBtn" onclick="installApp()" class="h-9 px-3.5 rounded-full bg-[#1C1B18] dark:bg-[#F4F3EF] text-[#F6F5F0] dark:text-[#141416] text-xs font-semibold flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-[0.98] transition" title="Install PulseDesk on this device">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
                     <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                <span class="hidden sm:inline">Download App</span>
-                <span class="sm:hidden">Save</span>
+                <span class="hidden sm:inline">Install App</span>
+                <span class="sm:hidden">Install</span>
             </button>
 
             <button onclick="toggleTheme()" class="w-9 h-9 rounded-full tactile-card flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition" title="Switch Warm Daylight / Cozy Midnight Theme">
@@ -1317,18 +1317,50 @@
             }
         }
 
-        function downloadAppHTML() {
-            const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'index.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast('Downloaded index.html — ready for your Git repo!');
+        /********************************************************************
+         * 3b. PWA INSTALL PROMPT (show Install button unless already installed)
+         ********************************************************************/
+        let deferredInstallPrompt = null;
+
+        function isAppInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches
+                || window.matchMedia('(display-mode: fullscreen)').matches
+                || window.navigator.standalone === true;
+        }
+
+        function updateInstallButton() {
+            const btn = document.getElementById('installAppBtn');
+            if (!btn) return;
+            // Inline style (not Tailwind classes) so it works even if the CDN is slow
+            btn.style.display = isAppInstalled() ? 'none' : '';
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            updateInstallButton();
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredInstallPrompt = null;
+            updateInstallButton();
+            showToast('PulseDesk installed — find it on your home screen or app list.');
+        });
+
+        async function installApp() {
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                const { outcome } = await deferredInstallPrompt.userChoice;
+                deferredInstallPrompt = null;
+                if (outcome !== 'accepted') {
+                    showToast('No problem — you can install anytime from this button.');
+                }
+                return;
+            }
+            const isiOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+            showToast(isiOS
+                ? 'To install: tap Share, then "Add to Home Screen".'
+                : 'To install: open your browser menu and choose "Install app" or "Add to Home Screen".');
         }
 
         function resetDefaultRhythm() {
@@ -1400,6 +1432,7 @@
             renderCardsGrid();
             tick(new Date());
             startBackgroundClock();
+            updateInstallButton();
         };
     </script>
 </body>
