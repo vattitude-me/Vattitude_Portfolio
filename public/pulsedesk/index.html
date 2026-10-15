@@ -1,52 +1,30 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PulseDesk — Gentle reminders for a healthier workday</title>
-    <meta name="description" content="PulseDesk nudges you to stand, stretch, hydrate, and rest your eyes. Friendly desktop reminders with calming chimes. Free, no account needed.">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="icon" type="image/svg+xml" href="./logo.svg">
-    <link rel="apple-touch-icon" href="./logo.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PulseDesk — Mindful Workday Reminders</title>
+    <meta name="description" content="Warm, effortless desktop and mobile reminders for healthy workday rhythms.">
+    <meta name="theme-color" content="#F6F5F0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Fonts: Plus Jakarta Sans & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <script>
-        // Guarded: if the Tailwind CDN is unreachable, the page still renders its base styles
+        // Guarded: page still works if the Tailwind CDN is unreachable
         if (window.tailwind) {
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                        }
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'ring': 'ring 1.5s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        ring: {
-                            '0%, 100%': { transform: 'rotate(0deg)' },
-                            '10%, 30%, 50%, 70%': { transform: 'rotate(-10deg)' },
-                            '20%, 40%, 60%, 80%': { transform: 'rotate(10deg)' },
-                        }
+                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
                     }
                 }
             }
@@ -55,860 +33,751 @@
     </script>
 
     <style>
-        /* Custom sleek scrollbars */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        :root {
+            --bg-canvas: #F6F5F0;
+            --bg-card: #FFFFFF;
+            --bg-subtle: #EFECE6;
+            --bg-pill: #EAE6DF;
+            --border-card: #E8E6DF;
+            --text-primary: #1C1B18;
+            --text-secondary: #6E6A63;
+            --text-muted: #9C978E;
+            --shadow-card: 0 4px 20px -2px rgba(24, 24, 27, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 10px 28px -4px rgba(24, 24, 27, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
         }
-        ::-webkit-scrollbar-track {
-            background: transparent;
+
+        html.dark {
+            --bg-canvas: #141416;
+            --bg-card: #1E1E22;
+            --bg-subtle: #26262B;
+            --bg-pill: #2C2C32;
+            --border-card: #2C2C32;
+            --text-primary: #F4F3EF;
+            --text-secondary: #9A9891;
+            --text-muted: #6E6C66;
+            --shadow-card: 0 8px 24px -4px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(255, 255, 255, 0.03) inset;
+            --shadow-hover: 0 12px 32px -4px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(255, 255, 255, 0.05) inset;
         }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.3);
-            border-radius: 9999px;
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.25s ease, color 0.25s ease;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(148, 163, 184, 0.5);
+
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
         }
-        .glass-card {
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+
+        .tactile-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            box-shadow: var(--shadow-card);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
         }
-        /* Hide number input arrows */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
+
+        .tactile-card-interactive:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-hover);
         }
-        input[type=number] {
-            -moz-appearance: textfield;
+
+        .subtle-surface {
+            background-color: var(--bg-subtle);
         }
+
+        .pill-surface {
+            background-color: var(--bg-pill);
+        }
+
+        /* Semantic Theme Accents */
+        .theme-coral {
+            --accent: #E05A47;
+            --accent-soft: rgba(224, 90, 71, 0.12);
+            --accent-border: rgba(224, 90, 71, 0.28);
+            --accent-gradient: radial-gradient(120% 120% at 95% 10%, rgba(224, 90, 71, 0.14) 0%, rgba(224, 90, 71, 0.0) 70%);
+        }
+        .theme-teal {
+            --accent: #0D9488;
+            --accent-soft: rgba(13, 148, 136, 0.12);
+            --accent-border: rgba(13, 148, 136, 0.28);
+            --accent-gradient: radial-gradient(120% 120% at 95% 10%, rgba(13, 148, 136, 0.14) 0%, rgba(13, 148, 136, 0.0) 70%);
+        }
+        .theme-amber {
+            --accent: #D97706;
+            --accent-soft: rgba(217, 119, 6, 0.12);
+            --accent-border: rgba(217, 119, 6, 0.28);
+            --accent-gradient: radial-gradient(120% 120% at 95% 10%, rgba(217, 119, 6, 0.14) 0%, rgba(217, 119, 6, 0.0) 70%);
+        }
+        .theme-indigo {
+            --accent: #4F46E5;
+            --accent-soft: rgba(79, 70, 229, 0.12);
+            --accent-border: rgba(79, 70, 229, 0.28);
+            --accent-gradient: radial-gradient(120% 120% at 95% 10%, rgba(79, 70, 229, 0.14) 0%, rgba(79, 70, 229, 0.0) 70%);
+        }
+
+        /* iOS-inspired Tactile Switch */
+        .ios-switch {
+            width: 44px;
+            height: 26px;
+            border-radius: 999px;
+            background-color: var(--bg-pill);
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            flex-shrink: 0;
+        }
+        .ios-switch-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        input:checked + .ios-switch {
+            background-color: var(--accent, #E05A47);
+        }
+        input:checked + .ios-switch .ios-switch-thumb {
+            transform: translateX(18px);
+        }
+
+        /* Progress Ring Animation */
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.3s ease;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Calm Breathing Circle for Break Modal */
+        @keyframes breathePulse {
+            0%, 100% { transform: scale(0.92); opacity: 0.65; }
+            50% { transform: scale(1.12); opacity: 1; }
+        }
+        .breathe-circle {
+            animation: breathePulse 5s ease-in-out infinite;
+        }
+
+        /* Hide scrollbars on preset pills */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen font-sans antialiased selection:bg-brand-500 selection:text-white transition-colors duration-200 flex flex-col">
+<body class="min-h-screen flex flex-col selection:bg-orange-500/20">
 
-    <header class="sticky top-0 z-30 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 glass-card">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-            <!-- Brand Logo & Status -->
-            <div class="flex items-center gap-3">
-                <img src="./logo.svg" alt="PulseDesk logo" class="w-10 h-10 rounded-xl shadow-lg shadow-brand-500/25 shrink-0">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="font-bold text-lg tracking-tight text-slate-900 dark:text-white">PulseDesk</h1>
-                        <span class="px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider font-semibold rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20">v1.2</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                        <span id="workerStatusDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="workerStatusText">Reminders running</span>
-                    </div>
+    <!-- =========================================================================
+         1. MINIMAL TOP BAR (Brand · Focus/Sound Controls · Download & Theme)
+         ========================================================================= -->
+    <header class="w-full max-w-[820px] mx-auto px-4 sm:px-6 pt-5 pb-3 flex items-center justify-between gap-3">
+        <!-- Left: Warm Brand Identity -->
+        <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-[#E05A47] text-white flex items-center justify-center shadow-sm">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <polyline points="12 7 12 12 15.5 14"/>
+                </svg>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-base tracking-tight">PulseDesk</span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Reminders active"></span>
                 </div>
+                <p id="headerLiveClock" class="text-xs font-mono tabular-nums" style="color: var(--text-secondary);">09:00 AM</p>
             </div>
+        </div>
 
-            <!-- Action Controls -->
-            <div class="flex items-center gap-2 flex-wrap justify-end">
-                <!-- Install PWA Button (Shows when browser fires beforeinstallprompt) -->
-                <button id="installPwaBtn" onclick="installPWA()" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    <span>Install App</span>
-                </button>
+        <!-- Center: 1-Click Pause / Focus Mode Pill + Sound Toggle -->
+        <div class="flex items-center gap-1.5">
+            <button id="focusModePill" onclick="toggleFocusPause()" class="h-9 px-3.5 rounded-full tactile-card flex items-center gap-2 text-xs font-semibold hover:opacity-90 active:scale-[0.98] transition" title="One-tap pause for 1 hour during deep focus or meetings">
+                <span id="focusDot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span id="focusLabel">Active</span>
+            </button>
 
-                <!-- Test Notification & Chime -->
-                <button onclick="triggerTestAlert()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition" title="Test Desktop Notification & Sound">
-                    <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    <span class="hidden sm:inline">Test Alert</span>
-                </button>
+            <button id="muteToggleBtn" onclick="toggleMute()" class="w-9 h-9 rounded-full tactile-card flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition" title="Toggle Chime Sound">
+                <svg id="soundOnIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                </svg>
+                <svg id="soundOffIcon" class="w-4 h-4 hidden text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                    <line x1="23" y1="9" x2="17" y2="15"/>
+                    <line x1="17" y1="9" x2="23" y2="15"/>
+                </svg>
+            </button>
+        </div>
 
-                <!-- How it works -->
-                <button onclick="openModal('welcomeModal')" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-                    <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span class="hidden md:inline">How it works</span>
-                </button>
+        <!-- Right: Download HTML Pill + Theme Switch -->
+        <div class="flex items-center gap-2">
+            <button onclick="downloadAppHTML()" class="h-9 px-3.5 rounded-full bg-[#1C1B18] dark:bg-[#F4F3EF] text-[#F6F5F0] dark:text-[#141416] text-xs font-semibold flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-[0.98] transition" title="Download self-contained index.html for your Git repo or desktop">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span class="hidden sm:inline">Download App</span>
+                <span class="sm:hidden">Save</span>
+            </button>
 
-                <!-- Theme Toggle -->
-                <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" title="Toggle Dark/Light Theme">
-                    <svg id="sunIcon" class="w-4 h-4 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    <svg id="moonIcon" class="w-4 h-4 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                </button>
-            </div>
+            <button onclick="toggleTheme()" class="w-9 h-9 rounded-full tactile-card flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition" title="Switch Warm Daylight / Cozy Midnight Theme">
+                <svg class="w-4 h-4 block dark:hidden text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+                <svg class="w-4 h-4 hidden dark:block text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
         </div>
     </header>
 
-    <div id="notificationBanner" class="hidden bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-            <div class="flex items-center gap-2 text-amber-700 dark:text-amber-300">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span id="notificationBannerText">Allow pop-up alerts so reminders reach you even when this tab is in the background.</span>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-                <button onclick="requestNotificationPermission()" class="px-3 py-1 rounded-lg font-semibold bg-amber-500 text-slate-950 hover:bg-amber-400 transition">
-                    Allow Desktop Alerts
-                </button>
-                <button onclick="document.getElementById('notificationBanner').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 px-1">
-                    Dismiss
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- =========================================================================
+         2. MAIN CONTENT CONTAINER (Max-Width 820px, Centered, Calm & Glanceable)
+         ========================================================================= -->
+    <main class="w-full max-w-[820px] mx-auto px-4 sm:px-6 py-4 flex-1 space-y-7">
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+        <!-- HERO CARD: "UP NEXT" WITH VISUAL SVG PROGRESS RING -->
+        <section id="heroCard" class="tactile-card theme-coral rounded-3xl p-6 sm:p-7 relative overflow-hidden" style="background-image: var(--accent-gradient);">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                
+                <!-- Left: Visual Progress Ring + Upcoming Info -->
+                <div class="flex items-center gap-5 min-w-0">
+                    <!-- Circular SVG Progress Ring -->
+                    <div class="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 flex items-center justify-center">
+                        <svg class="w-full h-full" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="7" class=" opacity-10" />
+                            <circle id="heroProgressCircle" cx="50" cy="50" r="42" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linecap="round"
+                                stroke-dasharray="263.89" stroke-dashoffset="65" class="progress-ring-circle" />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <span id="heroCountdownShort" class="font-mono text-sm sm:text-base font-semibold tabular-nums tracking-tight">24m</span>
+                            <span class="text-[10px] uppercase tracking-wider font-semibold" style="color: var(--text-muted);">left</span>
+                        </div>
+                    </div>
 
-        <!-- Welcome Hero -->
-        <section class="relative overflow-hidden rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-gradient-to-br from-brand-500/10 via-purple-500/10 to-transparent p-6 sm:p-10">
-            <div class="absolute -right-16 -top-16 w-64 h-64 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -left-10 -bottom-20 w-56 h-56 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="relative max-w-2xl">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-4">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Free &middot; No account &middot; Nothing leaves your device
+                    <!-- Friendly Reminder Summary -->
+                    <div class="min-w-0 space-y-1.5">
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold" style="background-color: var(--accent-soft); color: var(--accent);">
+                            <span id="heroVibeIcon" class="w-3.5 h-3.5 flex items-center justify-center"></span>
+                            <span id="heroBadgeText">Up Next · 10:30 AM</span>
+                        </div>
+                        <h1 id="heroTitle" class="text-xl sm:text-2xl font-bold tracking-tight truncate">Stand up & stretch</h1>
+                        <p id="heroSubtitle" class="text-xs sm:text-sm line-clamp-1" style="color: var(--text-secondary);">
+                            Roll your shoulders, stand tall, and step away from your screen for 60 seconds.
+                        </p>
+                    </div>
                 </div>
-                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                    Your workday,<br>gently on track.
-                </h2>
-                <p class="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-                    PulseDesk nudges you to stand, stretch, drink water, and rest your eyes &mdash; the little habits
-                    that keep long desk days feeling good. Set it once, then let the gentle chimes do the remembering.
-                </p>
-                <div class="mt-5 flex flex-wrap gap-2.5">
-                    <button onclick="openReminderModal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition active:scale-95">
-                        Add your first reminder
+
+                <!-- Right: Effortless Quick Actions -->
+                <div class="flex sm:flex-col items-center sm:items-end gap-2 w-full sm:w-auto justify-end shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0" style="border-color: var(--border-card);">
+                    <button onclick="triggerUpcomingNow()" class="h-9 px-4 rounded-xl text-xs font-semibold text-white shadow-sm hover:opacity-95 active:scale-[0.98] transition flex items-center gap-1.5" style="background-color: var(--accent);">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        <span>Take Break Now</span>
                     </button>
-                    <button onclick="openModal('welcomeModal')" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 text-slate-700 dark:text-slate-200 transition">
-                        How it works
+                    <button id="skipOnceBtn" onclick="skipUpcomingOnce()" class="h-8 px-3 rounded-xl subtle-surface text-xs font-medium hover:opacity-80 transition" style="color: var(--text-secondary);">
+                        Skip this one
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION HEADER + "+ NEW REMINDER" CTA -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between gap-2">
+                <div>
+                    <h2 class="text-base sm:text-lg font-bold tracking-tight">Your Daily Rhythm</h2>
+                    <p class="text-xs" style="color: var(--text-secondary);">Color-coded habits that keep you energized throughout the day</p>
+                </div>
+
+                <button onclick="openReminderModal()" class="h-10 px-4 rounded-2xl bg-[#E05A47] text-white text-xs sm:text-sm font-semibold shadow-sm hover:opacity-95 active:scale-[0.98] transition inline-flex items-center gap-1.5 shrink-0">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    <span>New Reminder</span>
+                </button>
+            </div>
+
+            <!-- TACTILE REMINDER CARDS GRID (2-Col Desktop, 1-Col Mobile) -->
+            <div id="remindersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <!-- Populated dynamically by JavaScript -->
+            </div>
+
+            <!-- 1-TAP STARTER PRESETS BAR -->
+            <div class="pt-2">
+                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                    <span class="text-xs font-semibold shrink-0 mr-1" style="color: var(--text-muted);">Quick Add:</span>
+
+                    <button onclick="quickAddHabit('stretch')" class="shrink-0 h-8 px-3 rounded-full tactile-card hover:border-[#E05A47]/50 text-xs font-medium inline-flex items-center gap-1.5 transition">
+                        <span class="w-2 h-2 rounded-full bg-[#E05A47]"></span>
+                        <span>+ Stretch every 45m</span>
+                    </button>
+
+                    <button onclick="quickAddHabit('hydrate')" class="shrink-0 h-8 px-3 rounded-full tactile-card hover:border-[#0D9488]/50 text-xs font-medium inline-flex items-center gap-1.5 transition">
+                        <span class="w-2 h-2 rounded-full bg-[#0D9488]"></span>
+                        <span>+ Hydrate every 1h</span>
+                    </button>
+
+                    <button onclick="quickAddHabit('eyes')" class="shrink-0 h-8 px-3 rounded-full tactile-card hover:border-[#D97706]/50 text-xs font-medium inline-flex items-center gap-1.5 transition">
+                        <span class="w-2 h-2 rounded-full bg-[#D97706]"></span>
+                        <span>+ 20-20-20 Eye Rest</span>
+                    </button>
+
+                    <button onclick="quickAddHabit('wrapup')" class="shrink-0 h-8 px-3 rounded-full tactile-card hover:border-[#4F46E5]/50 text-xs font-medium inline-flex items-center gap-1.5 transition">
+                        <span class="w-2 h-2 rounded-full bg-[#4F46E5]"></span>
+                        <span>+ 5:00 PM Wrap-up</span>
                     </button>
                 </div>
             </div>
         </section>
-        
-        <!-- Top Status Row: Live Clock, Next Up Countdown, Audio & DND Controls -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            
-            <!-- Card 1: Live Clock & Office Window Status -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between relative overflow-hidden">
-                <div class="absolute -right-8 -top-8 w-28 h-28 bg-brand-500/5 rounded-full blur-2xl pointer-events-none"></div>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Right now</span>
-                    <span id="officeStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        Office Window Active
-                    </span>
+
+        <!-- SUBTLE DESKTOP NOTIFICATION BANNER (Only shown if permission not yet granted) -->
+        <section id="notifBanner" class="hidden tactile-card rounded-2xl p-4 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl subtle-surface flex items-center justify-center text-amber-600 shrink-0">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
                 </div>
-                <div class="my-3">
-                    <div id="liveClockDisplay" class="text-3xl sm:text-4xl font-mono font-bold tracking-tight text-slate-900 dark:text-white">
-                        09:00:00 AM
-                    </div>
-                    <div id="liveDateDisplay" class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                        Wednesday, October 14
-                    </div>
-                </div>
-                <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-500 dark:text-slate-400">
-                    <span>Desktop Notification API:</span>
-                    <button onclick="requestNotificationPermission()" id="notifPermissionBadge" class="font-mono font-semibold text-brand-600 dark:text-brand-400 hover:underline">
-                        Checking...
-                    </button>
+                <div>
+                    <p class="text-xs sm:text-sm font-semibold">Want native Mac or Windows banner alerts?</p>
+                    <p class="text-xs" style="color: var(--text-secondary);">Enable system notifications so you never miss a break when PulseDesk is minimized.</p>
                 </div>
             </div>
-
-            <!-- Card 2: Next Upcoming Reminder Countdown -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between relative overflow-hidden">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Up next</span>
-                    <span id="nextReminderModeBadge" class="text-[11px] font-mono px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-600 dark:text-brand-400">
-                        Interval
-                    </span>
-                </div>
-
-                <div class="my-3" id="nextReminderContainer">
-                    <div class="flex items-center gap-2.5">
-                        <span id="nextReminderIcon" class="text-2xl">🧘</span>
-                        <div class="min-w-0 flex-1">
-                            <h2 id="nextReminderTitle" class="text-base font-bold text-slate-900 dark:text-white truncate">Stand up & stretch</h2>
-                            <p id="nextReminderTargetTime" class="text-xs text-slate-500 dark:text-slate-400">Triggers at 09:45 AM</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-                    <span class="text-xs text-slate-500 dark:text-slate-400">Countdown:</span>
-                    <span id="nextReminderCountdown" class="font-mono text-sm font-bold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2.5 py-0.5 rounded-lg">
-                        --m --s
-                    </span>
-                </div>
-            </div>
-
-            <!-- Card 3: Focus / Do Not Disturb & Sound Synthesizer -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Sounds &amp; quiet time</span>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="muteToggleInput" onchange="toggleMute(this.checked)" class="sr-only peer">
-                        <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-500 relative"></div>
-                        <span id="muteLabel" class="ml-2 text-xs font-medium text-slate-600 dark:text-slate-300">Sound On</span>
-                    </label>
-                </div>
-
-                <!-- Sound Selector -->
-                <div class="my-2.5 flex items-center gap-2">
-                    <select id="soundPresetSelect" onchange="changeSoundPreset(this.value)" class="flex-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
-                        <option value="bowl">🥣 Tibetan Singing Bowl (Warm)</option>
-                        <option value="chime">🔔 Soft Crystal Chime (Harmonic)</option>
-                        <option value="digital">📟 Retro Digital Double-Beep</option>
-                        <option value="marimba">🪵 Zen Marimba Chord</option>
-                    </select>
-                    <button onclick="playSelectedChime()" class="px-3 py-2 rounded-xl bg-brand-500/10 hover:bg-brand-500/20 text-brand-600 dark:text-brand-400 text-xs font-semibold transition shrink-0" title="Preview Selected Sound">
-                        Preview
-                    </button>
-                </div>
-
-                <!-- Do Not Disturb Controls -->
-                <div class="pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
-                    <span id="dndStatusText" class="text-xs text-slate-500 dark:text-slate-400 truncate">Alerts Active</span>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <button onclick="setDND(30)" class="px-2 py-1 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">Pause 30m</button>
-                        <button onclick="setDND(60)" class="px-2 py-1 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition">Pause 1h</button>
-                        <button id="resumeDndBtn" onclick="setDND(0)" class="hidden px-2 py-1 rounded-lg text-[11px] font-semibold bg-rose-500 text-white hover:bg-rose-600 transition">Resume</button>
-                    </div>
-                </div>
-            </div>
+            <button onclick="enableOSNotifications()" class="h-8 px-3.5 rounded-xl pill-surface text-xs font-semibold shrink-0 hover:opacity-80 transition">
+                Enable Alerts
+            </button>
         </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
-            <!-- Left 8 Columns: Active Reminders Manager -->
-            <div class="lg:col-span-8 space-y-4">
-                
-                <!-- Section Header & Filter Tabs -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-base font-bold text-slate-900 dark:text-white">Scheduled Reminders</h2>
-                        <span id="totalRemindersCount" class="px-2 py-0.5 text-xs font-mono font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">0</span>
-                    </div>
-
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <!-- Filter Buttons -->
-                        <div class="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-slate-800 text-xs font-medium">
-                            <button onclick="setFilter('all')" id="filter-all" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm transition">All</button>
-                            <button onclick="setFilter('interval')" id="filter-interval" class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">Repeating</button>
-                            <button onclick="setFilter('fixed')" id="filter-fixed" class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">Set time</button>
-                        </div>
-
-                        <!-- Add Reminder CTA -->
-                        <button onclick="openReminderModal()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-sm shadow-brand-500/20 transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            <span>New Reminder</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Quick Preset Templates Bar -->
-                <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                    <span class="text-xs font-medium text-slate-400 dark:text-slate-500 shrink-0">Try a one-tap starter:</span>
-                    <button onclick="quickAddPreset('stretch')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 text-slate-700 dark:text-slate-300 transition">
-                        <span>🧘</span> <span>Stand & Stretch (Every 45m, 9-5)</span>
-                    </button>
-                    <button onclick="quickAddPreset('water')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 text-slate-700 dark:text-slate-300 transition">
-                        <span>💧</span> <span>Hydrate (Every 60m, 9-5)</span>
-                    </button>
-                    <button onclick="quickAddPreset('eyes')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 text-slate-700 dark:text-slate-300 transition">
-                        <span>👀</span> <span>20-20-20 Eye Rest (Every 20m)</span>
-                    </button>
-                    <button onclick="quickAddPreset('standup')" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 text-slate-700 dark:text-slate-300 transition">
-                        <span>☕</span> <span>Daily Team Sync (10:00 AM)</span>
-                    </button>
-                </div>
-
-                <!-- Reminders Cards Container -->
-                <div id="remindersListContainer" class="space-y-3">
-                    <!-- Populated via JavaScript -->
-                </div>
-
-            </div>
-
-            <!-- Right 4 Columns: Today's Activity Log & Backup Utilities -->
-            <div class="lg:col-span-4 space-y-5">
-                
-                <!-- Today's Triggered Activity Log -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Today's Activity Log</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Completed & triggered alerts today</p>
-                        </div>
-                        <button onclick="clearActivityLog()" class="text-xs text-slate-400 hover:text-rose-500 transition">
-                            Clear
-                        </button>
-                    </div>
-
-                    <div id="activityLogContainer" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
-
-                <!-- Configuration Backup & Restore Card -->
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Back up your reminders</h3>
-                    </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                        Save your reminders to a file so you can move them to another computer, or start fresh anytime.
-                    </p>
-                    <div class="grid grid-cols-2 gap-2 pt-1">
-                        <button onclick="exportConfigJSON()" class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                            <span>Export JSON</span>
-                        </button>
-                        <label class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition cursor-pointer">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            <span>Import JSON</span>
-                            <input type="file" accept=".json" onchange="importConfigJSON(event)" class="hidden">
-                        </label>
-                    </div>
-                    <button onclick="resetToDefaultReminders()" class="w-full py-1.5 text-[11px] font-medium text-slate-400 hover:text-rose-500 transition text-center">
-                        Start over with the suggested reminders
-                    </button>
-                </div>
-
-            </div>
-        </div>
     </main>
 
-    <div id="reminderModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+    <!-- MINIMAL CALM FOOTER -->
+    <footer class="w-full max-w-[820px] mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs" style="color: var(--text-muted);">
+        <span>Runs reliably in the background · Installable as a Mac or Windows app</span>
+        <div class="flex items-center gap-3">
+            <button onclick="playChime(prefs.chime)" class="hover:underline">Test Chime Sound</button>
+            <span>·</span>
+            <button onclick="resetDefaultRhythm()" class="hover:underline">Restore Defaults</button>
+        </div>
+    </footer>
+
+    <!-- =========================================================================
+         3. FRICTIONLESS 3-STEP "ADD / EDIT REMINDER" MODAL
+         ========================================================================= -->
+    <div id="composerModal" onclick="handleBackdropClick(event, 'composerModal')" class="fixed inset-0 z-40 hidden items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+        <div class="tactile-card rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl max-h-[92vh] overflow-y-auto" onclick="event.stopPropagation()">
+            
             <div class="flex items-center justify-between">
-                <h3 id="modalHeading" class="text-lg font-bold text-slate-900 dark:text-white">Create New Reminder</h3>
-                <button onclick="closeModal('reminderModal')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <h3 id="modalHeading" class="text-lg font-bold tracking-tight">New Reminder</h3>
+                <button type="button" onclick="closeModal('composerModal')" class="w-8 h-8 rounded-full subtle-surface flex items-center justify-center hover:opacity-75 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
 
-            <form id="reminderForm" onsubmit="saveReminderForm(event)" class="space-y-4">
-                <input type="hidden" id="editReminderId" value="">
+            <form id="reminderForm" onsubmit="saveReminder(event)" class="space-y-5">
+                <input type="hidden" id="editId" value="">
 
-                <!-- Icon & Title Row -->
-                <div class="grid grid-cols-12 gap-3">
-                    <div class="col-span-3">
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Icon</label>
-                        <select id="reminderIconInput" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-lg text-center focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <option value="🧘">🧘</option>
-                            <option value="💧">💧</option>
-                            <option value="👀">👀</option>
-                            <option value="☕">☕</option>
-                            <option value="🚶">🚶</option>
-                            <option value="💻">💻</option>
-                            <option value="💊">💊</option>
-                            <option value="📅">📅</option>
-                            <option value="🔔">🔔</option>
-                            <option value="🍎">🍎</option>
-                        </select>
-                    </div>
-                    <div class="col-span-9">
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Reminder Title</label>
-                        <input type="text" id="reminderTitleInput" required placeholder="e.g., Stand up and stretch" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                    </div>
-                </div>
-
-                <!-- Subtitle / Action Note -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Action Prompt / Note</label>
-                    <input type="text" id="reminderNoteInput" placeholder="e.g., Roll shoulders, look away from monitor for 60 seconds" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                </div>
-
-                <!-- Mode Selector Tabs -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">Reminder Schedule Mode</label>
-                    <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                        <button type="button" id="modeBtn-interval" onclick="switchFormMode('interval')" class="py-2 px-3 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 text-brand-600 dark:text-brand-400 shadow-sm transition">
-                            🔄 Every few minutes
+                <!-- STEP 1: What & Vibe -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">1. What's the reminder?</label>
+                    
+                    <!-- 4 Color/Vibe Tags -->
+                    <div class="grid grid-cols-4 gap-2" id="vibeSelector">
+                        <button type="button" onclick="selectVibe('coral')" data-vibe="coral" class="vibe-btn p-2.5 rounded-2xl border flex flex-col items-center gap-1 text-xs font-semibold transition">
+                            <span class="w-5 h-5 flex items-center justify-center text-[#E05A47]" id="vibe-icon-coral"></span>
+                            <span>Move</span>
                         </button>
-                        <button type="button" id="modeBtn-fixed" onclick="switchFormMode('fixed')" class="py-2 px-3 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 transition">
-                            ⏰ At a set time
+                        <button type="button" onclick="selectVibe('teal')" data-vibe="teal" class="vibe-btn p-2.5 rounded-2xl border flex flex-col items-center gap-1 text-xs font-semibold transition">
+                            <span class="w-5 h-5 flex items-center justify-center text-[#0D9488]" id="vibe-icon-teal"></span>
+                            <span>Hydrate</span>
+                        </button>
+                        <button type="button" onclick="selectVibe('amber')" data-vibe="amber" class="vibe-btn p-2.5 rounded-2xl border flex flex-col items-center gap-1 text-xs font-semibold transition">
+                            <span class="w-5 h-5 flex items-center justify-center text-[#D97706]" id="vibe-icon-amber"></span>
+                            <span>Eyes</span>
+                        </button>
+                        <button type="button" onclick="selectVibe('indigo')" data-vibe="indigo" class="vibe-btn p-2.5 rounded-2xl border flex flex-col items-center gap-1 text-xs font-semibold transition">
+                            <span class="w-5 h-5 flex items-center justify-center text-[#4F46E5]" id="vibe-icon-indigo"></span>
+                            <span>Check-in</span>
                         </button>
                     </div>
+
+                    <input type="text" id="titleInput" required placeholder="e.g., Stand up & stretch"
+                        class="w-full h-11 px-3.5 rounded-2xl subtle-surface border border-transparent focus:border-[#E05A47] text-sm font-medium focus:outline-none">
+
+                    <input type="text" id="noteInput" placeholder="Short encouraging note (optional)"
+                        class="w-full h-9 px-3.5 rounded-xl subtle-surface text-xs focus:outline-none" style="color: var(--text-secondary);">
                 </div>
 
-                <!-- Mode A: Recurring Office Window Settings -->
-                <div id="intervalSettingsBox" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/70 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Repeat Every (Minutes)</span>
-                        <div class="flex items-center gap-1.5">
-                            <button type="button" onclick="setQuickInterval(30)" class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-[11px] font-mono">30m</button>
-                            <button type="button" onclick="setQuickInterval(45)" class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-600 dark:text-brand-400 text-[11px] font-mono font-semibold">45m</button>
-                            <button type="button" onclick="setQuickInterval(60)" class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-[11px] font-mono">60m</button>
+                <!-- STEP 2: How Often? -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">2. How often?</label>
+
+                    <!-- Segmented Mode Switch -->
+                    <div class="grid grid-cols-2 gap-1 p-1 rounded-2xl subtle-surface text-xs font-semibold">
+                        <button type="button" id="modeBtn-interval" onclick="setScheduleMode('interval')" class="py-2 rounded-xl tactile-card shadow-xs transition">
+                            Repeat in Window
+                        </button>
+                        <button type="button" id="modeBtn-fixed" onclick="setScheduleMode('fixed')" class="py-2 rounded-xl transition" style="color: var(--text-secondary);">
+                            Specific Time
+                        </button>
+                    </div>
+
+                    <!-- Option A: Office Window Interval -->
+                    <div id="intervalBox" class="p-3.5 rounded-2xl subtle-surface space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold">Every</span>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="pickInterval(20)" data-int="20" class="int-pill px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition">20m</button>
+                                <button type="button" onclick="pickInterval(30)" data-int="30" class="int-pill px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition">30m</button>
+                                <button type="button" onclick="pickInterval(45)" data-int="45" class="int-pill px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition">45m</button>
+                                <button type="button" onclick="pickInterval(60)" data-int="60" class="int-pill px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition">1h</button>
+                                <button type="button" onclick="pickInterval(120)" data-int="120" class="int-pill px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition">2h</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5 pt-1">
+                            <div>
+                                <label class="block text-[11px] font-medium mb-1" style="color: var(--text-secondary);">From</label>
+                                <input type="time" id="startWindowInput" value="09:00" class="w-full h-9 px-2.5 rounded-xl tactile-card font-mono text-xs font-semibold tabular-nums focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-medium mb-1" style="color: var(--text-secondary);">Until</label>
+                                <input type="time" id="endWindowInput" value="17:00" class="w-full h-9 px-2.5 rounded-xl tactile-card font-mono text-xs font-semibold tabular-nums focus:outline-none">
+                            </div>
                         </div>
                     </div>
-                    <input type="number" id="intervalMinutesInput" min="1" max="720" value="45" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
 
-                    <div class="grid grid-cols-2 gap-3 pt-1">
-                        <div>
-                            <label class="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1">Window Start Time</label>
-                            <input type="time" id="windowStartInput" value="09:00" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1">Window End Time</label>
-                            <input type="time" id="windowEndInput" value="17:00" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                        </div>
-                    </div>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                        Nudges you on a steady rhythm inside your chosen hours (e.g., 9:00 AM → 9:45 AM → 10:30 AM … until 5:00 PM).
-                    </p>
-                </div>
-
-                <!-- Mode B: Specific Time of Day Settings -->
-                <div id="fixedSettingsBox" class="hidden p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/70 space-y-2">
-                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Exact Trigger Time</label>
-                    <input type="time" id="fixedTimeInput" value="14:30" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-base font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                        Fires once per active day at this exact minute.
-                    </p>
-                </div>
-
-                <!-- Active Days of Week Selector -->
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">Active Days</label>
-                        <div class="space-x-2 text-[11px]">
-                            <button type="button" onclick="selectDaysPreset([1,2,3,4,5])" class="text-brand-500 hover:underline font-medium">Weekdays (Mon-Fri)</button>
-                            <button type="button" onclick="selectDaysPreset([0,1,2,3,4,5,6])" class="text-slate-400 hover:underline">Every Day</button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-7 gap-1.5" id="daysSelectorContainer">
-                        <button type="button" data-day="0" onclick="toggleDayButton(0)" class="day-btn py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-500">Sun</button>
-                        <button type="button" data-day="1" onclick="toggleDayButton(1)" class="day-btn py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-500">Mon</button>
-                        <button type="button" data-day="2" onclick="toggleDayButton(2)" class="day-btn py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-500">Tue</button>
-                        <button type="button" data-day="3" onclick="toggleDayButton(3)" class="day-btn py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-500">Wed</button>
-                        <button type="button" data-day="4" onclick="toggleDayButton(4)" class="day-btn py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-500">Thu</button>
-                        <button type="button" data-day="5" onclick="toggleDayButton(5)" class="day-btn py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-500">Fri</button>
-                        <button type="button" data-day="6" onclick="toggleDayButton(6)" class="day-btn py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-500">Sat</button>
+                    <!-- Option B: Specific Time of Day -->
+                    <div id="fixedBox" class="hidden p-3.5 rounded-2xl subtle-surface space-y-2">
+                        <label class="block text-xs font-semibold">Trigger once daily at</label>
+                        <input type="time" id="fixedTimeInput" value="17:00" class="w-full h-10 px-3 rounded-xl tactile-card font-mono text-sm font-semibold tabular-nums focus:outline-none">
                     </div>
                 </div>
 
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-                    <button type="button" onclick="closeModal('reminderModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 transition">Save Reminder</button>
+                <!-- STEP 3: Days & Chime -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">3. Days & Chime</label>
+
+                    <!-- Simple Day Presets -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" id="daysBtn-workdays" onclick="selectDaysPreset('workdays')" class="py-2 px-3 rounded-xl text-xs font-semibold border transition">
+                            Workdays (Mon–Fri)
+                        </button>
+                        <button type="button" id="daysBtn-everyday" onclick="selectDaysPreset('everyday')" class="py-2 px-3 rounded-xl text-xs font-semibold border transition">
+                            Every Day
+                        </button>
+                    </div>
+
+                    <!-- 3-Choice Chime Selector with Instant Audio Preview -->
+                    <div class="grid grid-cols-3 gap-2 pt-1">
+                        <button type="button" onclick="selectChime('bowl')" data-chime="bowl" class="chime-btn py-2 px-2.5 rounded-xl text-xs font-semibold border flex items-center justify-center gap-1.5 transition">
+                            <span>Warm Bowl</span>
+                        </button>
+                        <button type="button" onclick="selectChime('marimba')" data-chime="marimba" class="chime-btn py-2 px-2.5 rounded-xl text-xs font-semibold border flex items-center justify-center gap-1.5 transition">
+                            <span>Soft Marimba</span>
+                        </button>
+                        <button type="button" onclick="selectChime('chime')" data-chime="chime" class="chime-btn py-2 px-2.5 rounded-xl text-xs font-semibold border flex items-center justify-center gap-1.5 transition">
+                            <span>Crisp Chime</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Row -->
+                <div class="pt-2 flex items-center gap-2">
+                    <button type="button" onclick="closeModal('composerModal')" class="h-11 px-4 rounded-2xl subtle-surface text-xs font-semibold hover:opacity-80 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 h-11 rounded-2xl bg-[#1C1B18] dark:bg-[#F4F3EF] text-[#F6F5F0] dark:text-[#141416] text-xs sm:text-sm font-semibold shadow-sm hover:opacity-95 transition">
+                        Save Reminder
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="activeAlertModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-        <div class="bg-white dark:bg-slate-900 border-2 border-brand-500 rounded-3xl max-w-md w-full p-6 shadow-2xl text-center space-y-5 animate-bounce-once relative overflow-hidden">
-            <div class="w-16 h-16 rounded-2xl bg-brand-500/15 border border-brand-500/30 mx-auto flex items-center justify-center text-4xl animate-ring" id="alertModalIcon">
-                🧘
+    <!-- =========================================================================
+         4. CALM, ENGAGING BREAK OVERLAY MODAL (Triggered When a Reminder Fires)
+         ========================================================================= -->
+    <div id="breakModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div id="breakModalCard" class="tactile-card theme-coral rounded-3xl max-w-sm w-full p-7 text-center space-y-5 shadow-2xl relative overflow-hidden" style="background-image: var(--accent-gradient);">
+            
+            <!-- Animated Breathing Halo -->
+            <div class="relative w-20 h-20 mx-auto flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full breathe-circle" style="background-color: var(--accent-soft);"></div>
+                <div id="breakIconBox" class="relative w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md" style="background-color: var(--accent);"></div>
             </div>
+
             <div class="space-y-1.5">
-                <span id="alertModalBadge" class="px-2.5 py-0.5 text-[11px] font-mono font-semibold uppercase tracking-wider rounded-full bg-brand-500/10 text-brand-500">
-                    Office Wellness Alert
+                <span id="breakTimeBadge" class="inline-block px-3 py-0.5 rounded-full text-xs font-semibold" style="background-color: var(--accent-soft); color: var(--accent);">
+                    Time for a quick reset
                 </span>
-                <h2 id="alertModalTitle" class="text-2xl font-extrabold text-slate-900 dark:text-white">Stand up & stretch</h2>
-                <p id="alertModalNote" class="text-sm text-slate-600 dark:text-slate-300">Take 60 seconds to stand up, roll your shoulders, and stretch your spine.</p>
+                <h3 id="breakTitle" class="text-2xl font-bold tracking-tight">Stand up & stretch</h3>
+                <p id="breakNote" class="text-xs sm:text-sm leading-relaxed" style="color: var(--text-secondary);">
+                    Step away from your desk, roll your shoulders, and take three slow breaths.
+                </p>
             </div>
 
-            <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/70 text-xs font-mono text-slate-500 dark:text-slate-400" id="alertModalTimeStamp">
-                Triggered at 09:45 AM
-            </div>
-
-            <div class="grid grid-cols-3 gap-2 pt-2">
-                <button onclick="snoozeActiveAlert(5)" class="py-2.5 px-3 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-                    💤 Snooze 5m
+            <div class="grid grid-cols-2 gap-2.5 pt-2">
+                <button onclick="snoozeActiveBreak(10)" class="h-11 rounded-2xl subtle-surface text-xs font-semibold hover:opacity-85 transition">
+                    Snooze 10m
                 </button>
-                <button onclick="snoozeActiveAlert(10)" class="py-2.5 px-3 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
-                    💤 Snooze 10m
-                </button>
-                <button onclick="dismissActiveAlert()" class="py-2.5 px-3 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/30 transition">
-                    ✓ Done
+                <button onclick="acknowledgeBreak()" class="h-11 rounded-2xl text-white text-xs font-semibold shadow-sm hover:opacity-95 transition" style="background-color: var(--accent);">
+                    Done
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="welcomeModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-                <div class="flex items-center gap-2.5">
-                    <img src="./logo.svg" alt="" class="w-10 h-10 rounded-xl shadow-md">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 dark:text-white">How PulseDesk works</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Set it once, then let the gentle chimes do the remembering</p>
-                    </div>
-                </div>
-                <button onclick="closeModal('welcomeModal')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-
-            <div class="space-y-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                <div class="flex gap-3.5">
-                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold shrink-0">1</div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 dark:text-white">Add a reminder, or tap a starter</h4>
-                        <p class="text-xs mt-1">Pick a one-tap starter like <em>Stand &amp; stretch</em>, or create your own: a gentle nudge every 45 minutes, or at an exact time each day, on the days you choose.</p>
-                    </div>
-                </div>
-                <div class="flex gap-3.5">
-                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold shrink-0">2</div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 dark:text-white">Keep this tab open, or install the app</h4>
-                        <p class="text-xs mt-1">PulseDesk keeps perfect time even when the tab is in the background. For the full experience, tap <strong>Install App</strong> (Chrome, Edge, Brave) or use <strong>Add to Dock / Add to Home Screen</strong> (Safari) to run it like a native app.</p>
-                    </div>
-                </div>
-                <div class="flex gap-3.5">
-                    <div class="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold shrink-0">3</div>
-                    <div>
-                        <h4 class="font-bold text-slate-900 dark:text-white">Get a gentle nudge when it&rsquo;s time</h4>
-                        <p class="text-xs mt-1">A calming chime plays and a friendly pop-up appears &mdash; on screen and in your system notifications if you allow them. Snooze it, or tap Done and carry on.</p>
-                    </div>
-                </div>
-
-                <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-300">
-                    <strong>Private by design.</strong> Everything lives in your browser &mdash; no account, no sign-up, no data sent anywhere. Your reminders are yours.
-                </div>
-            </div>
-
-            <div class="flex flex-col sm:flex-row gap-2 justify-end pt-2 border-t border-slate-200 dark:border-slate-800">
-                <button onclick="closeModal('welcomeModal'); openReminderModal();" class="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 text-white hover:bg-brand-500 transition">Add my first reminder</button>
-                <button onclick="closeModal('welcomeModal')" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Got it</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Non-intrusive Toast Notification Container -->
-    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-    <footer class="border-t border-slate-200/80 dark:border-slate-800/80 mt-4">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
-            <div class="flex items-center gap-2">
-                <img src="./logo.svg" alt="" class="w-5 h-5 rounded-md">
-                <span><strong class="text-slate-700 dark:text-slate-200">PulseDesk</strong> &mdash; small nudges, healthier days.</span>
-            </div>
-            <div class="flex items-center gap-4">
-                <button onclick="openModal('welcomeModal')" class="hover:text-brand-500 transition">How it works</button>
-                <button onclick="openReminderModal()" class="hover:text-brand-500 transition">Add a reminder</button>
-                <span>Private by design: everything stays in your browser.</span>
-            </div>
-        </div>
-    </footer>
+    <!-- Subtle Bottom Toast -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
         /********************************************************************
-         * 1. STATE & DEFAULT OFFICE REMINDER TEMPLATES
+         * 1. CLEAN SVG VIBE ICONS & COLOR THEMES
          ********************************************************************/
-        const STORAGE_KEY_REMINDERS = 'pulsedesk_reminders_v1';
-        const STORAGE_KEY_LOGS = 'pulsedesk_logs_v1';
-        const STORAGE_KEY_SETTINGS = 'pulsedesk_settings_v1';
+        const VIBE_THEMES = {
+            coral: {
+                name: 'Move',
+                className: 'theme-coral',
+                hex: '#E05A47',
+                svg: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="m9 20 3-6 3 6"/><path d="m6 8 6 2 6-2"/><path d="M12 10v4"/></svg>`
+            },
+            teal: {
+                name: 'Hydrate',
+                className: 'theme-teal',
+                hex: '#0D9488',
+                svg: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`
+            },
+            amber: {
+                name: 'Eyes',
+                className: 'theme-amber',
+                hex: '#D97706',
+                svg: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`
+            },
+            indigo: {
+                name: 'Check-in',
+                className: 'theme-indigo',
+                hex: '#4F46E5',
+                svg: `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`
+            }
+        };
+
+        /********************************************************************
+         * 2. STATE & DEFAULT REMINDERS
+         ********************************************************************/
+        const STORAGE_RULES = 'pulsedesk_rules_v1';
+        const STORAGE_PREFS = 'pulsedesk_prefs_v1';
 
         const DEFAULT_REMINDERS = [
             {
-                id: 'rem-stretch-45',
+                id: 'pd-stretch',
                 title: 'Stand up & stretch',
-                note: 'Stand up from your desk, roll your shoulders, and stretch for 60 seconds.',
-                icon: '🧘',
-                mode: 'interval', // 'interval' (Office Window) or 'fixed' (Specific Time)
+                note: 'Roll your shoulders, stand tall, and step away from your screen for 60 seconds.',
+                vibe: 'coral',
+                mode: 'interval',
                 intervalMinutes: 45,
                 windowStart: '09:00',
                 windowEnd: '17:00',
                 fixedTime: '09:00',
-                days: [1, 2, 3, 4, 5], // Mon - Fri
-                active: true,
-                snoozedUntil: null,
-                lastTriggeredKey: null
-            },
-            {
-                id: 'rem-water-60',
-                title: 'Drink a glass of water',
-                note: 'Stay hydrated throughout your coding / office session.',
-                icon: '💧',
-                mode: 'interval',
-                intervalMinutes: 60,
-                windowStart: '09:00',
-                windowEnd: '17:00',
-                fixedTime: '10:00',
                 days: [1, 2, 3, 4, 5],
                 active: true,
                 snoozedUntil: null,
-                lastTriggeredKey: null
-            },
-            {
-                id: 'rem-wrapup-1700',
-                title: 'End of workday wrap-up',
-                note: 'Review open PRs, commit work in progress, and plan tomorrow’s top 3 tasks.',
-                icon: '💻',
-                mode: 'fixed',
-                intervalMinutes: 60,
-                windowStart: '09:00',
-                windowEnd: '17:00',
-                fixedTime: '17:00',
-                days: [1, 2, 3, 4, 5],
-                active: true,
-                snoozedUntil: null,
+                skippedKey: null,
                 lastTriggeredKey: null
             }
         ];
 
         let reminders = [];
-        let activityLog = [];
-        let settings = {
-            theme: 'dark',
-            soundPreset: 'bowl',
+        let prefs = {
+            theme: 'light',
+            chime: 'bowl',
             muted: false,
-            dndUntil: null
+            pausedUntil: null
         };
 
-        let currentFilter = 'all';
+        // Modal form state
+        let formVibe = 'coral';
         let formMode = 'interval';
-        let selectedFormDays = [1, 2, 3, 4, 5];
-        let currentActiveAlertReminderId = null;
-        let deferredInstallPrompt = null;
+        let formInterval = 45;
+        let formDaysPreset = 'workdays';
+        let formChime = 'bowl';
+        let activeBreakId = null;
         let audioCtx = null;
 
         /********************************************************************
-         * 2. DYNAMIC PWA MANIFEST & SVG ICON GENERATOR
+         * 3. EMBEDDED PWA MANIFEST
          ********************************************************************/
-        function setupDynamicPWAManifest() {
-            // Favicon is set statically in <head> via logo.svg; keep it in sync here too
-            let linkIcon = document.querySelector("link[rel~='icon']");
-            if (!linkIcon) {
-                linkIcon = document.createElement('link');
-                linkIcon.rel = 'icon';
-                document.head.appendChild(linkIcon);
-            }
-            linkIcon.href = './logo.svg';
-
-            // Create Web App Manifest JSON
+        function setupPWAManifest() {
+            const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="128" fill="#E05A47"/><circle cx="256" cy="256" r="144" fill="none" stroke="#FFFFFF" stroke-width="34"/><polyline points="256 168 256 256 318 294" fill="none" stroke="#FFFFFF" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
             const manifest = {
-                name: "PulseDesk — Gentle reminders for a healthier workday",
+                name: "PulseDesk — Mindful Workday Reminders",
                 short_name: "PulseDesk",
-                description: "Friendly desktop reminders to stand, stretch, hydrate, and rest your eyes.",
                 start_url: window.location.href,
                 display: "standalone",
-                background_color: "#0f172a",
-                theme_color: "#4f46e5",
-                icons: [
-                    {
-                        src: "./logo.svg",
-                        sizes: "192x192 512x512",
-                        type: "image/svg+xml",
-                        purpose: "any maskable"
-                    }
-                ]
+                background_color: "#F6F5F0",
+                theme_color: "#E05A47",
+                icons: [{ src: 'data:image/svg+xml;utf8,' + encodeURIComponent(iconSvg), sizes: "192x192 512x512", type: "image/svg+xml", purpose: "any maskable" }]
             };
-
-            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-            const manifestURL = URL.createObjectURL(manifestBlob);
-            const manifestLink = document.createElement('link');
-            manifestLink.rel = 'manifest';
-            manifestLink.href = manifestURL;
-            document.head.appendChild(manifestLink);
-
-            // Listen for PWA install prompt on Chrome/Edge/Brave
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredInstallPrompt = e;
-                const btn = document.getElementById('installPwaBtn');
-                if (btn) {
-                    btn.classList.remove('hidden');
-                    btn.classList.add('inline-flex');
-                }
-            });
-        }
-
-        async function installPWA() {
-            if (!deferredInstallPrompt) {
-                openModal('welcomeModal');
-                return;
-            }
-            deferredInstallPrompt.prompt();
-            const { outcome } = await deferredInstallPrompt.userChoice;
-            if (outcome === 'accepted') {
-                showToast('PulseDesk installed! You can now launch it from your OS Dock/Taskbar.', 'success');
-                document.getElementById('installPwaBtn').classList.add('hidden');
-            }
-            deferredInstallPrompt = null;
+            const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = URL.createObjectURL(blob);
+            document.head.appendChild(link);
         }
 
         /********************************************************************
-         * 3. SYNTHESIZED WEB AUDIO API CHIMES (ZERO EXTERNAL MP3 FILES)
+         * 4. WEB AUDIO SYNTHESIZER (Warm Bowl, Soft Marimba, Crisp Chime)
          ********************************************************************/
-        function getAudioContext() {
-            if (!audioCtx) {
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContextClass();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            return audioCtx;
-        }
-
-        function playSynthesizedChime(presetName = settings.soundPreset) {
-            if (settings.muted) return;
+        function playChime(type = prefs.chime) {
+            if (prefs.muted) return;
             try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
+                if (!audioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContextClass();
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const now = audioCtx.currentTime;
 
-                if (presetName === 'bowl') {
-                    // Tibetan Singing Bowl (Warm harmonic sine waves with long decay)
-                    const freqs = [432, 864, 1296];
-                    const gains = [0.35, 0.12, 0.05];
-                    freqs.forEach((f, idx) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
+                if (type === 'bowl') {
+                    // Warm Singing Bowl (432Hz + 864Hz gentle harmonic bloom)
+                    [[432, 0.26, 2.6], [864, 0.08, 1.5]].forEach(([freq, gainPeak, dur]) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
                         osc.type = 'sine';
-                        osc.frequency.setValueAtTime(f, now);
-                        gain.gain.setValueAtTime(0.001, now);
-                        gain.gain.linearRampToValueAtTime(gains[idx], now + 0.08);
-                        gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
+                        osc.frequency.setValueAtTime(freq, now);
+                        gain.gain.setValueAtTime(0.0001, now);
+                        gain.gain.linearRampToValueAtTime(gainPeak, now + 0.03);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
                         osc.connect(gain);
-                        gain.connect(ctx.destination);
+                        gain.connect(audioCtx.destination);
                         osc.start(now);
-                        osc.stop(now + 3.3);
+                        osc.stop(now + dur + 0.05);
                     });
-                } else if (presetName === 'chime') {
-                    // Soft Crystal Chime (Two ascending fifth intervals)
-                    const notes = [523.25, 783.99, 1046.50]; // C5, G5, C6
-                    notes.forEach((freq, i) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'triangle';
-                        const startTime = now + i * 0.14;
-                        osc.frequency.setValueAtTime(freq, startTime);
-                        gain.gain.setValueAtTime(0.001, startTime);
-                        gain.gain.linearRampToValueAtTime(0.25, startTime + 0.03);
-                        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.6);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(startTime);
-                        osc.stop(startTime + 1.65);
-                    });
-                } else if (presetName === 'digital') {
-                    // Retro Digital Watch Double-Beep
-                    [0, 0.12, 0.24].forEach((offset) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'square';
-                        osc.frequency.setValueAtTime(1760, now + offset);
-                        gain.gain.setValueAtTime(0.08, now + offset);
-                        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.08);
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.start(now + offset);
-                        osc.stop(now + offset + 0.09);
-                    });
-                } else if (presetName === 'marimba') {
-                    // Warm Zen Marimba Arpeggio
-                    const chord = [392.00, 493.88, 587.33, 783.99]; // G4, B4, D5, G5
-                    chord.forEach((freq, idx) => {
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.type = 'sine';
+                } else if (type === 'marimba') {
+                    // Soft Wooden Marimba Duet
+                    [523.25, 659.25, 783.99].forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
                         const t = now + idx * 0.09;
+                        osc.type = 'triangle';
                         osc.frequency.setValueAtTime(freq, t);
                         gain.gain.setValueAtTime(0.001, t);
-                        gain.gain.linearRampToValueAtTime(0.3, t + 0.015);
-                        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+                        gain.gain.linearRampToValueAtTime(0.22, t + 0.015);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.85);
                         osc.connect(gain);
-                        gain.connect(ctx.destination);
+                        gain.connect(audioCtx.destination);
                         osc.start(t);
-                        osc.stop(t + 0.75);
+                        osc.stop(t + 0.9);
+                    });
+                } else {
+                    // Crisp Crystal Chime
+                    [783.99, 1174.66].forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        const t = now + idx * 0.12;
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, t);
+                        gain.gain.setValueAtTime(0.001, t);
+                        gain.gain.linearRampToValueAtTime(0.2, t + 0.01);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(t);
+                        osc.stop(t + 1.25);
                     });
                 }
-            } catch (err) {
-                console.warn('Web Audio playback blocked until user interaction:', err);
-            }
-        }
-
-        function playSelectedChime() {
-            playSynthesizedChime(document.getElementById('soundPresetSelect').value);
+            } catch (e) {}
         }
 
         /********************************************************************
-         * 4. UN-THROTTLED INLINE WEB WORKER CLOCK & SCHEDULER ENGINE
+         * 5. UN-THROTTLED BACKGROUND WEB WORKER CLOCK & SCHEDULER
          ********************************************************************/
-        function startBackgroundWorkerTimer() {
-            const workerCode = `
-                let intervalId = null;
-                self.onmessage = function(e) {
-                    if (e.data === 'start') {
-                        if (intervalId) clearInterval(intervalId);
-                        intervalId = setInterval(() => {
-                            self.postMessage({ type: 'tick', timestamp: Date.now() });
-                        }, 1000);
-                    }
+        function startBackgroundClock() {
+            const workerScript = `
+                let t = null;
+                self.onmessage = function() {
+                    if (t) clearInterval(t);
+                    t = setInterval(() => self.postMessage(Date.now()), 1000);
                 };
             `;
             try {
-                const blob = new Blob([workerCode], { type: 'application/javascript' });
-                const workerUrl = URL.createObjectURL(blob);
-                const worker = new Worker(workerUrl);
-                worker.onmessage = (e) => {
-                    if (e.data && e.data.type === 'tick') {
-                        onSecondTick(new Date(e.data.timestamp));
-                    }
-                };
+                const blob = new Blob([workerScript], { type: 'application/javascript' });
+                const worker = new Worker(URL.createObjectURL(blob));
+                worker.onmessage = (e) => tick(new Date(e.data));
                 worker.postMessage('start');
             } catch (err) {
-                // Fallback if security policy restricts Blob workers
-                document.getElementById('workerStatusText').textContent = 'Reminders running (basic mode)';
-                setInterval(() => onSecondTick(new Date()), 1000);
+                setInterval(() => tick(new Date()), 1000);
             }
         }
 
-        /**
-         * Helper: Converts "HH:MM" 24-hour string into total minutes since midnight (0 - 1439)
-         */
-        function timeStrToMinutes(timeStr) {
-            if (!timeStr || !timeStr.includes(':')) return 0;
-            const [h, m] = timeStr.split(':').map(Number);
+        function timeStrToMins(str) {
+            if (!str || !str.includes(':')) return 0;
+            const [h, m] = str.split(':').map(Number);
             return h * 60 + m;
         }
 
-        /**
-         * Helper: Formats minutes since midnight into "09:45 AM"
-         */
-        function minutesToFormattedTime(totalMins) {
-            const normalized = ((totalMins % 1440) + 1440) % 1440;
-            const h24 = Math.floor(normalized / 60);
-            const m = normalized % 60;
-            const period = h24 >= 12 ? 'PM' : 'AM';
-            const h12 = h24 % 12 || 12;
-            return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${period}`;
+        function format12Hour(dateOrTimeStr) {
+            let h, m;
+            if (typeof dateOrTimeStr === 'string') {
+                [h, m] = dateOrTimeStr.split(':').map(Number);
+            } else {
+                h = dateOrTimeStr.getHours();
+                m = dateOrTimeStr.getMinutes();
+            }
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
+        }
+
+        function formatIntervalLabel(mins) {
+            if (mins === 60) return 'Every 1h';
+            if (mins === 120) return 'Every 2h';
+            return `Every ${mins}m`;
         }
 
         /**
-         * Computes the next exact Date object when a given reminder will trigger.
+         * Calculates both the previous slot and next upcoming slot so we can animate the SVG progress ring accurately
          */
-        function computeNextOccurrence(reminder, now = new Date()) {
-            if (!reminder.active) return null;
-            if (!reminder.days || reminder.days.length === 0) return null;
+        function getNextTriggerInfo(rule, now = new Date()) {
+            if (!rule.active || !rule.days || rule.days.length === 0) return null;
 
-            // If snoozed in the future, that's the next occurrence
-            if (reminder.snoozedUntil && reminder.snoozedUntil > now.getTime()) {
-                return new Date(reminder.snoozedUntil);
+            if (rule.snoozedUntil && rule.snoozedUntil > now.getTime()) {
+                const nextD = new Date(rule.snoozedUntil);
+                return { nextDate: nextD, totalWindowMs: 10 * 60000 };
             }
 
-            // Search up to 8 days ahead to find the next valid trigger minute
-            for (let dayOffset = 0; dayOffset <= 7; dayOffset++) {
-                const candidateDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset, 0, 0, 0, 0);
-                const dayOfWeek = candidateDate.getDay();
+            for (let offset = 0; offset <= 7; offset++) {
+                const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset, 0, 0, 0, 0);
+                if (!rule.days.includes(dayStart.getDay())) continue;
 
-                if (!reminder.days.includes(dayOfWeek)) continue;
-
-                if (reminder.mode === 'fixed') {
-                    const targetMins = timeStrToMinutes(reminder.fixedTime);
-                    const triggerDate = new Date(candidateDate.getTime() + targetMins * 60000);
-                    if (triggerDate.getTime() > now.getTime()) {
-                        return triggerDate;
+                if (rule.mode === 'fixed') {
+                    const targetMins = timeStrToMins(rule.fixedTime);
+                    const candidate = new Date(dayStart.getTime() + targetMins * 60000);
+                    const key = `${candidate.getFullYear()}-${candidate.getMonth()}-${candidate.getDate()}-${targetMins}`;
+                    if (candidate.getTime() > now.getTime() && rule.skippedKey !== key) {
+                        return { nextDate: candidate, totalWindowMs: 60 * 60000 };
                     }
-                } else if (reminder.mode === 'interval') {
-                    const startMins = timeStrToMinutes(reminder.windowStart);
-                    const endMins = timeStrToMinutes(reminder.windowEnd);
-                    const step = Math.max(1, Number(reminder.intervalMinutes) || 45);
+                } else {
+                    const startMins = timeStrToMins(rule.windowStart);
+                    const endMins = timeStrToMins(rule.windowEnd);
+                    const step = Math.max(1, Number(rule.intervalMinutes) || 45);
 
-                    // Generate slots inside [startMins + step, endMins]
-                    // Example: 9:00 AM to 5:00 PM every 45m -> first stretch at 9:45 AM, 10:30 AM, etc.
                     for (let m = startMins + step; m <= endMins; m += step) {
-                        const triggerDate = new Date(candidateDate.getTime() + m * 60000);
-                        if (triggerDate.getTime() > now.getTime()) {
-                            return triggerDate;
+                        const candidate = new Date(dayStart.getTime() + m * 60000);
+                        const key = `${candidate.getFullYear()}-${candidate.getMonth()}-${candidate.getDate()}-${m}`;
+                        if (candidate.getTime() > now.getTime() && rule.skippedKey !== key) {
+                            return { nextDate: candidate, totalWindowMs: step * 60000 };
                         }
                     }
                 }
@@ -916,839 +785,621 @@
             return null;
         }
 
-        /**
-         * Executed every second by the background Web Worker
-         */
-        function onSecondTick(now) {
-            updateClockAndStatusBanners(now);
+        function tick(now) {
+            // Update subtle header clock
+            document.getElementById('headerLiveClock').textContent =
+                now.toLocaleDateString([], { weekday: 'short' }) + ' · ' + format12Hour(now);
 
-            // Check if Do Not Disturb expired
-            if (settings.dndUntil && now.getTime() >= settings.dndUntil) {
-                settings.dndUntil = null;
-                saveSettings();
-                updateDNDUI();
-                showToast('Do Not Disturb ended. Reminders resumed.', 'info');
+            // Auto-resume Focus Pause if expired
+            if (prefs.pausedUntil && now.getTime() >= prefs.pausedUntil) {
+                prefs.pausedUntil = null;
+                savePrefs();
+                renderFocusPill();
+                showToast('Focus pause ended — reminders active');
             }
 
-            const isDND = settings.dndUntil && now.getTime() < settings.dndUntil;
+            const isPaused = prefs.pausedUntil && now.getTime() < prefs.pausedUntil;
             const currentDay = now.getDay();
             const currentMins = now.getHours() * 60 + now.getMinutes();
-            const currentSeconds = now.getSeconds();
-            const dateMinuteKey = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}-${currentMins}`;
+            const currentSecs = now.getSeconds();
+            const minuteKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${currentMins}`;
 
-            reminders.forEach((rem) => {
-                if (!rem.active) return;
+            reminders.forEach(rule => {
+                if (!rule.active) return;
 
-                // 1. Check if a Snooze timer just matured
-                if (rem.snoozedUntil && now.getTime() >= rem.snoozedUntil) {
-                    rem.snoozedUntil = null;
-                    rem.lastTriggeredKey = dateMinuteKey;
-                    saveReminders();
-                    if (!isDND) fireReminderAlert(rem, now, true);
+                // Snooze check
+                if (rule.snoozedUntil && now.getTime() >= rule.snoozedUntil) {
+                    rule.snoozedUntil = null;
+                    rule.lastTriggeredKey = minuteKey;
+                    saveRules();
+                    if (!isPaused) fireBreakAlert(rule);
                     return;
                 }
 
-                // 2. Check regular schedule on second 0 (or if not yet triggered this minute)
-                if (!rem.days.includes(currentDay)) return;
-                if (rem.lastTriggeredKey === dateMinuteKey) return;
+                if (!rule.days.includes(currentDay)) return;
+                if (rule.lastTriggeredKey === minuteKey || rule.skippedKey === minuteKey) return;
 
                 let shouldTrigger = false;
-
-                if (rem.mode === 'fixed') {
-                    const targetMins = timeStrToMinutes(rem.fixedTime);
-                    if (currentMins === targetMins && currentSeconds < 15) {
+                if (rule.mode === 'fixed') {
+                    if (currentMins === timeStrToMins(rule.fixedTime) && currentSecs < 15) shouldTrigger = true;
+                } else {
+                    const start = timeStrToMins(rule.windowStart);
+                    const end = timeStrToMins(rule.windowEnd);
+                    const step = Math.max(1, Number(rule.intervalMinutes) || 45);
+                    if (currentMins > start && currentMins <= end && (currentMins - start) % step === 0 && currentSecs < 15) {
                         shouldTrigger = true;
-                    }
-                } else if (rem.mode === 'interval') {
-                    const startMins = timeStrToMinutes(rem.windowStart);
-                    const endMins = timeStrToMinutes(rem.windowEnd);
-                    const step = Math.max(1, Number(rem.intervalMinutes) || 45);
-
-                    if (currentMins > startMins && currentMins <= endMins) {
-                        const elapsedSinceWindowStart = currentMins - startMins;
-                        if (elapsedSinceWindowStart % step === 0 && currentSeconds < 15) {
-                            shouldTrigger = true;
-                        }
                     }
                 }
 
                 if (shouldTrigger) {
-                    rem.lastTriggeredKey = dateMinuteKey;
-                    saveReminders();
-                    if (!isDND) {
-                        fireReminderAlert(rem, now, false);
-                    } else {
-                        logActivity(rem, now, 'Skipped (Do Not Disturb)');
-                    }
+                    rule.lastTriggeredKey = minuteKey;
+                    saveRules();
+                    if (!isPaused) fireBreakAlert(rule);
                 }
             });
 
-            updateNextUpcomingCountdown(now);
+            updateHeroUpNext(now);
         }
 
         /********************************************************************
-         * 5. ALERT DISPATCHER (WEB NOTIFICATIONS API + AUDIO + MODAL)
+         * 6. HERO "UP NEXT" PROGRESS RING & TELEMETRY
          ********************************************************************/
-        function fireReminderAlert(reminder, now = new Date(), isSnoozeWakeup = false) {
-            // 1. Play Web Audio Chime
-            playSynthesizedChime(settings.soundPreset);
+        function updateHeroUpNext(now) {
+            let bestRule = null;
+            let bestInfo = null;
 
-            // 2. Show High-Visibility In-App Modal
-            currentActiveAlertReminderId = reminder.id;
-            document.getElementById('alertModalIcon').textContent = reminder.icon || '🔔';
-            document.getElementById('alertModalBadge').textContent = isSnoozeWakeup
-                ? 'Snoozed reminder'
-                : 'PulseDesk reminder';
-            document.getElementById('alertModalTitle').textContent = reminder.title;
-            document.getElementById('alertModalNote').textContent = reminder.note || 'Time for your scheduled wellness check-in!';
-            document.getElementById('alertModalTimeStamp').textContent = `Triggered at ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-            openModal('activeAlertModal');
+            reminders.forEach(r => {
+                const info = getNextTriggerInfo(r, now);
+                if (info && (!bestInfo || info.nextDate < bestInfo.nextDate)) {
+                    bestInfo = info;
+                    bestRule = r;
+                }
+            });
 
-            // 3. Fire Native OS Desktop Notification (Mac Notification Center / Windows Action Center)
+            const heroCard = document.getElementById('heroCard');
+            const circle = document.getElementById('heroProgressCircle');
+            const shortTime = document.getElementById('heroCountdownShort');
+            const badgeText = document.getElementById('heroBadgeText');
+            const vibeIcon = document.getElementById('heroVibeIcon');
+            const titleEl = document.getElementById('heroTitle');
+            const subEl = document.getElementById('heroSubtitle');
+            const skipBtn = document.getElementById('skipOnceBtn');
+            const circumference = 263.89; // 2 * PI * 42
+
+            if (!bestRule || !bestInfo) {
+                heroCard.className = 'tactile-card theme-indigo rounded-3xl p-6 sm:p-7 relative overflow-hidden';
+                shortTime.textContent = '—';
+                badgeText.textContent = 'All caught up';
+                titleEl.textContent = 'No active reminders scheduled';
+                subEl.textContent = 'Toggle a habit below or add a new reminder to start your rhythm.';
+                circle.style.strokeDashoffset = circumference;
+                skipBtn.classList.add('hidden');
+                return;
+            }
+
+            skipBtn.classList.remove('hidden');
+            const theme = VIBE_THEMES[bestRule.vibe] || VIBE_THEMES.coral;
+            heroCard.className = `tactile-card ${theme.className} rounded-3xl p-6 sm:p-7 relative overflow-hidden`;
+            vibeIcon.innerHTML = theme.svg;
+
+            const diffMs = Math.max(0, bestInfo.nextDate.getTime() - now.getTime());
+            const diffSec = Math.floor(diffMs / 1000);
+            const h = Math.floor(diffSec / 3600);
+            const m = Math.floor((diffSec % 3600) / 60);
+            const s = diffSec % 60;
+
+            if (h > 0) {
+                shortTime.textContent = `${h}h ${m}m`;
+            } else if (m > 0) {
+                shortTime.textContent = `${m}m`;
+            } else {
+                shortTime.textContent = `${s}s`;
+            }
+
+            const isToday = bestInfo.nextDate.toDateString() === now.toDateString();
+            const dayPrefix = isToday ? 'Up Next' : bestInfo.nextDate.toLocaleDateString([], { weekday: 'short' });
+            badgeText.textContent = `${dayPrefix} · ${format12Hour(bestInfo.nextDate)}`;
+
+            titleEl.textContent = bestRule.title;
+            subEl.textContent = bestRule.note || 'Scheduled mindful check-in.';
+
+            // Progress ring fill (fills clockwise as remaining time approaches 0)
+            const windowMs = Math.max(60000, bestInfo.totalWindowMs || 45 * 60000);
+            const fractionElapsed = Math.min(0.96, Math.max(0.06, 1 - (diffMs / windowMs)));
+            circle.style.strokeDashoffset = (circumference * (1 - fractionElapsed)).toFixed(2);
+        }
+
+        function skipUpcomingOnce() {
+            const now = new Date();
+            let bestRule = null;
+            let bestInfo = null;
+            reminders.forEach(r => {
+                const info = getNextTriggerInfo(r, now);
+                if (info && (!bestInfo || info.nextDate < bestInfo.nextDate)) {
+                    bestInfo = info;
+                    bestRule = r;
+                }
+            });
+
+            if (bestRule && bestInfo) {
+                const d = bestInfo.nextDate;
+                const mins = d.getHours() * 60 + d.getMinutes();
+                bestRule.skippedKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}-${mins}`;
+                bestRule.snoozedUntil = null;
+                saveRules();
+                updateHeroUpNext(new Date());
+                renderCardsGrid();
+                showToast(`Skipped next "${bestRule.title}"`);
+            }
+        }
+
+        function triggerUpcomingNow() {
+            const now = new Date();
+            let bestRule = reminders.find(r => r.active) || reminders[0] || DEFAULT_REMINDERS[0];
+            fireBreakAlert(bestRule);
+        }
+
+        /********************************************************************
+         * 7. BREAK OVERLAY & OS NOTIFICATIONS
+         ********************************************************************/
+        function fireBreakAlert(rule) {
+            playChime(prefs.chime);
+            activeBreakId = rule.id;
+
+            const theme = VIBE_THEMES[rule.vibe] || VIBE_THEMES.coral;
+            const modalCard = document.getElementById('breakModalCard');
+            modalCard.className = `tactile-card ${theme.className} rounded-3xl max-w-sm w-full p-7 text-center space-y-5 shadow-2xl relative overflow-hidden`;
+
+            document.getElementById('breakIconBox').innerHTML = theme.svg;
+            document.getElementById('breakTitle').textContent = rule.title;
+            document.getElementById('breakNote').textContent = rule.note || 'Take a quick moment to pause and recharge.';
+            document.getElementById('breakTimeBadge').textContent =
+                rule.mode === 'interval' ? `${formatIntervalLabel(rule.intervalMinutes)} Reset` : `Daily Check-in`;
+
+            openModal('breakModal');
+
             if ('Notification' in window && Notification.permission === 'granted') {
                 try {
-                    const notif = new Notification(`${reminder.icon} ${reminder.title}`, {
-                        body: reminder.note || `Scheduled reminder (${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`,
-                        tag: reminder.id,
-                        requireInteraction: true
+                    const n = new Notification(rule.title, {
+                        body: rule.note || 'Time for a quick workday break.',
+                        tag: rule.id
                     });
-                    notif.onclick = () => {
-                        window.focus();
-                        notif.close();
-                    };
-                } catch (e) {
-                    console.warn('Notification error:', e);
+                    n.onclick = () => { window.focus(); n.close(); };
+                } catch (e) {}
+            }
+        }
+
+        function snoozeActiveBreak(mins) {
+            if (activeBreakId) {
+                const r = reminders.find(x => x.id === activeBreakId);
+                if (r) {
+                    r.snoozedUntil = Date.now() + mins * 60000;
+                    saveRules();
+                    updateHeroUpNext(new Date());
+                    renderCardsGrid();
+                    showToast(`Snoozed "${r.title}" for ${mins}m`);
                 }
             }
-
-            // 4. Record in Today's Activity Log
-            logActivity(reminder, now, isSnoozeWakeup ? 'Triggered after Snooze' : 'Triggered');
-            renderRemindersList();
+            closeModal('breakModal');
+            activeBreakId = null;
         }
 
-        function snoozeActiveAlert(minutes) {
-            if (currentActiveAlertReminderId) {
-                const rem = reminders.find(r => r.id === currentActiveAlertReminderId);
-                if (rem) {
-                    rem.snoozedUntil = Date.now() + minutes * 60000;
-                    saveReminders();
-                    renderRemindersList();
-                    showToast(`Snoozed "${rem.title}" for ${minutes} minutes.`, 'info');
-                }
-            }
-            closeModal('activeAlertModal');
-            currentActiveAlertReminderId = null;
-        }
-
-        function dismissActiveAlert() {
-            closeModal('activeAlertModal');
-            currentActiveAlertReminderId = null;
-        }
-
-        function triggerTestAlert() {
-            const sampleReminder = {
-                id: 'test-alert',
-                title: 'Stand up & stretch (Test Alert)',
-                note: 'Your reminders, pop-up alerts, and chimes are all working!',
-                icon: '🧘',
-                mode: 'interval',
-                intervalMinutes: 45
-            };
-            fireReminderAlert(sampleReminder, new Date(), false);
+        function acknowledgeBreak() {
+            closeModal('breakModal');
+            activeBreakId = null;
         }
 
         /********************************************************************
-         * 6. UI RENDERING & DASHBOARD TELEMETRY
+         * 8. TACTILE REMINDER CARDS GRID
          ********************************************************************/
-        function updateClockAndStatusBanners(now) {
-            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const dateStr = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-            document.getElementById('liveClockDisplay').textContent = timeStr;
-            document.getElementById('liveDateDisplay').textContent = dateStr;
-
-            // Check if any active interval reminder is currently inside its office window
-            const currentDay = now.getDay();
-            const currentMins = now.getHours() * 60 + now.getMinutes();
-            const inOfficeWindow = reminders.some(r => {
-                if (!r.active || r.mode !== 'interval' || !r.days.includes(currentDay)) return false;
-                const start = timeStrToMinutes(r.windowStart);
-                const end = timeStrToMinutes(r.windowEnd);
-                return currentMins >= start && currentMins <= end;
-            });
-
-            const badge = document.getElementById('officeStatusBadge');
-            if (inOfficeWindow) {
-                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Reminders on right now`;
-            } else {
-                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-500/10 text-slate-500 dark:text-slate-400 border border-slate-500/20';
-                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Outside your hours`;
-            }
-        }
-
-        function updateNextUpcomingCountdown(now) {
-            let earliestReminder = null;
-            let earliestDate = null;
-
-            reminders.forEach(rem => {
-                const nextDate = computeNextOccurrence(rem, now);
-                if (nextDate && (!earliestDate || nextDate < earliestDate)) {
-                    earliestDate = nextDate;
-                    earliestReminder = rem;
-                }
-            });
-
-            const iconEl = document.getElementById('nextReminderIcon');
-            const titleEl = document.getElementById('nextReminderTitle');
-            const targetEl = document.getElementById('nextReminderTargetTime');
-            const countdownEl = document.getElementById('nextReminderCountdown');
-            const modeBadge = document.getElementById('nextReminderModeBadge');
-
-            if (!earliestReminder || !earliestDate) {
-                iconEl.textContent = '🌙';
-                titleEl.textContent = 'No active reminders scheduled';
-                targetEl.textContent = 'Enable or create a reminder below';
-                countdownEl.textContent = '--:--';
-                modeBadge.textContent = 'Idle';
-                return;
-            }
-
-            iconEl.textContent = earliestReminder.icon || '🔔';
-            titleEl.textContent = earliestReminder.title;
-
-            const isToday = earliestDate.toDateString() === now.toDateString();
-            const dayLabel = isToday ? 'Today' : earliestDate.toLocaleDateString([], { weekday: 'short' });
-            const timeLabel = earliestDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            targetEl.textContent = `Scheduled for ${dayLabel} at ${timeLabel}`;
-            modeBadge.textContent = earliestReminder.snoozedUntil ? 'Snoozed' : (earliestReminder.mode === 'interval' ? `Every ${earliestReminder.intervalMinutes}m` : 'Fixed Time');
-
-            const diffSec = Math.max(0, Math.floor((earliestDate.getTime() - now.getTime()) / 1000));
-            const hrs = Math.floor(diffSec / 3600);
-            const mins = Math.floor((diffSec % 3600) / 60);
-            const secs = diffSec % 60;
-
-            if (hrs > 0) {
-                countdownEl.textContent = `${hrs}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
-            } else {
-                countdownEl.textContent = `${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
-            }
-        }
-
-        function renderRemindersList() {
-            const container = document.getElementById('remindersListContainer');
-            document.getElementById('totalRemindersCount').textContent = reminders.length;
-
-            const filtered = reminders.filter(r => {
-                if (currentFilter === 'all') return true;
-                return r.mode === currentFilter;
-            });
-
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 text-center border border-dashed border-slate-300 dark:border-slate-800">
-                        <div class="text-3xl mb-2">✨</div>
-                        <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">No reminders in this view</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Click "New Reminder" or select a Quick Add template above.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        function renderCardsGrid() {
+            const grid = document.getElementById('remindersGrid');
             const now = new Date();
 
-            container.innerHTML = filtered.map(rem => {
-                const isInterval = rem.mode === 'interval';
-                const scheduleText = isInterval
-                    ? `Every <strong>${rem.intervalMinutes} mins</strong> between <strong>${minutesToFormattedTime(timeStrToMinutes(rem.windowStart))}</strong> – <strong>${minutesToFormattedTime(timeStrToMinutes(rem.windowEnd))}</strong>`
-                    : `Daily at <strong>${minutesToFormattedTime(timeStrToMinutes(rem.fixedTime))}</strong>`;
+            grid.innerHTML = reminders.map(rule => {
+                const theme = VIBE_THEMES[rule.vibe] || VIBE_THEMES.coral;
+                const scheduleSummary = rule.mode === 'interval'
+                    ? `${formatIntervalLabel(rule.intervalMinutes)} · ${format12Hour(rule.windowStart)} – ${format12Hour(rule.windowEnd)}`
+                    : `Daily at ${format12Hour(rule.fixedTime)}`;
 
-                const nextDate = computeNextOccurrence(rem, now);
-                const nextTriggerLabel = nextDate
-                    ? `Next: ${nextDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                    : 'Paused';
-
-                const daysPills = dayNames.map((d, idx) => {
-                    const activeDay = rem.days.includes(idx);
-                    return `<span class="px-1.5 py-0.5 text-[10px] font-mono rounded ${activeDay ? 'bg-brand-500/15 text-brand-600 dark:text-brand-400 font-semibold' : 'text-slate-400 dark:text-slate-600'}">${d}</span>`;
-                }).join('');
+                const daysLabel = rule.days && rule.days.length === 7 ? 'Every day' : 'Mon–Fri';
+                const nextInfo = getNextTriggerInfo(rule, now);
+                const nextBadge = nextInfo ? `Next · ${format12Hour(nextInfo.nextDate)}` : 'Paused';
 
                 return `
-                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border ${rem.active ? 'border-slate-200/90 dark:border-slate-800' : 'border-slate-200/40 dark:border-slate-800/40 opacity-60'} shadow-sm hover:border-brand-500/40 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div class="flex items-start gap-3.5 min-w-0">
-                            <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-2xl shrink-0">
-                                ${rem.icon || '🔔'}
-                            </div>
-                            <div class="space-y-1 min-w-0 flex-1">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">${escapeHTML(rem.title)}</h3>
-                                    <span class="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md ${isInterval ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'}">
-                                        ${isInterval ? 'Repeating' : 'Set time'}
-                                    </span>
-                                    <span class="text-[11px] font-mono text-brand-600 dark:text-brand-400">${nextTriggerLabel}</span>
+                    <div class="tactile-card tactile-card-interactive ${theme.className} rounded-3xl p-5 flex flex-col justify-between gap-4 relative overflow-hidden ${rule.active ? '' : 'opacity-60'}">
+                        <!-- Top Row: Icon Badge + Title + iOS Switch -->
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-start gap-3.5 min-w-0">
+                                <div class="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style="background-color: var(--accent-soft); color: var(--accent);">
+                                    ${theme.svg}
                                 </div>
-                                ${rem.note ? `<p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">${escapeHTML(rem.note)}</p>` : ''}
-                                <div class="text-xs text-slate-600 dark:text-slate-300 pt-0.5">
-                                    ${scheduleText}
-                                </div>
-                                <div class="flex items-center gap-1 pt-1 flex-wrap">
-                                    ${daysPills}
+                                <div class="min-w-0">
+                                    <h3 class="font-bold text-base tracking-tight truncate">${escapeHTML(rule.title)}</h3>
+                                    <p class="text-xs mt-0.5 line-clamp-1" style="color: var(--text-secondary);">
+                                        ${escapeHTML(rule.note || scheduleSummary)}
+                                    </p>
                                 </div>
                             </div>
+
+                            <!-- Tactile iOS Toggle Switch -->
+                            <label class="inline-flex items-center mt-0.5">
+                                <input type="checkbox" class="sr-only" ${rule.active ? 'checked' : ''} onchange="toggleReminder('${rule.id}')">
+                                <div class="ios-switch"><div class="ios-switch-thumb"></div></div>
+                            </label>
                         </div>
 
-                        <div class="flex items-center justify-end gap-2 shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 dark:border-slate-800">
-                            <!-- Active Toggle Switch -->
-                            <label class="inline-flex items-center cursor-pointer mr-1" title="Enable or Pause Reminder">
-                                <input type="checkbox" ${rem.active ? 'checked' : ''} onchange="toggleReminderActive('${rem.id}')" class="sr-only peer">
-                                <div class="w-9 h-5 bg-slate-200 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600 relative"></div>
-                            </label>
+                        <!-- Bottom Row: Schedule Pill + Edit / Delete -->
+                        <div class="flex items-center justify-between gap-2 pt-3 border-t" style="border-color: var(--border-card);">
+                            <div class="flex items-center gap-2 flex-wrap text-xs font-medium" style="color: var(--text-secondary);">
+                                <span class="font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full" style="background-color: var(--accent-soft); color: var(--accent);">
+                                    ${nextBadge}
+                                </span>
+                                <span class="text-[11px] truncate">${scheduleSummary} · ${daysLabel}</span>
+                            </div>
 
-                            <!-- Edit Button -->
-                            <button onclick="openReminderModal('${rem.id}')" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" title="Edit Reminder">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            </button>
-
-                            <!-- Delete Button -->
-                            <button onclick="deleteReminder('${rem.id}')" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-500/15 text-slate-500 hover:text-rose-500 transition" title="Delete Reminder">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            </button>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button onclick="openReminderModal('${rule.id}')" class="w-7 h-7 rounded-lg subtle-surface flex items-center justify-center hover:opacity-80 transition" style="color: var(--text-secondary);" title="Edit">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                                </button>
+                                <button onclick="deleteReminder('${rule.id}')" class="w-7 h-7 rounded-lg subtle-surface flex items-center justify-center hover:text-rose-500 transition" style="color: var(--text-secondary);" title="Delete">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function renderActivityLog() {
-            const container = document.getElementById('activityLogContainer');
-            if (activityLog.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-6 text-xs text-slate-400 dark:text-slate-500">
-                        No reminders triggered yet today. Click "Test Alert" in the top bar to preview!
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = activityLog.map(item => `
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-xs">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <span class="text-base">${item.icon || '🔔'}</span>
-                        <div class="min-w-0">
-                            <div class="font-semibold text-slate-800 dark:text-slate-200 truncate">${escapeHTML(item.title)}</div>
-                            <div class="text-[10px] text-slate-400">${escapeHTML(item.status)}</div>
-                        </div>
-                    </div>
-                    <span class="font-mono text-[11px] text-slate-500 dark:text-slate-400 shrink-0 ml-2">${item.time}</span>
-                </div>
-            `).join('');
-        }
-
-        function logActivity(reminder, dateObj, statusText) {
-            activityLog.unshift({
-                title: reminder.title,
-                icon: reminder.icon,
-                time: dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                status: statusText
-            });
-            if (activityLog.length > 30) activityLog.pop();
-            localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(activityLog));
-            renderActivityLog();
-        }
-
-        function clearActivityLog() {
-            activityLog = [];
-            localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(activityLog));
-            renderActivityLog();
-            showToast('Activity log cleared.', 'info');
-        }
-
-        /********************************************************************
-         * 7. REMINDER CRUD, MODAL HANDLERS & PRESETS
-         ********************************************************************/
-        function openReminderModal(editId = null) {
-            const modalHeading = document.getElementById('modalHeading');
-            const idInput = document.getElementById('editReminderId');
-            const iconInput = document.getElementById('reminderIconInput');
-            const titleInput = document.getElementById('reminderTitleInput');
-            const noteInput = document.getElementById('reminderNoteInput');
-            const intervalInput = document.getElementById('intervalMinutesInput');
-            const startInput = document.getElementById('windowStartInput');
-            const endInput = document.getElementById('windowEndInput');
-            const fixedInput = document.getElementById('fixedTimeInput');
-
-            if (editId) {
-                const rem = reminders.find(r => r.id === editId);
-                if (!rem) return;
-                modalHeading.textContent = 'Edit Reminder';
-                idInput.value = rem.id;
-                iconInput.value = rem.icon || '🧘';
-                titleInput.value = rem.title;
-                noteInput.value = rem.note || '';
-                intervalInput.value = rem.intervalMinutes || 45;
-                startInput.value = rem.windowStart || '09:00';
-                endInput.value = rem.windowEnd || '17:00';
-                fixedInput.value = rem.fixedTime || '14:30';
-                switchFormMode(rem.mode || 'interval');
-                selectDaysPreset(rem.days || [1, 2, 3, 4, 5]);
-            } else {
-                modalHeading.textContent = 'Create New Reminder';
-                idInput.value = '';
-                iconInput.value = '🧘';
-                titleInput.value = '';
-                noteInput.value = '';
-                intervalInput.value = 45;
-                startInput.value = '09:00';
-                endInput.value = '17:00';
-                fixedInput.value = '14:30';
-                switchFormMode('interval');
-                selectDaysPreset([1, 2, 3, 4, 5]);
-            }
-
-            openModal('reminderModal');
-        }
-
-        function switchFormMode(mode) {
-            formMode = mode;
-            const intervalBox = document.getElementById('intervalSettingsBox');
-            const fixedBox = document.getElementById('fixedSettingsBox');
-            const btnInterval = document.getElementById('modeBtn-interval');
-            const btnFixed = document.getElementById('modeBtn-fixed');
-
-            if (mode === 'interval') {
-                intervalBox.classList.remove('hidden');
-                fixedBox.classList.add('hidden');
-                btnInterval.className = 'py-2 px-3 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 text-brand-600 dark:text-brand-400 shadow-sm transition';
-                btnFixed.className = 'py-2 px-3 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 transition';
-            } else {
-                intervalBox.classList.add('hidden');
-                fixedBox.classList.remove('hidden');
-                btnFixed.className = 'py-2 px-3 rounded-lg text-xs font-semibold bg-white dark:bg-slate-900 text-brand-600 dark:text-brand-400 shadow-sm transition';
-                btnInterval.className = 'py-2 px-3 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 transition';
-            }
-        }
-
-        function setQuickInterval(mins) {
-            document.getElementById('intervalMinutesInput').value = mins;
-        }
-
-        function toggleDayButton(dayIndex) {
-            if (selectedFormDays.includes(dayIndex)) {
-                if (selectedFormDays.length > 1) {
-                    selectedFormDays = selectedFormDays.filter(d => d !== dayIndex);
-                }
-            } else {
-                selectedFormDays.push(dayIndex);
-                selectedFormDays.sort();
-            }
-            renderDaySelectorButtons();
-        }
-
-        function selectDaysPreset(daysArray) {
-            selectedFormDays = [...daysArray];
-            renderDaySelectorButtons();
-        }
-
-        function renderDaySelectorButtons() {
-            document.querySelectorAll('.day-btn').forEach(btn => {
-                const day = Number(btn.getAttribute('data-day'));
-                if (selectedFormDays.includes(day)) {
-                    btn.className = 'day-btn py-2 rounded-xl text-xs font-bold bg-brand-600 text-white border border-brand-600 shadow-sm transition';
-                } else {
-                    btn.className = 'day-btn py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition';
-                }
-            });
-        }
-
-        function saveReminderForm(e) {
-            e.preventDefault();
-            const editId = document.getElementById('editReminderId').value;
-            const icon = document.getElementById('reminderIconInput').value;
-            const title = document.getElementById('reminderTitleInput').value.trim();
-            const note = document.getElementById('reminderNoteInput').value.trim();
-            const intervalMinutes = Math.max(1, Number(document.getElementById('intervalMinutesInput').value) || 45);
-            const windowStart = document.getElementById('windowStartInput').value || '09:00';
-            const windowEnd = document.getElementById('windowEndInput').value || '17:00';
-            const fixedTime = document.getElementById('fixedTimeInput').value || '14:30';
-
-            if (!title) return;
-
-            if (formMode === 'interval' && timeStrToMinutes(windowEnd) <= timeStrToMinutes(windowStart)) {
-                showToast('Window End Time must be later than Window Start Time.', 'error');
-                return;
-            }
-
-            if (editId) {
-                const idx = reminders.findIndex(r => r.id === editId);
-                if (idx > -1) {
-                    reminders[idx] = {
-                        ...reminders[idx],
-                        title,
-                        note,
-                        icon,
-                        mode: formMode,
-                        intervalMinutes,
-                        windowStart,
-                        windowEnd,
-                        fixedTime,
-                        days: [...selectedFormDays],
-                        snoozedUntil: null
-                    };
-                }
-                showToast(`Updated "${title}"`, 'success');
-            } else {
-                reminders.unshift({
-                    id: 'rem-' + Date.now(),
-                    title,
-                    note,
-                    icon,
-                    mode: formMode,
-                    intervalMinutes,
-                    windowStart,
-                    windowEnd,
-                    fixedTime,
-                    days: [...selectedFormDays],
-                    active: true,
-                    snoozedUntil: null,
-                    lastTriggeredKey: null
-                });
-                showToast(`Added "${title}"`, 'success');
-            }
-
-            saveReminders();
-            renderRemindersList();
-            updateNextUpcomingCountdown(new Date());
-            closeModal('reminderModal');
-        }
-
-        function toggleReminderActive(id) {
-            const rem = reminders.find(r => r.id === id);
-            if (!rem) return;
-            rem.active = !rem.active;
-            rem.snoozedUntil = null;
-            saveReminders();
-            renderRemindersList();
-            updateNextUpcomingCountdown(new Date());
+        function toggleReminder(id) {
+            const r = reminders.find(x => x.id === id);
+            if (!r) return;
+            r.active = !r.active;
+            r.snoozedUntil = null;
+            r.skippedKey = null;
+            saveRules();
+            renderCardsGrid();
+            updateHeroUpNext(new Date());
         }
 
         function deleteReminder(id) {
-            const rem = reminders.find(r => r.id === id);
-            reminders = reminders.filter(r => r.id !== id);
-            saveReminders();
-            renderRemindersList();
-            updateNextUpcomingCountdown(new Date());
-            if (rem) showToast(`Deleted "${rem.title}"`, 'info');
+            reminders = reminders.filter(x => x.id !== id);
+            saveRules();
+            renderCardsGrid();
+            updateHeroUpNext(new Date());
+            showToast('Reminder removed');
         }
 
-        function quickAddPreset(type) {
+        function quickAddHabit(key) {
             const presets = {
-                stretch: {
-                    title: 'Stand up & stretch',
-                    note: 'Stand up from your desk, roll shoulders, and stretch your back for 60s.',
-                    icon: '🧘',
-                    mode: 'interval',
-                    intervalMinutes: 45,
-                    windowStart: '09:00',
-                    windowEnd: '17:00',
-                    fixedTime: '09:00',
-                    days: [1, 2, 3, 4, 5]
-                },
-                water: {
-                    title: 'Hydration break',
-                    note: 'Drink a full glass of water.',
-                    icon: '💧',
-                    mode: 'interval',
-                    intervalMinutes: 60,
-                    windowStart: '09:00',
-                    windowEnd: '17:00',
-                    fixedTime: '09:00',
-                    days: [1, 2, 3, 4, 5]
-                },
-                eyes: {
-                    title: '20-20-20 Eye Rest',
-                    note: 'Look at something 20 feet away for 20 seconds to relax eye strain.',
-                    icon: '👀',
-                    mode: 'interval',
-                    intervalMinutes: 20,
-                    windowStart: '09:00',
-                    windowEnd: '17:00',
-                    fixedTime: '09:00',
-                    days: [1, 2, 3, 4, 5]
-                },
-                standup: {
-                    title: 'Daily Team Standup & Sync',
-                    note: 'Review yesterday, today, and any blockers.',
-                    icon: '☕',
-                    mode: 'fixed',
-                    intervalMinutes: 60,
-                    windowStart: '09:00',
-                    windowEnd: '17:00',
-                    fixedTime: '10:00',
-                    days: [1, 2, 3, 4, 5]
-                }
+                stretch: { title: 'Stand up & stretch', note: 'Step away from your desk and stretch for 60s.', vibe: 'coral', mode: 'interval', intervalMinutes: 45, windowStart: '09:00', windowEnd: '17:00', fixedTime: '09:00', days: [1,2,3,4,5] },
+                hydrate: { title: 'Drink a glass of water', note: 'Refill your glass and stay hydrated.', vibe: 'teal', mode: 'interval', intervalMinutes: 60, windowStart: '09:00', windowEnd: '17:00', fixedTime: '09:00', days: [1,2,3,4,5] },
+                eyes: { title: '20-20-20 Eye Rest', note: 'Look 20 feet away for 20 seconds.', vibe: 'amber', mode: 'interval', intervalMinutes: 20, windowStart: '09:00', windowEnd: '17:00', fixedTime: '09:00', days: [1,2,3,4,5] },
+                wrapup: { title: '5:00 PM Workday Wrap-up', note: 'Review open tasks and plan tomorrow.', vibe: 'indigo', mode: 'fixed', intervalMinutes: 60, windowStart: '09:00', windowEnd: '17:00', fixedTime: '17:00', days: [1,2,3,4,5] }
             };
-
-            const p = presets[type];
+            const p = presets[key];
             if (!p) return;
-            reminders.unshift({
-                id: 'rem-' + Date.now(),
-                ...p,
-                active: true,
-                snoozedUntil: null,
-                lastTriggeredKey: null
-            });
-            saveReminders();
-            renderRemindersList();
-            updateNextUpcomingCountdown(new Date());
-            showToast(`Added preset: "${p.title}"`, 'success');
+            reminders.unshift({ id: 'dp-' + Date.now(), ...p, active: true, snoozedUntil: null, skippedKey: null, lastTriggeredKey: null });
+            saveRules();
+            renderCardsGrid();
+            updateHeroUpNext(new Date());
+            showToast(`Added "${p.title}"`);
         }
 
-        function setFilter(filterType) {
-            currentFilter = filterType;
-            ['all', 'interval', 'fixed'].forEach(f => {
-                const btn = document.getElementById(`filter-${f}`);
-                if (f === filterType) {
-                    btn.className = 'px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm transition';
+        /********************************************************************
+         * 9. 3-STEP REMINDER COMPOSER MODAL LOGIC
+         ********************************************************************/
+        function populateVibeIcons() {
+            Object.keys(VIBE_THEMES).forEach(k => {
+                const el = document.getElementById(`vibe-icon-${k}`);
+                if (el) el.innerHTML = VIBE_THEMES[k].svg;
+            });
+        }
+
+        function selectVibe(vibe) {
+            formVibe = vibe;
+            document.querySelectorAll('.vibe-btn').forEach(btn => {
+                const v = btn.getAttribute('data-vibe');
+                if (v === vibe) {
+                    btn.className = 'vibe-btn p-2.5 rounded-2xl border-2 border-[#1C1B18] dark:border-[#F4F3EF] tactile-card flex flex-col items-center gap-1 text-xs font-bold transition';
                 } else {
-                    btn.className = 'px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition';
+                    btn.className = 'vibe-btn p-2.5 rounded-2xl border border-transparent subtle-surface flex flex-col items-center gap-1 text-xs font-medium opacity-75 hover:opacity-100 transition';
                 }
             });
-            renderRemindersList();
+        }
+
+        function setScheduleMode(mode) {
+            formMode = mode;
+            const intBox = document.getElementById('intervalBox');
+            const fixBox = document.getElementById('fixedBox');
+            const btnInt = document.getElementById('modeBtn-interval');
+            const btnFix = document.getElementById('modeBtn-fixed');
+
+            if (mode === 'interval') {
+                intBox.classList.remove('hidden');
+                fixBox.classList.add('hidden');
+                btnInt.className = 'py-2 rounded-xl tactile-card shadow-xs transition';
+                btnInt.style.color = 'var(--text-primary)';
+                btnFix.className = 'py-2 rounded-xl transition';
+                btnFix.style.color = 'var(--text-secondary)';
+            } else {
+                intBox.classList.add('hidden');
+                fixBox.classList.remove('hidden');
+                btnFix.className = 'py-2 rounded-xl tactile-card shadow-xs transition';
+                btnFix.style.color = 'var(--text-primary)';
+                btnInt.className = 'py-2 rounded-xl transition';
+                btnInt.style.color = 'var(--text-secondary)';
+            }
+        }
+
+        function pickInterval(mins) {
+            formInterval = mins;
+            document.querySelectorAll('.int-pill').forEach(btn => {
+                const val = Number(btn.getAttribute('data-int'));
+                if (val === mins) {
+                    btn.className = 'int-pill px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-[#E05A47] text-white shadow-xs transition';
+                } else {
+                    btn.className = 'int-pill px-2.5 py-1 rounded-lg text-xs font-mono font-semibold tactile-card hover:opacity-80 transition';
+                }
+            });
+        }
+
+        function selectDaysPreset(preset) {
+            formDaysPreset = preset;
+            const wBtn = document.getElementById('daysBtn-workdays');
+            const eBtn = document.getElementById('daysBtn-everyday');
+            if (preset === 'workdays') {
+                wBtn.className = 'py-2 px-3 rounded-xl text-xs font-bold border-2 border-[#1C1B18] dark:border-[#F4F3EF] tactile-card transition';
+                eBtn.className = 'py-2 px-3 rounded-xl text-xs font-medium border border-transparent subtle-surface opacity-75 transition';
+            } else {
+                eBtn.className = 'py-2 px-3 rounded-xl text-xs font-bold border-2 border-[#1C1B18] dark:border-[#F4F3EF] tactile-card transition';
+                wBtn.className = 'py-2 px-3 rounded-xl text-xs font-medium border border-transparent subtle-surface opacity-75 transition';
+            }
+        }
+
+        function selectChime(chimeKey, preview = true) {
+            formChime = chimeKey;
+            prefs.chime = chimeKey;
+            savePrefs();
+            document.querySelectorAll('.chime-btn').forEach(btn => {
+                const c = btn.getAttribute('data-chime');
+                if (c === chimeKey) {
+                    btn.className = 'chime-btn py-2 px-2.5 rounded-xl text-xs font-bold border-2 border-[#1C1B18] dark:border-[#F4F3EF] tactile-card flex items-center justify-center gap-1.5 transition';
+                } else {
+                    btn.className = 'chime-btn py-2 px-2.5 rounded-xl text-xs font-medium border border-transparent subtle-surface opacity-75 flex items-center justify-center gap-1.5 transition';
+                }
+            });
+            if (preview) playChime(chimeKey);
+        }
+
+        function openReminderModal(editId = null) {
+            if (editId) {
+                const r = reminders.find(x => x.id === editId);
+                if (!r) return;
+                document.getElementById('modalHeading').textContent = 'Edit Reminder';
+                document.getElementById('editId').value = r.id;
+                document.getElementById('titleInput').value = r.title;
+                document.getElementById('noteInput').value = r.note || '';
+                document.getElementById('startWindowInput').value = r.windowStart || '09:00';
+                document.getElementById('endWindowInput').value = r.windowEnd || '17:00';
+                document.getElementById('fixedTimeInput').value = r.fixedTime || '17:00';
+                selectVibe(r.vibe || 'coral');
+                setScheduleMode(r.mode || 'interval');
+                pickInterval(r.intervalMinutes || 45);
+                selectDaysPreset(r.days && r.days.length === 7 ? 'everyday' : 'workdays');
+                selectChime(prefs.chime || 'bowl', false);
+            } else {
+                document.getElementById('modalHeading').textContent = 'New Reminder';
+                document.getElementById('editId').value = '';
+                document.getElementById('titleInput').value = '';
+                document.getElementById('noteInput').value = '';
+                document.getElementById('startWindowInput').value = '09:00';
+                document.getElementById('endWindowInput').value = '17:00';
+                document.getElementById('fixedTimeInput').value = '17:00';
+                selectVibe('coral');
+                setScheduleMode('interval');
+                pickInterval(45);
+                selectDaysPreset('workdays');
+                selectChime(prefs.chime || 'bowl', false);
+            }
+            openModal('composerModal');
+            setTimeout(() => document.getElementById('titleInput').focus(), 60);
+        }
+
+        function saveReminder(e) {
+            e.preventDefault();
+            const id = document.getElementById('editId').value;
+            const title = document.getElementById('titleInput').value.trim();
+            const note = document.getElementById('noteInput').value.trim();
+            const windowStart = document.getElementById('startWindowInput').value || '09:00';
+            const windowEnd = document.getElementById('endWindowInput').value || '17:00';
+            const fixedTime = document.getElementById('fixedTimeInput').value || '17:00';
+            const days = formDaysPreset === 'everyday' ? [0,1,2,3,4,5,6] : [1,2,3,4,5];
+
+            if (!title) return;
+            if (formMode === 'interval' && timeStrToMins(windowEnd) <= timeStrToMins(windowStart)) {
+                showToast('End time must be after start time');
+                return;
+            }
+
+            if (id) {
+                const idx = reminders.findIndex(x => x.id === id);
+                if (idx > -1) {
+                    reminders[idx] = {
+                        ...reminders[idx],
+                        title, note, vibe: formVibe, mode: formMode,
+                        intervalMinutes: formInterval, windowStart, windowEnd, fixedTime, days,
+                        snoozedUntil: null, skippedKey: null
+                    };
+                }
+                showToast(`Updated "${title}"`);
+            } else {
+                reminders.unshift({
+                    id: 'dp-' + Date.now(),
+                    title, note, vibe: formVibe, mode: formMode,
+                    intervalMinutes: formInterval, windowStart, windowEnd, fixedTime, days,
+                    active: true, snoozedUntil: null, skippedKey: null, lastTriggeredKey: null
+                });
+                showToast(`Added "${title}"`);
+            }
+
+            saveRules();
+            renderCardsGrid();
+            updateHeroUpNext(new Date());
+            closeModal('composerModal');
         }
 
         /********************************************************************
-         * 8. DO NOT DISTURB, PERMISSIONS, EXPORT/IMPORT & DOWNLOAD HTML
+         * 10. TOP BAR CONTROLS, STORAGE & GIT EXPORT
          ********************************************************************/
-        function setDND(minutes) {
-            if (minutes <= 0) {
-                settings.dndUntil = null;
-                showToast('Do Not Disturb disabled. Alerts active!', 'success');
+        function toggleFocusPause() {
+            if (prefs.pausedUntil && prefs.pausedUntil > Date.now()) {
+                prefs.pausedUntil = null;
+                showToast('Reminders resumed');
             } else {
-                settings.dndUntil = Date.now() + minutes * 60000;
-                showToast(`Paused all alerts for ${minutes} minutes.`, 'info');
+                prefs.pausedUntil = Date.now() + 60 * 60000;
+                showToast('Paused all alerts for 1 hour');
             }
-            saveSettings();
-            updateDNDUI();
+            savePrefs();
+            renderFocusPill();
         }
 
-        function updateDNDUI() {
-            const statusText = document.getElementById('dndStatusText');
-            const resumeBtn = document.getElementById('resumeDndBtn');
-            if (settings.dndUntil && settings.dndUntil > Date.now()) {
-                const untilTime = new Date(settings.dndUntil).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                statusText.textContent = `DND until ${untilTime}`;
-                statusText.className = 'text-xs font-semibold text-rose-500 truncate';
-                resumeBtn.classList.remove('hidden');
+        function renderFocusPill() {
+            const dot = document.getElementById('focusDot');
+            const label = document.getElementById('focusLabel');
+            if (prefs.pausedUntil && prefs.pausedUntil > Date.now()) {
+                dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+                label.textContent = 'Paused 1h';
             } else {
-                statusText.textContent = 'Alerts Active';
-                statusText.className = 'text-xs text-slate-500 dark:text-slate-400 truncate';
-                resumeBtn.classList.add('hidden');
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+                label.textContent = 'Active';
             }
         }
 
-        function toggleMute(isMuted) {
-            settings.muted = isMuted;
-            document.getElementById('muteLabel').textContent = isMuted ? 'Muted' : 'Sound On';
-            saveSettings();
+        function toggleMute() {
+            prefs.muted = !prefs.muted;
+            savePrefs();
+            renderMuteIcon();
+            showToast(prefs.muted ? 'Chime sound muted' : 'Chime sound on');
+            if (!prefs.muted) playChime(prefs.chime);
         }
 
-        function changeSoundPreset(preset) {
-            settings.soundPreset = preset;
-            saveSettings();
-            playSynthesizedChime(preset);
-        }
-
-        async function requestNotificationPermission() {
-            if (!('Notification' in window)) {
-                showToast('This browser does not support desktop notifications.', 'error');
-                return;
-            }
-            const permission = await Notification.requestPermission();
-            updateNotificationPermissionUI();
-            if (permission === 'granted') {
-                showToast('Desktop notifications enabled!', 'success');
-                document.getElementById('notificationBanner').classList.add('hidden');
-            } else {
-                showToast('Notification permission was not granted. In-app alerts and sound chimes will still work.', 'info');
-            }
-        }
-
-        function updateNotificationPermissionUI() {
-            const badge = document.getElementById('notifPermissionBadge');
-            const banner = document.getElementById('notificationBanner');
-            if (!('Notification' in window)) {
-                badge.textContent = 'Unsupported';
-                return;
-            }
-            if (Notification.permission === 'granted') {
-                badge.textContent = '✓ Granted';
-                badge.className = 'font-mono font-semibold text-emerald-600 dark:text-emerald-400';
-                banner.classList.add('hidden');
-            } else if (Notification.permission === 'denied') {
-                badge.textContent = 'Blocked in Browser';
-                badge.className = 'font-mono font-semibold text-rose-500';
-                banner.classList.remove('hidden');
-            } else {
-                badge.textContent = 'Click to Enable';
-                badge.className = 'font-mono font-semibold text-amber-500 hover:underline';
-                banner.classList.remove('hidden');
-            }
-        }
-
-        /**
-         * Exports reminders + settings as a JSON backup file
-         */
-        function exportConfigJSON() {
-            const payload = {
-                exportedAt: new Date().toISOString(),
-                reminders,
-                settings
-            };
-            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'pulsedesk-reminders-backup.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast('Exported reminder configuration JSON.', 'success');
-        }
-
-        function importConfigJSON(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (Array.isArray(parsed.reminders)) {
-                        reminders = parsed.reminders;
-                        saveReminders();
-                        renderRemindersList();
-                        updateNextUpcomingCountdown(new Date());
-                        showToast(`Imported ${reminders.length} reminders!`, 'success');
-                    } else {
-                        showToast('Invalid JSON backup format.', 'error');
-                    }
-                } catch (err) {
-                    showToast('Failed to parse JSON file.', 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function resetToDefaultReminders() {
-            reminders = JSON.parse(JSON.stringify(DEFAULT_REMINDERS));
-            saveReminders();
-            renderRemindersList();
-            updateNextUpcomingCountdown(new Date());
-            showToast('Back to the suggested starter reminders.', 'info');
-        }
-
-        /********************************************************************
-         * 9. STORAGE, THEME & UTILITY HELPERS
-         ********************************************************************/
-        function loadStateFromStorage() {
-            try {
-                const savedRem = localStorage.getItem(STORAGE_KEY_REMINDERS);
-                reminders = savedRem ? JSON.parse(savedRem) : JSON.parse(JSON.stringify(DEFAULT_REMINDERS));
-
-                const savedLogs = localStorage.getItem(STORAGE_KEY_LOGS);
-                activityLog = savedLogs ? JSON.parse(savedLogs) : [];
-
-                const savedSettings = localStorage.getItem(STORAGE_KEY_SETTINGS);
-                if (savedSettings) {
-                    settings = { ...settings, ...JSON.parse(savedSettings) };
-                }
-            } catch (e) {
-                reminders = JSON.parse(JSON.stringify(DEFAULT_REMINDERS));
-            }
-
-            // Apply theme
-            if (settings.theme === 'light') {
-                document.documentElement.classList.remove('dark');
-            } else {
-                document.documentElement.classList.add('dark');
-            }
-
-            // Apply audio UI
-            document.getElementById('soundPresetSelect').value = settings.soundPreset || 'bowl';
-            document.getElementById('muteToggleInput').checked = !!settings.muted;
-            document.getElementById('muteLabel').textContent = settings.muted ? 'Muted' : 'Sound On';
-            updateDNDUI();
-        }
-
-        function saveReminders() {
-            localStorage.setItem(STORAGE_KEY_REMINDERS, JSON.stringify(reminders));
-        }
-
-        function saveSettings() {
-            localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+        function renderMuteIcon() {
+            document.getElementById('soundOnIcon').classList.toggle('hidden', !!prefs.muted);
+            document.getElementById('soundOffIcon').classList.toggle('hidden', !prefs.muted);
         }
 
         function toggleTheme() {
             const isDark = document.documentElement.classList.toggle('dark');
-            settings.theme = isDark ? 'dark' : 'light';
-            saveSettings();
+            prefs.theme = isDark ? 'dark' : 'light';
+            savePrefs();
         }
+
+        async function enableOSNotifications() {
+            if (!('Notification' in window)) {
+                showToast('System notifications not supported in this preview frame');
+                return;
+            }
+            try {
+                const perm = await Notification.requestPermission();
+                checkNotificationBanner();
+                showToast(perm === 'granted' ? 'Desktop notifications enabled!' : 'Using in-app break cards & audio');
+            } catch (e) {}
+        }
+
+        function checkNotificationBanner() {
+            const banner = document.getElementById('notifBanner');
+            if ('Notification' in window && Notification.permission === 'default') {
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+
+        function downloadAppHTML() {
+            const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Downloaded index.html — ready for your Git repo!');
+        }
+
+        function resetDefaultRhythm() {
+            reminders = JSON.parse(JSON.stringify(DEFAULT_REMINDERS));
+            saveRules();
+            renderCardsGrid();
+            updateHeroUpNext(new Date());
+            showToast('Restored default workday rhythm');
+        }
+
+        function loadState() {
+            try {
+                const r = localStorage.getItem(STORAGE_RULES);
+                reminders = r ? JSON.parse(r) : JSON.parse(JSON.stringify(DEFAULT_REMINDERS));
+                const p = localStorage.getItem(STORAGE_PREFS);
+                if (p) prefs = { ...prefs, ...JSON.parse(p) };
+            } catch (e) {
+                reminders = JSON.parse(JSON.stringify(DEFAULT_REMINDERS));
+            }
+            document.documentElement.classList.toggle('dark', prefs.theme === 'dark');
+            renderFocusPill();
+            renderMuteIcon();
+        }
+
+        function saveRules() { localStorage.setItem(STORAGE_RULES, JSON.stringify(reminders)); }
+        function savePrefs() { localStorage.setItem(STORAGE_PREFS, JSON.stringify(prefs)); }
 
         function openModal(id) {
             const el = document.getElementById(id);
-            if (el) {
-                el.classList.remove('hidden');
-                el.classList.add('flex');
-            }
+            el.classList.remove('hidden');
+            el.classList.add('flex');
         }
 
         function closeModal(id) {
             const el = document.getElementById(id);
-            if (el) {
-                el.classList.add('hidden');
-                el.classList.remove('flex');
-            }
+            el.classList.add('hidden');
+            el.classList.remove('flex');
         }
 
-        function showToast(message, type = 'info') {
+        function handleBackdropClick(e, id) {
+            if (e.target.id === id) closeModal(id);
+        }
+
+        function showToast(message) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            const colorClasses = {
-                success: 'bg-emerald-600 text-white',
-                error: 'bg-rose-600 text-white',
-                info: 'bg-slate-900 dark:bg-slate-800 text-white border border-slate-700'
-            };
-            toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 transition-all duration-300 ${colorClasses[type] || colorClasses.info}`;
+            toast.className = 'px-4 py-2.5 rounded-2xl bg-[#1C1B18] dark:bg-[#F4F3EF] text-[#F6F5F0] dark:text-[#141416] text-xs font-semibold shadow-lg transition-opacity duration-200';
             toast.textContent = message;
             container.appendChild(toast);
             setTimeout(() => {
                 toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
+                setTimeout(() => toast.remove(), 220);
+            }, 2600);
         }
 
         function escapeHTML(str) {
             if (!str) return '';
-            return str.replace(/[&<>"']/g, (m) => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            }[m]));
+            return str.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
         /********************************************************************
-         * 10. INITIALIZATION ON WINDOW LOAD
+         * 11. INITIALIZE APP
          ********************************************************************/
         window.onload = function () {
-            setupDynamicPWAManifest();
-            loadStateFromStorage();
-            updateNotificationPermissionUI();
-            renderRemindersList();
-            renderActivityLog();
-            onSecondTick(new Date());
-            startBackgroundWorkerTimer();
+            setupPWAManifest();
+            populateVibeIcons();
+            loadState();
+            checkNotificationBanner();
+            renderCardsGrid();
+            tick(new Date());
+            startBackgroundClock();
         };
     </script>
 </body>

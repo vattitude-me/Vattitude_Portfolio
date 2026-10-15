@@ -99,8 +99,8 @@ const apps: App[] = [
     url: 'https://vattitude.ca/pulsedesk/',
     icon: '/apps/pulsedesk-icon.png',
     preview: null,
-    accent: [129, 140, 248],
-    gradient: 'from-indigo-300 via-violet-300 to-purple-300',
+    accent: [224, 115, 95],
+    gradient: 'from-orange-300 via-red-300 to-rose-300',
     tags: ['Wellness', 'PWA', 'Reminders'],
   },
   {
