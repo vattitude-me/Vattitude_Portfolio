@@ -13,11 +13,13 @@ const footerLinks = {
     { label: 'About Us', href: '#about' },
     { label: 'Our Process', href: '#about' },
     { label: 'Portfolio', href: '#portfolio' },
+    { label: 'Shipped Apps', href: '/apps' },
     { label: 'Careers', href: '#contact' },
     { label: 'Contact', href: '#contact' },
   ],
   resources: [
     { label: 'Case Studies', href: '#portfolio' },
+    { label: 'Hark Daily Podcast', href: 'https://hark.vattitude.ca/' },
     { label: 'FAQs', href: '#contact' },
     { label: 'Testimonials', href: '#about' },
     { label: 'Privacy Policy', href: '/privacy' },
@@ -132,7 +134,12 @@ export default function Footer() {
               <ul className="space-y-3">
                 {footerLinks.resources.map((link) => (
                   <li key={link.label}>
-                    <a href={link.href} className="text-slate-400 text-sm hover:text-cyan-400 transition-colors">
+                    <a
+                      href={link.href}
+                      className="text-slate-400 text-sm hover:text-cyan-400 transition-colors"
+                      target={link.href.startsWith('http') ? '_blank' : undefined}
+                      rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    >
                       {link.label}
                     </a>
                   </li>
@@ -150,9 +157,16 @@ export default function Footer() {
           <p className="text-slate-500 text-sm">
             &copy; {new Date().getFullYear()} Vattitude. All rights reserved.
           </p>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap items-center gap-6">
             <a href="/privacy" className="text-slate-500 text-sm hover:text-cyan-400 transition-colors">Privacy Policy</a>
             <a href="/terms" className="text-slate-500 text-sm hover:text-cyan-400 transition-colors">Terms & Conditions</a>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-cookie-banner'))}
+              className="text-slate-500 text-sm hover:text-cyan-400 transition-colors cursor-pointer"
+            >
+              Cookie Preferences
+            </button>
           </div>
         </div>
       </div>

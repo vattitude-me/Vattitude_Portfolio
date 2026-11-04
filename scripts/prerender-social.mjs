@@ -35,9 +35,9 @@ const ROUTES = [
   },
   {
     dir: 'apps',
-    title: 'My Apps — PebbleSum, Breather, Chess 4 Kids & Rungs | Vattitude',
+    title: 'My Apps — Seven products shipped | Vattitude',
     description:
-      'Four apps built by Vattitude: PebbleSum for kids’ math, Breather for daily breathing breaks, Chess 4 Kids for learning chess, and Rungs for 100-to-300 daily reps.',
+      'Seven apps designed and shipped end to end by Vattitude: Hark Daily, PebbleSum, Breather, Chess 4 Kids, Rungs, Evalu8 and PulseDesk. Try them live.',
     url: 'https://vattitude.ca/apps',
     image: 'https://vattitude.ca/apps-preview.jpg',
   },

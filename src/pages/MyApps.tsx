@@ -2,9 +2,10 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
 import { useSocialMeta } from '../hooks/useSocialMeta'
+import { trackEvent } from '../lib/analytics'
 
 /**
- * /apps - "Built, not pitched." A cinematic, ad-style showcase of the six
+ * /apps - "Built, not pitched." A cinematic, ad-style showcase of the seven
  * shipped apps. Ember particles trail the cursor (tinted by whichever app
  * is on screen), each app gets a full-bleed billboard with a live phone
  * mockup running the real app, and everything is magnetic, tilting and
@@ -25,6 +26,19 @@ interface App {
 }
 
 const apps: App[] = [
+  {
+    id: 'harkdaily',
+    name: 'Hark Daily',
+    tagline: 'The news you hear, not just read.',
+    description:
+      'A concise daily audio briefing covering Canada, the United States, and India from CBC, NYT, NPR, The Hindu, and TechCrunch. Voiced by a duo-host neural podcast team (Matthew & Kelly) alongside solo narrator personas. No ads, zero doom-scrolling.',
+    url: 'https://hark.vattitude.ca/',
+    icon: '/apps/harkdaily-icon.png',
+    preview: '/projects/harkdaily-phone.webp',
+    accent: [245, 158, 11],
+    gradient: 'from-amber-300 via-orange-400 to-rose-400',
+    tags: ['AI Podcast', 'News Briefing', 'Web & Android'],
+  },
   {
     id: 'pebblesum',
     name: 'PebbleSum',
@@ -102,19 +116,6 @@ const apps: App[] = [
     accent: [224, 115, 95],
     gradient: 'from-orange-300 via-red-300 to-rose-300',
     tags: ['Wellness', 'PWA', 'Reminders'],
-  },
-  {
-    id: 'morningbrief',
-    name: 'Morning Brief',
-    tagline: 'Your day, briefed. In your own voice.',
-    description:
-      'The news, read to you. Pick your sources, AI writes the summary, you pick the voice. Fresh every morning on Android and web.',
-    url: 'https://mbv.vattitude.ca/',
-    icon: '/apps/morningbrief-icon.png',
-    preview: null,
-    accent: [244, 114, 182],
-    gradient: 'from-pink-300 via-rose-300 to-orange-300',
-    tags: ['News', 'AI Voice', 'Android'],
   },
 ]
 
@@ -534,9 +535,9 @@ export default function MyApps() {
   const onActive = useCallback((a: [number, number, number]) => setAccent(a), [])
 
   useSocialMeta({
-    title: 'My Apps - Six products shipped | Vattitude',
+    title: 'My Apps — Seven products shipped | Vattitude',
     description:
-      'Six apps designed and shipped end to end by Vattitude: PebbleSum, Breather, Chess 4 Kids, Rungs, Evalu8 and Morning Brief. Try them live.',
+      'Seven apps designed and shipped end to end by Vattitude: Hark Daily, PebbleSum, Breather, Chess 4 Kids, Rungs, Evalu8 and PulseDesk. Try them live.',
     url: 'https://vattitude.ca/apps',
     image: 'https://vattitude.ca/apps-preview.jpg',
   })
@@ -586,7 +587,7 @@ export default function MyApps() {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.7 }}
           className="text-slate-400 text-xl sm:text-2xl leading-relaxed max-w-2xl mb-10"
         >
-          Six products, live right now. Each one designed, coded and shipped by a single person.
+          Seven products, live right now. Each one designed, coded and shipped by a single person.
           No slides, no pitch decks. <span className="text-white font-semibold">They're the real thing, go poke one.</span>
         </motion.p>
         <motion.div
@@ -594,7 +595,7 @@ export default function MyApps() {
           className="flex flex-wrap gap-x-10 gap-y-4"
         >
           {[
-            ['6', 'apps live'],
+            ['7', 'apps live'],
             ['1', 'builder'],
             ['0', 'pitch decks'],
           ].map(([n, label]) => (
@@ -637,7 +638,16 @@ export default function MyApps() {
       <main className="relative z-10">
         {apps.map((app, i) => (
           <div key={app.id} id={`app-${app.id}`} className="scroll-mt-20">
-            <Billboard app={app} index={i} flip={i % 2 === 1} onActive={onActive} onQr={() => setQrApp(app)} />
+            <Billboard
+              app={app}
+              index={i}
+              flip={i % 2 === 1}
+              onActive={onActive}
+              onQr={() => {
+                trackEvent('view_qr_code', { app_name: app.name, app_url: app.url })
+                setQrApp(app)
+              }}
+            />
           </div>
         ))}
       </main>

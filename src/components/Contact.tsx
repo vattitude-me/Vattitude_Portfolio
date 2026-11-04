@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { trackEvent } from '../lib/analytics'
 
 export default function Contact() {
   const [form, setForm] = useState({
@@ -21,6 +22,10 @@ export default function Contact() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
+      })
+      trackEvent('generate_lead', {
+        service: form.service || 'general',
+        has_company: form.company ? 'yes' : 'no',
       })
       setSent(true)
       setForm({ name: '', email: '', company: '', phone: '', service: '', message: '' })

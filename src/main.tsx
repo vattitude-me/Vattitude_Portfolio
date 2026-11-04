@@ -9,10 +9,14 @@ import ArtTimeline from './pages/ArtTimeline'
 import EraDeepDive from './pages/EraDeepDive'
 import TravelTimeline from './pages/TravelTimeline'
 import MyApps from './pages/MyApps'
+import CookieConsent from './components/CookieConsent'
+import AnalyticsTracker from './components/AnalyticsTracker'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
+      <AnalyticsTracker />
+      <CookieConsent />
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/privacy" element={<Privacy />} />

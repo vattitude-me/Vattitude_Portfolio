@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { trackEvent } from '../lib/analytics'
 
 const projects = [
   {
@@ -53,6 +54,19 @@ const projects = [
     tech: ['Netlify', 'Modern CSS', 'Contact Forms'],
     metric: '85%',
     metricLabel: 'More Inquiries',
+  },
+  {
+    id: 12,
+    title: 'Hark Daily',
+    category: 'apps',
+    categoryLabel: 'AI Podcast & News',
+    description: 'A concise daily audio briefing covering Canada, the US, and India from CBC, NYT, NPR, The Hindu, and TechCrunch. Duo-host neural podcast team, 24-hour listening, no ads.',
+    gradient: 'from-amber-400 via-orange-500 to-rose-500',
+    url: 'https://hark.vattitude.ca/',
+    image: '/projects/harkdaily.webp',
+    tech: ['Neural TTS', 'Web PWA', 'Android (Media3)', 'MPS'],
+    metric: '3',
+    metricLabel: 'Country Editions',
   },
   {
     id: 5,
@@ -199,7 +213,11 @@ export default function Portfolio() {
               {filters.map((f) => (
                 <button
                   key={f.key}
-                  onClick={() => setActive(f.key)}
+                  data-analytics={`portfolio_filter_${f.key}`}
+                  onClick={() => {
+                    setActive(f.key)
+                    trackEvent('filter_portfolio', { category: f.key })
+                  }}
                   className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                     active === f.key
                       ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.2)]'
