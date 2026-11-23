@@ -35,9 +35,9 @@ const ROUTES = [
   },
   {
     dir: 'apps',
-    title: 'My Apps — Nine products shipped | Vattitude',
+    title: 'My apps: real, live and ready to try | Vattitude',
     description:
-      'Nine apps designed and shipped end to end by Vattitude: Hark Daily, Talelight, QAlprit, PebbleSum, Breather, Chess 4 Kids, Rungs, Evalu8 and PulseDesk. Try them live.',
+      'Live apps from Vattitude, from a daily news podcast and a pixel RPG to chess lessons for kids. Open any of them right now.',
     url: 'https://vattitude.ca/apps',
     image: 'https://vattitude.ca/apps-preview.jpg',
   },

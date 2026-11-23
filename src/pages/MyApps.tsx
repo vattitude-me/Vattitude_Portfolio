@@ -5,7 +5,7 @@ import { useSocialMeta } from '../hooks/useSocialMeta'
 import { trackEvent } from '../lib/analytics'
 
 /**
- * /apps - "Built, not pitched." A cinematic, ad-style showcase of the nine
+ * /apps - "Real apps. Go try one." A cinematic showcase of the
  * shipped apps. Ember particles trail the cursor (tinted by whichever app
  * is on screen), each app gets a full-bleed billboard with a live phone
  * mockup running the real app, and everything is magnetic, tilting and
@@ -30,9 +30,9 @@ const apps: App[] = [
   {
     id: 'harkdaily',
     name: 'Hark Daily',
-    tagline: 'The news you hear, not just read.',
+    tagline: "The day's news, read to you.",
     description:
-      'A concise daily audio briefing covering Canada, the United States, and India from CBC, NYT, NPR, The Hindu, and TechCrunch. Voiced by a duo-host neural podcast team (Matthew & Kelly) alongside solo narrator personas. No ads, zero doom-scrolling.',
+      'A short daily audio briefing for Canada, the US and India, drawn from CBC, NYT, NPR, The Hindu and TechCrunch. Two AI hosts, Matthew and Kelly, talk you through it like a podcast. No ads, no feed to scroll.',
     url: 'https://hark.vattitude.ca/',
     icon: '/apps/harkdaily-icon.png',
     screen: '/apps/screens/harkdaily.webp',
@@ -70,7 +70,7 @@ const apps: App[] = [
   {
     id: 'pebblesum',
     name: 'PebbleSum',
-    tagline: 'Small steps. Daily practice. Big math success.',
+    tagline: 'Ten minutes of math a day, with a pebble for a coach.',
     description:
       'Math practice kids actually open. A pebble buddy guides daily arithmetic, with streaks and rewards for showing up.',
     url: 'https://pebblesum.vattitude.ca',
@@ -85,7 +85,7 @@ const apps: App[] = [
     name: 'Breather',
     tagline: 'A daily breathing break that grows with you.',
     description:
-      'A two-minute breathing break. Name a plant, keep your streak, watch it grow. Free, no account, nothing leaves your device.',
+      'A two-minute breathing break with a plant that grows as your streak does. Free, no account, and nothing leaves your device.',
     url: 'https://breather.vattitude.ca',
     icon: '/apps/breather-icon.png',
     screen: '/apps/screens/breather.webp',
@@ -96,9 +96,9 @@ const apps: App[] = [
   {
     id: 'chess4kids',
     name: 'Chess 4 Kids',
-    tagline: 'Learn chess. Unlock your magic.',
+    tagline: 'Chess lessons kids ask for.',
     description:
-      'Chess lessons that feel like quests. Twelve lessons, 50+ puzzles, and AI opponents that adjust to your kid.',
+      'Chess lessons that play like quests, with 50+ puzzles and AI opponents that adjust to your kid.',
     url: 'https://chess4kids.vattitude.ca',
     icon: '/apps/chess4kids-icon.png',
     screen: '/apps/screens/chess4kids.webp',
@@ -109,7 +109,7 @@ const apps: App[] = [
   {
     id: 'rungs',
     name: 'Rungs',
-    tagline: 'Start at a hundred. Finish at three.',
+    tagline: 'A hundred reps a day, climbing to three hundred.',
     description:
       'Bodyweight training as a ladder. Push-ups, pull-ups, squats, scaled to your level, climbing from 100 to 300 reps a day.',
     url: 'https://rungs.vattitude.ca',
@@ -135,9 +135,9 @@ const apps: App[] = [
   {
     id: 'pulsedesk',
     name: 'PulseDesk',
-    tagline: 'Your workday, gently on track.',
+    tagline: 'Small breaks for long desk days.',
     description:
-      'Desktop reminders that keep long desk days feeling good: stand-and-stretch nudges, hydration pings, eye breaks, and your own custom alerts. Free, no account, nothing leaves your device.',
+      'Desktop reminders to stand, stretch, drink water and rest your eyes, plus any alerts you add yourself. Free, no account, and nothing leaves your device.',
     url: 'https://vattitude.ca/pulsedesk/',
     icon: '/apps/pulsedesk-icon.png',
     screen: '/apps/screens/pulsedesk.webp',
@@ -524,7 +524,7 @@ function Billboard({ app, index, flip, onActive, onQr }: {
 }
 
 /* ------------------------------------------------------------------ */
-/* QR overlay (kept from before)                                       */
+/* QR overlay                                                          */
 /* ------------------------------------------------------------------ */
 function QrOverlay({ app, onClose }: { app: App; onClose: () => void }) {
   useEffect(() => {
@@ -563,6 +563,55 @@ function QrOverlay({ app, onClose }: { app: App; onClose: () => void }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* HeroStack - a fan of real app screens that jump to their billboard  */
+/* ------------------------------------------------------------------ */
+const STACK: { id: string; x: number; y: number; r: number; z: number; scale: number }[] = [
+  { id: 'chess4kids', x: -150, y: 40, r: -14, z: 1, scale: 0.82 },
+  { id: 'harkdaily', x: -78, y: 14, r: -7, z: 2, scale: 0.9 },
+  { id: 'qalprit', x: 150, y: 40, r: 14, z: 1, scale: 0.82 },
+  { id: 'rungs', x: 78, y: 14, r: 7, z: 2, scale: 0.9 },
+  { id: 'talelight', x: 0, y: 0, r: 0, z: 3, scale: 1 },
+]
+
+function HeroStack() {
+  return (
+    <div className="relative h-[420px] sm:h-[520px] lg:h-[560px] scale-[0.72] sm:scale-90 lg:scale-100 origin-top" aria-label="App previews">
+      {STACK.map((c, i) => {
+        const app = apps.find((a) => a.id === c.id)
+        if (!app) return null
+        return (
+          <motion.a
+            key={c.id}
+            href={`#app-${app.id}`}
+            aria-label={app.name}
+            className="group absolute left-1/2 top-0 block w-[230px] -ml-[115px]"
+            style={{ zIndex: c.z }}
+            initial={{ opacity: 0, y: 120, rotate: 0, x: 0 }}
+            animate={{ opacity: 1, y: c.y, rotate: c.r, x: c.x, scale: c.scale }}
+            whileHover={{ y: c.y - 24, scale: c.scale * 1.04, zIndex: 10 }}
+            transition={{ type: 'spring', stiffness: 120, damping: 18, delay: 0.3 + i * 0.08 }}
+          >
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ repeat: Infinity, duration: 5 + i * 0.6, ease: 'easeInOut', delay: i * 0.4 }}
+              className="rounded-[34px] p-[8px] bg-[#141a26] ring-1 ring-white/15"
+              style={{ boxShadow: `0 30px 80px rgba(0,0,0,0.6), 0 0 50px ${rgb(app.accent, 0.25)}` }}
+            >
+              <div className="relative overflow-hidden rounded-[27px] aspect-[390/844]">
+                <img src={app.screen} alt="" className="absolute inset-0 w-full h-full object-cover object-top" loading="eager" />
+                <div className="absolute inset-x-0 bottom-0 p-3 pt-10 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-white text-sm font-bold">{app.name}</span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.a>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* Page                                                               */
 /* ------------------------------------------------------------------ */
 export default function MyApps() {
@@ -573,14 +622,12 @@ export default function MyApps() {
   const onActive = useCallback((a: [number, number, number]) => setAccent(a), [])
 
   useSocialMeta({
-    title: 'My Apps — Nine products shipped | Vattitude',
+    title: 'My apps: real, live and ready to try | Vattitude',
     description:
-      'Nine apps designed and shipped end to end by Vattitude: Hark Daily, Talelight, QAlprit, PebbleSum, Breather, Chess 4 Kids, Rungs, Evalu8 and PulseDesk. Try them live.',
+      `Live apps from Vattitude: ${apps.map((a) => a.name).join(', ')}. Open any of them right now.`,
     url: 'https://vattitude.ca/apps',
     image: 'https://vattitude.ca/apps-preview.jpg',
   })
-
-  const words = ['Built,', 'not', 'pitched.']
 
   return (
     <div className="relative min-h-screen bg-[#050810] text-slate-300 overflow-x-clip">
@@ -605,47 +652,68 @@ export default function MyApps() {
           </span>
         </motion.a>
 
-        <p className="text-sm font-bold tracking-[0.3em] text-cyan-400 uppercase mb-6">
-          <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>The app lab</motion.span>
-        </p>
-        <h1 className="font-extrabold tracking-tight leading-[0.9] text-[17vw] sm:text-[11vw] lg:text-[9rem] mb-8">
-          {words.map((w, i) => (
-            <span key={w} className="inline-block overflow-hidden pb-2 -mb-2 mr-[0.25em] last:mr-0">
-              <motion.span
-                className={`inline-block ${i === 2 ? 'bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-200 bg-clip-text text-transparent' : 'text-white'}`}
-                initial={{ y: '110%' }} animate={{ y: 0 }}
-                transition={{ delay: 0.15 + i * 0.12, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              >
-                {w}
-              </motion.span>
-            </span>
-          ))}
-        </h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.7 }}
-          className="text-slate-400 text-xl sm:text-2xl leading-relaxed max-w-2xl mb-10"
-        >
-          Nine products, live right now. Each one designed, coded and shipped by a single person.
-          No slides, no pitch decks. <span className="text-white font-semibold">They're the real thing, go poke one.</span>
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75, duration: 0.7 }}
-          className="flex flex-wrap gap-x-10 gap-y-4"
-        >
-          {[
-            ['9', 'apps live'],
-            ['1', 'builder'],
-            ['0', 'pitch decks'],
-          ].map(([n, label]) => (
-            <div key={label} className="flex items-baseline gap-2.5">
-              <span className="text-4xl sm:text-5xl font-extrabold text-white">{n}</span>
-              <span className="text-slate-500 font-medium">{label}</span>
-            </div>
-          ))}
-        </motion.div>
+        <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_1fr] lg:gap-6">
+          <div>
+            <p className="text-sm font-bold tracking-[0.3em] text-cyan-400 uppercase mb-6">
+              <motion.span initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>The app lab</motion.span>
+            </p>
+            <h1 className="font-extrabold tracking-tight leading-[0.95] text-[15vw] sm:text-[10vw] lg:text-[6.5rem] mb-8">
+              {[
+                { text: 'Real apps.', cls: 'text-white' },
+                { text: 'Go try one.', cls: 'bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-200 bg-clip-text text-transparent' },
+              ].map((line, i) => (
+                <span key={line.text} className="block overflow-hidden pb-3 -mb-3">
+                  <motion.span
+                    className={`inline-block ${line.cls}`}
+                    initial={{ y: '110%' }} animate={{ y: 0 }}
+                    transition={{ delay: 0.15 + i * 0.15, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    {line.text}
+                  </motion.span>
+                </span>
+              ))}
+            </h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.7 }}
+              className="text-slate-400 text-lg sm:text-xl leading-relaxed max-w-xl mb-10"
+            >
+              A news podcast, a pixel RPG, a mobile test recorder, chess lessons for kids and more.
+              One person designed and built all of them, and every one is live today.{' '}
+              <span className="text-white font-semibold">Pick one and open it.</span>
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75, duration: 0.7 }}
+              className="flex flex-wrap items-center gap-x-10 gap-y-6"
+            >
+              <Magnetic>
+                <a href={`#app-${apps[0].id}`}
+                  className="inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl font-bold text-[#050810] bg-gradient-to-r from-orange-400 to-amber-300 shadow-[0_12px_40px_rgba(251,146,60,0.35)] transition-transform hover:scale-[1.03]">
+                  See the apps
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14m0 0l-6-6m6 6l6-6" />
+                  </svg>
+                </a>
+              </Magnetic>
+              <div className="flex flex-wrap gap-x-8 gap-y-3">
+                {[
+                  [String(apps.length), 'live apps'],
+                  [String(apps.filter((a) => a.tags.includes('Kids')).length), 'made for kids'],
+                  ['1', 'builder'],
+                ].map(([n, label]) => (
+                  <div key={label} className="flex items-baseline gap-2">
+                    <span className="text-3xl sm:text-4xl font-extrabold text-white">{n}</span>
+                    <span className="text-slate-500 font-medium">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+
+          <HeroStack />
+        </div>
 
         <motion.div
-          className="mt-16 flex justify-center"
+          className="mt-16 hidden lg:flex justify-center"
           animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
         >
           <div className="w-6 h-10 rounded-full border-2 border-white/25 flex justify-center pt-2">
