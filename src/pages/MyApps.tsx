@@ -5,7 +5,7 @@ import { useSocialMeta } from '../hooks/useSocialMeta'
 import { trackEvent } from '../lib/analytics'
 
 /**
- * /apps - "Built, not pitched." A cinematic, ad-style showcase of the seven
+ * /apps - "Built, not pitched." A cinematic, ad-style showcase of the nine
  * shipped apps. Ember particles trail the cursor (tinted by whichever app
  * is on screen), each app gets a full-bleed billboard with a live phone
  * mockup running the real app, and everything is magnetic, tilting and
@@ -38,6 +38,32 @@ const apps: App[] = [
     accent: [245, 158, 11],
     gradient: 'from-amber-300 via-orange-400 to-rose-400',
     tags: ['AI Podcast', 'News Briefing', 'Web & Android'],
+  },
+  {
+    id: 'talelight',
+    name: 'Talelight',
+    tagline: 'The stars are going out. Go light them.',
+    description:
+      'A cozy pixel story RPG. You play a small lantern-keeper relighting lost stars, and your choices shape friendships, romance and the story itself. Free in the browser, no install.',
+    url: 'https://talelight.vattitude.ca/play',
+    icon: '/apps/talelight-icon.png',
+    preview: null,
+    accent: [251, 191, 36],
+    gradient: 'from-yellow-200 via-amber-300 to-violet-300',
+    tags: ['Game', 'Pixel RPG', 'Browser'],
+  },
+  {
+    id: 'qalprit',
+    name: 'QAlprit',
+    tagline: 'Click through your app once. Test it forever.',
+    description:
+      'Mobile QA without scripts. Click through your app on a live Android emulator or iOS simulator, and the journey becomes a replayable Appium test with a screenshot per step and every secret blacked out. Free and open source.',
+    url: 'https://qalprit.vattitude.ca/',
+    icon: '/apps/qalprit-icon.png',
+    preview: null,
+    accent: [45, 212, 191],
+    gradient: 'from-teal-300 via-emerald-300 to-cyan-300',
+    tags: ['Dev Tools', 'Mobile QA', 'Open Source'],
   },
   {
     id: 'pebblesum',
@@ -535,9 +561,9 @@ export default function MyApps() {
   const onActive = useCallback((a: [number, number, number]) => setAccent(a), [])
 
   useSocialMeta({
-    title: 'My Apps — Seven products shipped | Vattitude',
+    title: 'My Apps — Nine products shipped | Vattitude',
     description:
-      'Seven apps designed and shipped end to end by Vattitude: Hark Daily, PebbleSum, Breather, Chess 4 Kids, Rungs, Evalu8 and PulseDesk. Try them live.',
+      'Nine apps designed and shipped end to end by Vattitude: Hark Daily, Talelight, QAlprit, PebbleSum, Breather, Chess 4 Kids, Rungs, Evalu8 and PulseDesk. Try them live.',
     url: 'https://vattitude.ca/apps',
     image: 'https://vattitude.ca/apps-preview.jpg',
   })
@@ -587,7 +613,7 @@ export default function MyApps() {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.7 }}
           className="text-slate-400 text-xl sm:text-2xl leading-relaxed max-w-2xl mb-10"
         >
-          Seven products, live right now. Each one designed, coded and shipped by a single person.
+          Nine products, live right now. Each one designed, coded and shipped by a single person.
           No slides, no pitch decks. <span className="text-white font-semibold">They're the real thing, go poke one.</span>
         </motion.p>
         <motion.div
@@ -595,7 +621,7 @@ export default function MyApps() {
           className="flex flex-wrap gap-x-10 gap-y-4"
         >
           {[
-            ['7', 'apps live'],
+            ['9', 'apps live'],
             ['1', 'builder'],
             ['0', 'pitch decks'],
           ].map(([n, label]) => (

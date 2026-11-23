@@ -5,7 +5,7 @@ Vatsa's portfolio site, built with React, TypeScript, and Vite.
 ## Pages
 
 - `/` — main portfolio (hero, about, services, portfolio, contact)
-- `/apps` — cinematic showcase of 7 shipped apps (Hark Daily, PebbleSum, Breather, Chess 4 Kids, Rungs, Evalu8, PulseDesk)
+- `/apps` — cinematic showcase of 9 shipped apps (Hark Daily, Talelight, QAlprit, PebbleSum, Breather, Chess 4 Kids, Rungs, Evalu8, PulseDesk)
 - `/art-timeline` — interactive scroll-driven Art History Timeline (see [docs/art-history-timeline-plan.md](docs/art-history-timeline-plan.md))
 - `/art-timeline/:eraId` — deep-dive view for a single art era
 - `/travel-timeline` — interactive travelogue in newsprint broadsheet style
