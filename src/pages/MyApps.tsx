@@ -19,7 +19,8 @@ interface App {
   description: string
   url: string
   icon: string
-  preview: string | null
+  screen: string // static phone screenshot, same for every visitor
+  live?: boolean // false if the app refuses to load in an iframe
   accent: [number, number, number] // rgb for canvas + glows
   gradient: string // tailwind gradient stops for text
   tags: string[]
@@ -34,7 +35,8 @@ const apps: App[] = [
       'A concise daily audio briefing covering Canada, the United States, and India from CBC, NYT, NPR, The Hindu, and TechCrunch. Voiced by a duo-host neural podcast team (Matthew & Kelly) alongside solo narrator personas. No ads, zero doom-scrolling.',
     url: 'https://hark.vattitude.ca/',
     icon: '/apps/harkdaily-icon.png',
-    preview: '/projects/harkdaily-phone.webp',
+    screen: '/apps/screens/harkdaily.webp',
+    live: false, // hark.vattitude.ca sends X-Frame-Options: DENY
     accent: [245, 158, 11],
     gradient: 'from-amber-300 via-orange-400 to-rose-400',
     tags: ['AI Podcast', 'News Briefing', 'Web & Android'],
@@ -47,7 +49,7 @@ const apps: App[] = [
       'A cozy pixel story RPG. You play a small lantern-keeper relighting lost stars, and your choices shape friendships, romance and the story itself. Free in the browser, no install.',
     url: 'https://talelight.vattitude.ca/play',
     icon: '/apps/talelight-icon.png',
-    preview: null,
+    screen: '/apps/screens/talelight.webp',
     accent: [251, 191, 36],
     gradient: 'from-yellow-200 via-amber-300 to-violet-300',
     tags: ['Game', 'Pixel RPG', 'Browser'],
@@ -60,7 +62,7 @@ const apps: App[] = [
       'Mobile QA without scripts. Click through your app on a live Android emulator or iOS simulator, and the journey becomes a replayable Appium test with a screenshot per step and every secret blacked out. Free and open source.',
     url: 'https://qalprit.vattitude.ca/',
     icon: '/apps/qalprit-icon.png',
-    preview: null,
+    screen: '/apps/screens/qalprit.webp',
     accent: [45, 212, 191],
     gradient: 'from-teal-300 via-emerald-300 to-cyan-300',
     tags: ['Dev Tools', 'Mobile QA', 'Open Source'],
@@ -73,7 +75,7 @@ const apps: App[] = [
       'Math practice kids actually open. A pebble buddy guides daily arithmetic, with streaks and rewards for showing up.',
     url: 'https://pebblesum.vattitude.ca',
     icon: '/apps/pebblesum-icon.webp',
-    preview: '/projects/pebblesum.webp',
+    screen: '/apps/screens/pebblesum.webp',
     accent: [163, 230, 53],
     gradient: 'from-amber-300 via-lime-300 to-teal-300',
     tags: ['Kids', 'Math', 'React'],
@@ -86,7 +88,7 @@ const apps: App[] = [
       'A two-minute breathing break. Name a plant, keep your streak, watch it grow. Free, no account, nothing leaves your device.',
     url: 'https://breather.vattitude.ca',
     icon: '/apps/breather-icon.png',
-    preview: '/projects/breather.webp',
+    screen: '/apps/screens/breather.webp',
     accent: [45, 212, 191],
     gradient: 'from-teal-300 via-cyan-300 to-lime-300',
     tags: ['Wellness', 'PWA', 'Works Offline'],
@@ -99,7 +101,7 @@ const apps: App[] = [
       'Chess lessons that feel like quests. Twelve lessons, 50+ puzzles, and AI opponents that adjust to your kid.',
     url: 'https://chess4kids.vattitude.ca',
     icon: '/apps/chess4kids-icon.png',
-    preview: '/projects/chess4kids.webp',
+    screen: '/apps/screens/chess4kids.webp',
     accent: [250, 204, 21],
     gradient: 'from-yellow-200 via-amber-300 to-orange-400',
     tags: ['Kids', 'Chess', 'AI Opponents'],
@@ -112,7 +114,7 @@ const apps: App[] = [
       'Bodyweight training as a ladder. Push-ups, pull-ups, squats, scaled to your level, climbing from 100 to 300 reps a day.',
     url: 'https://rungs.vattitude.ca',
     icon: '/apps/rungs-icon.png',
-    preview: '/projects/rungs.webp',
+    screen: '/apps/screens/rungs.webp',
     accent: [251, 146, 60],
     gradient: 'from-orange-300 via-amber-400 to-red-400',
     tags: ['Fitness', 'PWA', 'No Equipment'],
@@ -125,7 +127,7 @@ const apps: App[] = [
       'Robot puzzles that teach kids 6-9 how programmers think: plan it, test it, fix it. Parents get a dashboard.',
     url: 'https://evalu8.vattitude.ca/',
     icon: '/apps/evalu8-icon.png',
-    preview: null,
+    screen: '/apps/screens/evalu8.webp',
     accent: [251, 146, 60],
     gradient: 'from-orange-400 via-amber-300 to-teal-300',
     tags: ['Kids', 'Coding', 'Next.js'],
@@ -138,7 +140,7 @@ const apps: App[] = [
       'Desktop reminders that keep long desk days feeling good: stand-and-stretch nudges, hydration pings, eye breaks, and your own custom alerts. Free, no account, nothing leaves your device.',
     url: 'https://vattitude.ca/pulsedesk/',
     icon: '/apps/pulsedesk-icon.png',
-    preview: null,
+    screen: '/apps/screens/pulsedesk.webp',
     accent: [224, 115, 95],
     gradient: 'from-orange-300 via-red-300 to-rose-300',
     tags: ['Wellness', 'PWA', 'Reminders'],
@@ -283,7 +285,7 @@ function EmberTrail({ accent }: { accent: [number, number, number] }) {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-40"
+      className="pointer-events-none fixed inset-0 z-40 w-full h-full"
     />
   )
 }
@@ -326,6 +328,7 @@ function Phone({ app, eager }: { app: App; eager: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 })
   const [loaded, setLoaded] = useState(false)
+  const [live, setLive] = useState(false)
   const [boxW, setBoxW] = useState(0)
   const boxRef = useRef<HTMLDivElement>(null)
 
@@ -365,41 +368,50 @@ function Phone({ app, eager }: { app: App; eager: boolean }) {
           {/* notch */}
           <div className="absolute top-[22px] left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-10" />
           <div className="relative overflow-hidden rounded-[28px] bg-[#0a0f1a]" style={{ width: fw, height: PHONE.height * scale }}>
-            {/* poster while the live app loads */}
-            {!loaded && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center"
-                style={{ background: `radial-gradient(120% 100% at 50% 0%, ${rgb(app.accent, 0.35)}, #0a0f1a 70%)` }}>
-                {app.preview ? (
-                  <img src={app.preview} alt="" className="absolute inset-0 w-full h-full object-cover object-top opacity-70" />
-                ) : (
-                  <>
-                    <img src={app.icon} alt="" className="w-20 h-20 rounded-[26%] shadow-2xl" />
-                    <p className="text-white/80 font-semibold">{app.name}</p>
-                  </>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1a] via-transparent to-transparent" />
-                <div className="absolute bottom-6 flex gap-1.5">
-                  {[0, 1, 2].map((i) => (
-                    <motion.span key={i} className="w-1.5 h-1.5 rounded-full bg-white/70"
-                      animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.2 }} />
-                  ))}
-                </div>
-              </div>
+            {/* static screenshot: every visitor sees the same screen until they opt in to the live app */}
+            {!(live && loaded) && (
+              <img
+                src={app.screen}
+                alt={`${app.name} on a phone`}
+                loading={eager ? 'eager' : 'lazy'}
+                className="absolute inset-0 w-full h-full object-cover object-top"
+              />
             )}
-            {boxW > 0 && (
+            {live && (
               <iframe
                 src={app.url}
-                title={`${app.name} live`}
-                loading={eager ? 'eager' : 'lazy'}
-                tabIndex={-1}
-                aria-hidden="true"
-                sandbox="allow-scripts allow-same-origin"
+                title={`${app.name}, live`}
+                sandbox="allow-scripts allow-same-origin allow-forms"
                 onLoad={() => setLoaded(true)}
                 className="absolute top-0 left-0 border-0 origin-top-left bg-white"
                 style={{ width: PHONE.width, height: PHONE.height, transform: `scale(${scale})`, opacity: loaded ? 1 : 0 }}
               />
             )}
+            {live && !loaded && (
+              <div className="absolute inset-x-0 bottom-6 flex justify-center gap-1.5">
+                {[0, 1, 2].map((i) => (
+                  <motion.span key={i} className="w-1.5 h-1.5 rounded-full bg-white/80"
+                    animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.2 }} />
+                ))}
+              </div>
+            )}
           </div>
+        </div>
+        <div className="mt-6 flex justify-center">
+          {app.live !== false && (
+            <button
+              type="button"
+              data-analytics={live ? `exit_live_${app.id}` : `try_live_${app.id}`}
+              onClick={() => {
+                if (!live) trackEvent('try_app_live', { app_name: app.name })
+                setLoaded(false)
+                setLive(!live)
+              }}
+              className="px-4 py-2 rounded-full text-sm font-semibold text-white bg-white/10 ring-1 ring-white/20 hover:bg-white/20 transition-colors cursor-pointer"
+            >
+              {live ? 'Back to preview' : 'Try it live'}
+            </button>
+          )}
         </div>
         {/* floating icon chip */}
         <motion.img
